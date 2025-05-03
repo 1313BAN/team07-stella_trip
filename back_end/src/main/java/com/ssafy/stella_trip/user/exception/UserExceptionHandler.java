@@ -15,33 +15,37 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 @Slf4j
 public class UserExceptionHandler {
-
+    // 인증정보가 틀렸을 때
     @ExceptionHandler(BadCredentialsException.class)
     public CommonResponse<ErrorBody> invalidUserException(BadCredentialsException e, HttpServletRequest request) {
         log.warn("USER-001> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
         return new CommonResponse<>(new ErrorBody("USER-001", "잘못된 사용자입니다."), HttpStatus.UNAUTHORIZED);
     }
 
+    // 해당 이메일의 계정이 없음
     @ExceptionHandler(UsernameNotFoundException.class)
-    public CommonResponse<ErrorBody> invalidUserException(UsernameNotFoundException e, HttpServletRequest request) {
+    public CommonResponse<ErrorBody> userNameNotFoundException(UsernameNotFoundException e, HttpServletRequest request) {
         log.warn("USER-002> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
         return new CommonResponse<>(new ErrorBody("USER-002", "잘못된 사용자입니다."), HttpStatus.UNAUTHORIZED);
     }
 
+    // 중복 이메일로 회원가입시
     @ExceptionHandler(DuplicateKeyException.class)
-    public CommonResponse<ErrorBody> invalidUserException(DuplicateKeyException e, HttpServletRequest request) {
+    public CommonResponse<ErrorBody> duplicateKeyException(DuplicateKeyException e, HttpServletRequest request) {
         log.warn("USER-003> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
         return new CommonResponse<>(new ErrorBody("USER-003", "중복된 이메일이 있습니다."), HttpStatus.BAD_REQUEST);
     }
 
+    // 회원가입 실패
     @ExceptionHandler(SignupFailureException.class)
-    public CommonResponse<ErrorBody> invalidUserException(SignupFailureException e, HttpServletRequest request) {
+    public CommonResponse<ErrorBody> signupFailureException(SignupFailureException e, HttpServletRequest request) {
         log.warn("USER-004> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
         return new CommonResponse<>(new ErrorBody("USER-004", "회원가입에 실패하였습니다."), HttpStatus.BAD_REQUEST);
     }
 
+    // 보통 비번 틀릴때 exception
     @ExceptionHandler(InternalAuthenticationServiceException.class)
-    public CommonResponse<ErrorBody> invalidUserException(InternalAuthenticationServiceException e, HttpServletRequest request) {
+    public CommonResponse<ErrorBody> internalAuthenticationServiceException(InternalAuthenticationServiceException e, HttpServletRequest request) {
         log.warn("USER-005> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
         return new CommonResponse<>(new ErrorBody("USER-005", "로그인에 실패하였습니다."), HttpStatus.BAD_REQUEST);
     }

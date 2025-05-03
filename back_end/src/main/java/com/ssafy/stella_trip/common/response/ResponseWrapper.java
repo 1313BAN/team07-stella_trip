@@ -3,6 +3,11 @@ package com.ssafy.stella_trip.common.response;
 import lombok.Getter;
 import lombok.Setter;
 
+
+/**
+ * 공통형식 응답 클래스
+ * @param <T> 추가할 세부 body
+ */
 @Getter
 @Setter
 public class ResponseWrapper<T> {

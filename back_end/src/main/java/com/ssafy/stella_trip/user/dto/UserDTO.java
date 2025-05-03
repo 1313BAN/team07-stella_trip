@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * UserDAO에서 user 정보를 가져오기 위한 DTO <p/>
+ */
 @Data
 @Builder
 public class UserDTO {

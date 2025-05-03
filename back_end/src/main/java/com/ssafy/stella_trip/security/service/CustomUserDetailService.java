@@ -10,11 +10,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+/**
+ * CustomUserDetails를 반아오기 위한 Service
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class CustomUserDetailService implements UserDetailsService {
-
+    // UserDAO에서 사용자 가져오기
     private final UserDAO userDAO;
 
     @Override
@@ -22,7 +25,7 @@ public class CustomUserDetailService implements UserDetailsService {
         UserDTO user = userDAO.getUserByEmail(email);
         log.info(user.toString());
         if(user == null) {
-            throw new UsernameNotFoundException(email+ " not found");
+            throw new UsernameNotFoundException(email+ " not found"); // 사용자가 없으면 exception 띄우기
         }
         return new CustomUserDetails(user);
     }

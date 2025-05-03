@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Spring Security용 CustomUserDetails
+ */
 @Data
 public class CustomUserDetails implements UserDetails {
 
@@ -21,7 +24,6 @@ public class CustomUserDetails implements UserDetails {
     public CustomUserDetails(UserDTO user) {
         this.user = user;
     }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
