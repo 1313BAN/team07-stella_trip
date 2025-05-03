@@ -55,8 +55,8 @@ class UserServiceTest {
         LoginResponseDTO response = userService.login(email, rawPassword);
 
         // then
-        Assertions.assertEquals(1, response.getUserId());
-        Assertions.assertEquals("testUser", response.getUsername());
+        Assertions.assertEquals(1, response.getId());
+        Assertions.assertEquals("testUser", response.getName());
     }
 
     @Test

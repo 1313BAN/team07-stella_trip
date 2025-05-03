@@ -5,6 +5,6 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface UserDAO {
-
     UserDTO getUserByEmail(String email);
+    int insertUser(UserDTO user);
 }

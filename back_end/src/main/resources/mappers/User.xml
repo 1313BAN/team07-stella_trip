@@ -19,4 +19,9 @@
         select * from user where email = #{email}
     </select>
 
+    <insert id="insertUser" useGeneratedKeys="true" keyProperty="userId">
+        insert into user(name, email, role, password)
+        values( #{name}, #{email}, #{role}, #{password})
+    </insert>
+
 </mapper>

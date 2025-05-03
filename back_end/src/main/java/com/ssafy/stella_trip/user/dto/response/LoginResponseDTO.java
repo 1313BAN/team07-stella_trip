@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class LoginResponseDTO {
-    private int userId;
-    private String username;
+    private int Id;
+    private String name;
+    private String email;
 }
