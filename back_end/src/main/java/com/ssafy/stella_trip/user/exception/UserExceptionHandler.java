@@ -31,7 +31,7 @@ public class UserExceptionHandler {
     @ExceptionHandler(DuplicateKeyException.class)
     public CommonResponse<ErrorBody> invalidUserException(DuplicateKeyException e, HttpServletRequest request) {
         log.warn("USER-003> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
-        return new CommonResponse<>(new ErrorBody("USER-003", "중복된 회원이 있습니다."), HttpStatus.BAD_REQUEST);
+        return new CommonResponse<>(new ErrorBody("USER-003", "중복된 이메일이 있습니다."), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(SignupFailureException.class)
@@ -43,6 +43,6 @@ public class UserExceptionHandler {
     @ExceptionHandler(InternalAuthenticationServiceException.class)
     public CommonResponse<ErrorBody> invalidUserException(InternalAuthenticationServiceException e, HttpServletRequest request) {
         log.warn("USER-005> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
-        return new CommonResponse<>(new ErrorBody("USER-005", "로그인에 실패하였습니다.."), HttpStatus.BAD_REQUEST);
+        return new CommonResponse<>(new ErrorBody("USER-005", "로그인에 실패하였습니다."), HttpStatus.BAD_REQUEST);
     }
 }
