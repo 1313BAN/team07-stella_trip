@@ -13,6 +13,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 
 import static org.mockito.Mockito.*;
 
@@ -60,7 +61,7 @@ class UserServiceTest {
 
     @Test
     void peTest() {
-        String encodedPassword = new BCryptPasswordEncoder().encode("1234");
+        String encodedPassword = PasswordEncoderFactories.createDelegatingPasswordEncoder().encode("1234");
         System.out.println(encodedPassword);
     }
 }
