@@ -27,7 +27,7 @@ public class SecurityConfig {
     @Bean
     public RoleHierarchy roleHierarchy() {
         return RoleHierarchyImpl.withDefaultRolePrefix() // role의 기본 prefix 설정: ROLE_
-                .role("ADMIN").implies("USER").role("USER").implies("GUEST").build();
+                .role("ADMIN").implies("USER").build();
     }
 
     /**
