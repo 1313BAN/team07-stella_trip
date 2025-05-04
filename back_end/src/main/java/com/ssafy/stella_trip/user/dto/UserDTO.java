@@ -13,13 +13,13 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class UserDTO {
-    int userId;
-    String name;
-    String email;
-    UserRole role;
-    String password;
-    String description;
-    String image;
+    private int userId;
+    private String name;
+    private String email;
+    private UserRole role;
+    private String password;
+    private String description;
+    private String image;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 }
