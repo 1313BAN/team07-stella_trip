@@ -1,17 +1,11 @@
 package com.ssafy.stella_trip.user.dto.response;
 
-
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
-public class LoginResponseDTO {
-    private int id;
-    private String name;
-    private String email;
+public class TokenRefreshResponseDTO {
     private String accessToken;
     private String refreshToken;
 }
