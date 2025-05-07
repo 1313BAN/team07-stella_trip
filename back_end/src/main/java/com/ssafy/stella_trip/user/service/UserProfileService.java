@@ -1,6 +1,5 @@
 package com.ssafy.stella_trip.user.service;
 
-import ch.qos.logback.classic.encoder.JsonEncoder;
 import com.ssafy.stella_trip.dao.user.UserProfileDAO;
 import com.ssafy.stella_trip.user.dto.UserProfileDTO;
 import com.ssafy.stella_trip.user.dto.request.MyProfileUpdateRequestDTO;
