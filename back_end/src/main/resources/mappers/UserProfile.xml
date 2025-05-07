@@ -10,7 +10,7 @@
     </resultMap>
 
     <!-- 특정 사용자 ID로 프로필 정보 조회 -->
-    <select id="getUserProfileByUserId" resultMap="UserProfileMap">
+    <select id="getUserProfile" resultMap="UserProfileMap">
         select
         u.*,
         (select count(*) from follower f where f.user_id = u.user_id) as follower_count,
