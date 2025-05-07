@@ -20,7 +20,7 @@ public class UserProfileController {
     private final UserProfileService userProfileService;
 
     //자신의 프로필 조회
-    @GetMapping
+    @GetMapping("/profile")
     public CommonResponse<MyProfileResponseDTO> getMyProfile() {
         return new CommonResponse<>(userProfileService.getMyProfile(), HttpStatus.OK);
     }
