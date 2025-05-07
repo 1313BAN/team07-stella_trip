@@ -1,8 +1,7 @@
 package com.ssafy.stella_trip.user.service;
 
-import com.ssafy.stella_trip.dao.UserDAO;
+import com.ssafy.stella_trip.dao.user.UserDAO;
 import com.ssafy.stella_trip.security.dto.CustomUserDetails;
-import com.ssafy.stella_trip.user.annotation.PasswordEncoded;
 import com.ssafy.stella_trip.user.dto.UserDTO;
 import com.ssafy.stella_trip.user.dto.UserRole;
 import com.ssafy.stella_trip.user.dto.response.LoginResponseDTO;
@@ -11,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
