@@ -1,6 +1,7 @@
 package com.ssafy.stella_trip.user.service;
 
 import com.ssafy.stella_trip.dao.user.UserProfileDAO;
+import com.ssafy.stella_trip.user.dto.UserProfileDTO;
 import com.ssafy.stella_trip.user.dto.request.MyProfileUpdateRequestDTO;
 import com.ssafy.stella_trip.user.dto.response.MyProfileResponseDTO;
 import com.ssafy.stella_trip.user.dto.response.UserProfileResponseDTO;
@@ -25,13 +26,21 @@ public class UserProfileService {
      * @throws ProfileNotFoundException 프로필을 찾을 수 없는 경우
      */
     public UserProfileResponseDTO getUserProfile(int userId) {
-        UserProfileResponseDTO profile = userProfileDAO.getUserProfileByUserId(userId);
+        UserProfileDTO profile = userProfileDAO.getUserProfile(userId);
 
         if (profile == null) {
             throw new ProfileNotFoundException("사용자 ID " + userId + "에 해당하는 프로필을 찾을 수 없습니다.");
         }
 
-        return profile;
+        UserProfileResponseDTO userProfileResponseDTO = UserProfileResponseDTO.builder()
+                .name(profile.getName())
+                .description(profile.getDescription())
+                .image(profile.getImage())
+                .followerCount(profile.getFollowerCount())
+                .followingCount(profile.getFollowingCount())
+                .build();
+
+        return userProfileResponseDTO;
     }
 
     /**
@@ -41,13 +50,22 @@ public class UserProfileService {
      */
     public MyProfileResponseDTO getMyProfile() {
         int userId = 0; //TODO: 자신의 userId 획득
-        MyProfileResponseDTO profile = userProfileDAO.getMyProfileByUserId(userId);
+        UserProfileDTO profile = userProfileDAO.getUserProfile(userId);
 
         if (profile == null) {
             throw new ProfileNotFoundException("자신의 프로필을 찾을 수 없습니다.");
         }
 
-        return profile;
+        MyProfileResponseDTO myProfileResponseDTO = MyProfileResponseDTO.builder()
+                .name(profile.getName())
+                .email(profile.getEmail())
+                .description(profile.getDescription())
+                .image(profile.getImage())
+                .followerCount(profile.getFollowerCount())
+                .followingCount(profile.getFollowingCount())
+                .build();
+
+        return myProfileResponseDTO;
     }
 
     /**
@@ -67,12 +85,21 @@ public class UserProfileService {
         }
 
         // 업데이트된 프로필 조회
-        MyProfileResponseDTO updatedProfile = userProfileDAO.getMyProfileByUserId(userId);
-        if (updatedProfile == null) {
+        UserProfileDTO profile = userProfileDAO.getUserProfile(userId);
+        if (profile == null) {
             throw new ProfileNotFoundException("업데이트된 프로필을 찾을 수 없습니다.");
         }
 
-        return updatedProfile;
+        MyProfileResponseDTO myProfileResponseDTO = MyProfileResponseDTO.builder()
+                .name(profile.getName())
+                .email(profile.getEmail())
+                .description(profile.getDescription())
+                .image(profile.getImage())
+                .followerCount(profile.getFollowerCount())
+                .followingCount(profile.getFollowingCount())
+                .build();
+
+        return myProfileResponseDTO;
     }
 
     /**

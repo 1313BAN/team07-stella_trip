@@ -1,9 +1,7 @@
 package com.ssafy.stella_trip.user.dto;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +9,8 @@ import java.time.LocalDateTime;
  * UserDAO에서 user 정보를 가져오기 위한 DTO <p/>
  */
 @Data
-@Builder
+@SuperBuilder
+@AllArgsConstructor
 public class UserDTO {
     private int userId;
     private String name;
