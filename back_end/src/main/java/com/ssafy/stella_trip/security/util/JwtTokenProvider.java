@@ -16,21 +16,23 @@ import java.util.List;
 @Component
 public class JwtTokenProvider {
 
-    @Value("${jwt.secret}")
-    private String secret;
-    @Value("${jwt.access-token.expiration}")
-    private int accessExpirationTime;
-    @Value("${jwt.refresh-token.expiration}")
-    private int refreshExpirationTime;
+    private final String secret;
+    private final int accessExpirationTime;
+    private final int refreshExpirationTime;
     private final SecretKey key;
 
-    // key 설정
-    public JwtTokenProvider() throws NoSuchAlgorithmException {
+    public JwtTokenProvider(
+            @Value("${jwt.secret}") String secret,
+            @Value("${jwt.access-token.expiration}") int accessExpirationTime,
+            @Value("${jwt.refresh-token.expiration}") int refreshExpirationTime
+    ) throws NoSuchAlgorithmException {
+        this.secret = secret;
+        this.accessExpirationTime = accessExpirationTime;
+        this.refreshExpirationTime = refreshExpirationTime;
         // 해싱으로 32바이트 고정
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] hashBytes = digest.digest(secret.getBytes(StandardCharsets.UTF_8));
-        this.key = Keys.hmacShaKeyFor(hashBytes);
-    }
+        this.key = Keys.hmacShaKeyFor(hashBytes);    }
 
     private JwtParser getJwtParser() {
         return Jwts.parser()
