@@ -12,6 +12,6 @@ public class MyProfileResponseDTO {
     private String email;
     private String description;
     private String image;
-    private int follower_count;
-    private int following_count;
+    private int followerCount;
+    private int followingCount;
 }
