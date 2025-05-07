@@ -25,7 +25,7 @@ public class JwtTokenProvider {
     private final SecretKey key;
 
     // key 설정
-    private JwtTokenProvider(@Value("${jwt.secret}") String secret) throws NoSuchAlgorithmException {
+    public JwtTokenProvider() throws NoSuchAlgorithmException {
         // 해싱으로 32바이트 고정
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] hashBytes = digest.digest(secret.getBytes(StandardCharsets.UTF_8));
