@@ -1,5 +1,7 @@
 package com.ssafy.stella_trip.security.config;
 
+import com.ssafy.stella_trip.security.filter.JwtAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -8,9 +10,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
 /**
@@ -18,7 +22,10 @@ import org.springframework.security.web.SecurityFilterChain;
  */
 @EnableWebSecurity
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtFilter;
 
     /**
      * 계층적 role을 등록하기 위한 bean
@@ -64,16 +71,20 @@ public class SecurityConfig {
         http.formLogin(customizer -> customizer.disable());
         // 이후 JWT로 바꿀꺼니 Authorization 헤더 비활성화
         http.httpBasic(customizer -> customizer.disable());
+        // session 안쓰기
+        http.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // 일단 전체 url에 대해 허용
         http.authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/test/**").authenticated()
                 .anyRequest().permitAll()
         );
+
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         // 로그아웃은 filter단에서 처리되게끔
         http.logout(customizer -> customizer.logoutUrl("/user/logout")
                 .invalidateHttpSession(true).logoutSuccessUrl("/")
-                .deleteCookies("JSESSIONID", "loginId")
+                .deleteCookies("JSESSIONID", "loginId", "Authorization")
         );
         return http.build();
     }

@@ -2,15 +2,20 @@ package com.ssafy.stella_trip.user.service;
 
 import com.ssafy.stella_trip.dao.user.UserDAO;
 import com.ssafy.stella_trip.security.dto.CustomUserDetails;
+import com.ssafy.stella_trip.security.exception.InvalidTokenException;
+import com.ssafy.stella_trip.security.util.JwtTokenProvider;
+import com.ssafy.stella_trip.user.annotation.PasswordEncoded;
 import com.ssafy.stella_trip.user.dto.UserDTO;
 import com.ssafy.stella_trip.user.dto.UserRole;
 import com.ssafy.stella_trip.user.dto.response.LoginResponseDTO;
+import com.ssafy.stella_trip.user.dto.response.TokenRefreshResponseDTO;
 import com.ssafy.stella_trip.user.exception.SignupFailureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +27,7 @@ public class UserService {
     private final AuthenticationManager authenticator;
     private final PasswordEncoder passwordEncoder;
     private final UserDAO userDAO;
+    private final JwtTokenProvider jwtTokenProvider;
 
     /**
      * 로그인 service
@@ -35,8 +41,10 @@ public class UserService {
         //인증 후 user 정보 가져오기
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal(); 
         UserDTO user = userDetails.getUser();
+        String accessToken = "Bearer " + jwtTokenProvider.generateAccessToken(user.getUserId(), userDetails.getUsername(), user.getRole());
+        String refreshToken = "Bearer " + jwtTokenProvider.generateRefreshToken(userDetails.getUsername());
         log.info(user.toString());
-        return new LoginResponseDTO(user.getUserId(), user.getName(), user.getEmail());
+        return new LoginResponseDTO(user.getUserId(), user.getName(), user.getEmail(), accessToken, refreshToken);
     }
 
     /**
@@ -59,5 +67,23 @@ public class UserService {
         if(res > 0)
             return user;
         else throw new SignupFailureException("회원가입에 실패하였습니다.");
+    }
+
+    /**
+     * token refresh 메서드
+     * @param refreshToken refresh token
+     * @return access token과 refresh token
+     */
+    public TokenRefreshResponseDTO refreshToken(String refreshToken) {
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            throw new InvalidTokenException("만료되었거나 위조된 refresh 토큰입니다.");
+        }
+
+        // TODO: 나중에 redis를 이용하여 저장하기
+        String email = jwtTokenProvider.getEmailFromToken(refreshToken);
+        UserDTO user = userDAO.getUserByEmail(email);
+        String accessToken = "Bearer " + jwtTokenProvider.generateAccessToken(user.getUserId(), email, user.getRole());
+        String refreshTokenRefresh = "Bearer " + jwtTokenProvider.generateRefreshToken(email);
+        return new TokenRefreshResponseDTO(accessToken, refreshTokenRefresh);
     }
 }

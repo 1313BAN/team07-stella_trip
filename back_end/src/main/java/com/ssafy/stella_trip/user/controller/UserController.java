@@ -4,7 +4,9 @@ import com.ssafy.stella_trip.common.response.CommonResponse;
 import com.ssafy.stella_trip.user.dto.UserDTO;
 import com.ssafy.stella_trip.user.dto.request.LoginRequestDTO;
 import com.ssafy.stella_trip.user.dto.request.SignupRequestDTO;
+import com.ssafy.stella_trip.user.dto.request.TokenRefreshRequestDTO;
 import com.ssafy.stella_trip.user.dto.response.LoginResponseDTO;
+import com.ssafy.stella_trip.user.dto.response.TokenRefreshResponseDTO;
 import com.ssafy.stella_trip.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -58,6 +60,19 @@ public class UserController {
                 .build();
     }
 
+    @PostMapping("/refresh")
+    @Operation(
+            summary = "access token 발급용 api",
+            description = ""
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "access token 발급됨")
+    })
+    public CommonResponse<TokenRefreshResponseDTO> refresh(@RequestBody TokenRefreshRequestDTO tokenRefreshRequestDTO) {
+        String refreshToken = tokenRefreshRequestDTO.getRefreshToken();
+        return new CommonResponse<TokenRefreshResponseDTO>(userService.refreshToken(refreshToken), HttpStatus.CREATED);
+    }
+
     @PostMapping("/logout")
     @Operation(
             summary = "로그아웃 처리 API",
@@ -69,5 +84,4 @@ public class UserController {
     public CommonResponse<?> logoutDoc() {
         return CommonResponse.builder().status(HttpStatus.FOUND).build(); // 실제로는 아무 동작 안 함
     }
-
 }
