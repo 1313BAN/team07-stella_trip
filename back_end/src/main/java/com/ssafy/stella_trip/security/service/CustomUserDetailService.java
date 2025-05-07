@@ -1,6 +1,6 @@
 package com.ssafy.stella_trip.security.service;
 
-import com.ssafy.stella_trip.dao.user.UserDAO;
+import com.ssafy.stella_trip.dao.UserDAO;
 import com.ssafy.stella_trip.security.dto.CustomUserDetails;
 import com.ssafy.stella_trip.user.dto.UserDTO;
 import lombok.RequiredArgsConstructor;

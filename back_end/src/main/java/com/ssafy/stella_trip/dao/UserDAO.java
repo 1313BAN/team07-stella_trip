@@ -1,4 +1,4 @@
-package com.ssafy.stella_trip.dao.user;
+package com.ssafy.stella_trip.dao;
 
 import com.ssafy.stella_trip.user.dto.UserDTO;
 import org.apache.ibatis.annotations.Mapper;
