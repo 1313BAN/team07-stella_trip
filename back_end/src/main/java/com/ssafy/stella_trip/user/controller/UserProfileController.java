@@ -1,15 +1,14 @@
 package com.ssafy.stella_trip.user.controller;
 
 import com.ssafy.stella_trip.common.response.CommonResponse;
+import com.ssafy.stella_trip.user.dto.request.MyProfileUpdateRequestDTO;
+import com.ssafy.stella_trip.user.dto.request.PasswordUpdateRequestDTO;
 import com.ssafy.stella_trip.user.dto.response.MyProfileResponseDTO;
 import com.ssafy.stella_trip.user.dto.response.UserProfileResponseDTO;
 import com.ssafy.stella_trip.user.service.UserProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/user")
@@ -28,5 +27,18 @@ public class UserProfileController {
     @GetMapping("/{userId}")
     CommonResponse<UserProfileResponseDTO> getUserProfile(@PathVariable int userId) {
         return new CommonResponse<>(userProfileService.getUserProfile(userId), HttpStatus.OK);
+    }
+
+    //자신의 프로필 수정
+    @PutMapping("/profile")
+    CommonResponse<MyProfileResponseDTO> updateMyProfile(@RequestBody MyProfileUpdateRequestDTO myProfileUpdateRequestDTO) {
+        return new CommonResponse<>(userProfileService.updateMyProfile(myProfileUpdateRequestDTO), HttpStatus.OK);
+    }
+
+    //자신의 비밀번호 수정
+    @PutMapping("/password")
+    CommonResponse<Void> updatePassword(@RequestBody PasswordUpdateRequestDTO passwordUpdateRequestDTO) {
+        userProfileService.updatePassword(passwordUpdateRequestDTO.getPassword());
+        return new CommonResponse<>(null, HttpStatus.NO_CONTENT);
     }
 }
