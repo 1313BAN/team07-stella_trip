@@ -79,7 +79,7 @@ public class UserController {
             description = "실제 로그아웃은 POST /logout 으로 요청하면 Spring Security에서 처리됩니다."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "정상적으로 로그아웃됨. 메인 페이지로 redirection")
+            @ApiResponse(responseCode = "302", description = "정상적으로 로그아웃됨. 메인 페이지로 redirection")
     })
     public CommonResponse<?> logoutDoc() {
         return CommonResponse.builder().status(HttpStatus.FOUND).build(); // 실제로는 아무 동작 안 함
