@@ -1,5 +1,6 @@
 package com.ssafy.stella_trip.user.service;
 
+import ch.qos.logback.classic.encoder.JsonEncoder;
 import com.ssafy.stella_trip.dao.user.UserProfileDAO;
 import com.ssafy.stella_trip.user.dto.UserProfileDTO;
 import com.ssafy.stella_trip.user.dto.request.MyProfileUpdateRequestDTO;
@@ -10,6 +11,7 @@ import com.ssafy.stella_trip.user.exception.ProfileUpdateFailureException;
 import com.ssafy.stella_trip.user.exception.PasswordUpdateFailureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,6 +20,13 @@ import org.springframework.stereotype.Service;
 public class UserProfileService {
 
     private final UserProfileDAO userProfileDAO;
+    private final PasswordEncoder passwordEncoder;
+
+    private int getCurrentAuthenticatedUserId() {
+        //TODO: 자신의 userId 획득
+        return 1;
+    }
+
 
     /**
      * 다른 사용자의 프로필 정보 조회
@@ -49,7 +58,8 @@ public class UserProfileService {
      * @throws ProfileNotFoundException 프로필을 찾을 수 없는 경우
      */
     public MyProfileResponseDTO getMyProfile() {
-        int userId = 0; //TODO: 자신의 userId 획득
+        int userId = getCurrentAuthenticatedUserId();
+
         UserProfileDTO profile = userProfileDAO.getUserProfile(userId);
 
         if (profile == null) {
@@ -76,7 +86,7 @@ public class UserProfileService {
      * @throws ProfileNotFoundException 업데이트 후 프로필 조회 실패 시
      */
     public MyProfileResponseDTO updateMyProfile(MyProfileUpdateRequestDTO myProfileUpdateRequestDTO) {
-        int userId = 0; //TODO: 자신의 userId 획득
+        int userId = getCurrentAuthenticatedUserId();
 
         // 업데이트 수행 및 결과 확인
         int affectedRows = userProfileDAO.updateMyProfileByUserId(userId, myProfileUpdateRequestDTO);
@@ -109,9 +119,10 @@ public class UserProfileService {
      * @throws PasswordUpdateFailureException 비밀번호 업데이트 실패 시
      */
     public boolean updatePassword(String password){
-        int userId = 0; //TODO: 자신의 userId 획득
+        int userId = getCurrentAuthenticatedUserId();
 
-        int affectedRows = userProfileDAO.updatePasswordByUserId(userId, password);
+        String encodedPassword = passwordEncoder.encode(password);
+        int affectedRows = userProfileDAO.updatePasswordByUserId(userId, encodedPassword);
         if (affectedRows == 0) {
             throw new PasswordUpdateFailureException("비밀번호 업데이트에 실패했습니다.");
         }
