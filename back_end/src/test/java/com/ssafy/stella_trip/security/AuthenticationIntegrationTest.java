@@ -1,6 +1,6 @@
 package com.ssafy.stella_trip.security;
 
-import com.ssafy.stella_trip.dao.UserDAO;
+import com.ssafy.stella_trip.dao.user.UserDAO;
 import com.ssafy.stella_trip.user.dto.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
