@@ -2,6 +2,7 @@ package com.ssafy.stella_trip.user.service;
 
 import com.ssafy.stella_trip.dao.UserDAO;
 import com.ssafy.stella_trip.security.dto.CustomUserDetails;
+import com.ssafy.stella_trip.security.exception.InvalidTokenException;
 import com.ssafy.stella_trip.security.util.JwtTokenProvider;
 import com.ssafy.stella_trip.user.annotation.PasswordEncoded;
 import com.ssafy.stella_trip.user.dto.UserDTO;
@@ -75,9 +76,15 @@ public class UserService {
      * @return access token과 refresh token
      */
     public TokenRefreshResponseDTO refreshToken(String refreshToken) {
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            throw new InvalidTokenException("만료되었거나 위조된 refresh 토큰입니다.");
+        }
+
         // TODO: 나중에 redis를 이용하여 저장하기
-        String accessToken = "Bearer " + jwtTokenProvider.generateRefreshToken(refreshToken);
-        String refreshTokenRefresh = "Bearer " + jwtTokenProvider.generateRefreshToken(refreshToken);
+        String email = jwtTokenProvider.getEmailFromToken(refreshToken);
+        UserDTO user = userDAO.getUserByEmail(email);
+        String accessToken = "Bearer " + jwtTokenProvider.generateAccessToken(user.getUserId(), email, user.getRole());
+        String refreshTokenRefresh = "Bearer " + jwtTokenProvider.generateRefreshToken(email);
         return new TokenRefreshResponseDTO(accessToken, refreshTokenRefresh);
     }
 }

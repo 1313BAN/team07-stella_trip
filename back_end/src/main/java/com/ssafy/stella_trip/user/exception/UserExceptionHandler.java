@@ -2,6 +2,7 @@ package com.ssafy.stella_trip.user.exception;
 
 import com.ssafy.stella_trip.common.response.CommonResponse;
 import com.ssafy.stella_trip.common.response.ErrorBody;
+import com.ssafy.stella_trip.security.exception.InvalidTokenException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
@@ -48,5 +49,12 @@ public class UserExceptionHandler {
     public CommonResponse<ErrorBody> internalAuthenticationServiceException(InternalAuthenticationServiceException e, HttpServletRequest request) {
         log.warn("USER-005> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
         return new CommonResponse<>(new ErrorBody("USER-005", "로그인에 실패하였습니다."), HttpStatus.BAD_REQUEST);
+    }
+
+    // refresh token이 문제가 있을때
+    @ExceptionHandler(InvalidTokenException.class)
+    public CommonResponse<ErrorBody> invalidTokenException(InvalidTokenException e, HttpServletRequest request) {
+        log.warn("USER-006> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(new ErrorBody("USER-006", "토큰이 잘못되었습니다."), HttpStatus.BAD_REQUEST);
     }
 }
