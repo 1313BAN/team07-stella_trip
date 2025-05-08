@@ -2,6 +2,7 @@ package com.ssafy.stella_trip.user.service;
 
 import com.ssafy.stella_trip.dao.user.UserProfileDAO;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
+import com.ssafy.stella_trip.user.dto.UserDTO;
 import com.ssafy.stella_trip.user.dto.UserProfileDTO;
 import com.ssafy.stella_trip.user.dto.request.MyProfileUpdateRequestDTO;
 import com.ssafy.stella_trip.user.dto.response.MyProfileResponseDTO;
@@ -95,7 +96,14 @@ public class UserProfileService {
         int userId = getCurrentAuthenticatedUserId();
 
         // 업데이트 수행 및 결과 확인
-        int affectedRows = userProfileDAO.updateMyProfileByUserId(userId, myProfileUpdateRequestDTO);
+        int affectedRows = userProfileDAO.updateMyProfileByUserId(
+                UserDTO.builder()
+                        .userId(userId)
+                        .name(myProfileUpdateRequestDTO.getName())
+                        .description(myProfileUpdateRequestDTO.getDescription())
+                        .image(myProfileUpdateRequestDTO.getImage())
+                        .build()
+        );
         if (affectedRows == 0) {
             throw new ProfileUpdateFailureException("프로필 업데이트에 실패했습니다.");
         }
@@ -128,7 +136,12 @@ public class UserProfileService {
         int userId = getCurrentAuthenticatedUserId();
 
         String encodedPassword = passwordEncoder.encode(password);
-        int affectedRows = userProfileDAO.updatePasswordByUserId(userId, encodedPassword);
+        int affectedRows = userProfileDAO.updatePasswordByUserId(
+                UserDTO.builder()
+                        .userId(userId)
+                        .password(encodedPassword)
+                        .build()
+        );
         if (affectedRows == 0) {
             throw new PasswordUpdateFailureException("비밀번호 업데이트에 실패했습니다.");
         }
