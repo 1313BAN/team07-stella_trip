@@ -18,7 +18,7 @@
         <!-- 즉시 로딩: writers -->
         <collection property="writers" ofType="com.ssafy.stella_trip.user.dto.UserDTO">
             <id column="user_id" property="userId"/>
-            <result column="name" property="name"/>
+            <result column="user_name" property="name"/>
             <result column="email" property="email"/>
             <result column="role" property="role"/>
             <result column="description" property="description"/>
@@ -30,7 +30,7 @@
         <!-- 즉시 로딩: tags -->
         <collection property="tags" ofType="com.ssafy.stella_trip.plan.dto.TagDTO">
             <id column="tag_id" property="tagId"/>
-            <result column="name" property="name"/>
+            <result column="tag_name" property="name"/>
         </collection>
 
         <!-- Lazy loading: routes -->
@@ -53,7 +53,7 @@
     <select id="getPlanById" resultMap="PlanMap">
         SELECT
         p.*,
-        u.user_id, u.name, u.email, u.role, u.description, u.image, u.created_at, u.modified_at,
+        u.user_id, u.name as user_name, u.email, u.role, u.description, u.image, u.created_at, u.modified_at,
         t.tag_id, t.name
         FROM plan p
         LEFT JOIN plan_writer pw ON p.plan_id = pw.plan_id
@@ -75,5 +75,72 @@
         WHERE r.plan_id = #{planId}
     </select>
 
+    <select id="getPlansByCondition" resultMap="PlanMap">
+        SELECT
+        p.plan_id,
+        p.title,
+        p.start_date,
+        p.end_date,
+        p.description,
+        p.like_count,
+        p.created_at,
+        p.modified_at,
+        p.is_public,
+        p.stella,
+        u.user_id, u.name as user_name, u.email, u.role, u.description, u.image, u.created_at, u.modified_at,
+        t.tag_id, t.name as tag_name
+        FROM plan p
+        LEFT JOIN plan_writer pw ON p.plan_id = pw.plan_id
+        LEFT JOIN user u ON pw.user_id = u.user_id
+        LEFT JOIN tag_plan tp ON p.plan_id = tp.plan_id
+        LEFT JOIN tag t ON tp.tag_id = t.tag_id
+        WHERE p.is_public = 1
+        <if test="search != null and search != ''">
+            AND p.title LIKE CONCAT('%', #{search}, '%')
+        </if>
+        <if test="userName != null and userName != ''">
+            AND EXISTS (
+            SELECT 1
+            FROM user u2
+            WHERE u2.user_id = pw.user_id
+            AND u2.name = #{userName}
+            )
+        </if>
+        <if test="duration > 0">
+            AND DATEDIFF(p.end_date, p.start_date) + 1 = #{duration}
+        </if>
+        ORDER BY
+        <choose>
+            <when test="sort == 'like'">
+                p.like_count DESC
+            </when>
+            <when test="sort == 'recent'">
+                p.created_at DESC
+            </when>
+            <otherwise>
+                p.plan_id ASC
+            </otherwise>
+        </choose>
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countPlansByCondition" resultType="int">
+        SELECT COUNT(DISTINCT p.plan_id)
+        FROM plan p
+        LEFT JOIN plan_writer pw ON p.plan_id = pw.plan_id
+        LEFT JOIN user u ON pw.user_id = u.user_id
+        LEFT JOIN tag_plan tp ON p.plan_id = tp.plan_id
+        LEFT JOIN tag t ON tp.tag_id = t.tag_id
+        WHERE p.is_public = 1
+        <if test="search != null and search != ''">
+            AND p.title LIKE CONCAT('%', #{search}, '%')
+        </if>
+        <if test="userName != null and userName != ''">
+            AND u.name = #{userName}
+        </if>
+        <if test="duration > 0">
+            AND DATEDIFF(p.end_date, p.start_date) + 1 = #{duration}
+        </if>
+    </select>
 
 </mapper>
