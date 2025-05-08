@@ -25,7 +25,11 @@ public class UserProfileService {
 
     private int getCurrentAuthenticatedUserId() {
         //TODO: 자신의 userId 획득
-        JwtUserInfo userInfo = (JwtUserInfo) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(!(principal instanceof JwtUserInfo)) {
+            throw new ProfileNotFoundException("인증된 사용자의 정보가 아닙니다.");
+        }
+        JwtUserInfo userInfo = (JwtUserInfo) principal;
         return userInfo.getUserId();
     }
 
