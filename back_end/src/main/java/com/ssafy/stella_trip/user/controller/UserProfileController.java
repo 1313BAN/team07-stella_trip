@@ -12,7 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/v1/user")
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 public class UserProfileController {

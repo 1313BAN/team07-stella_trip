@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @SuperBuilder
 @AllArgsConstructor
+@NoArgsConstructor
 public class UserDTO {
     private int userId;
     private String name;

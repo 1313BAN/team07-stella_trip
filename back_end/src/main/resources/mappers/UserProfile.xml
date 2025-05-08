@@ -5,8 +5,8 @@
 <mapper namespace="com.ssafy.stella_trip.dao.user.UserProfileDAO">
 
     <resultMap id="UserProfileMap" type="UserProfileDTO" extends="com.ssafy.stella_trip.dao.user.UserDAO.UserMap">
-        <result column="follower_count" property="follower_count"/>
-        <result column="following_count" property="following_count"/>
+        <result column="follower_count" property="followerCount"/>
+        <result column="following_count" property="followingCount"/>
     </resultMap>
 
     <!-- 특정 사용자 ID로 프로필 정보 조회 -->
