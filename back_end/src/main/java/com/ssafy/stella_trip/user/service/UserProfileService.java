@@ -1,6 +1,7 @@
 package com.ssafy.stella_trip.user.service;
 
 import com.ssafy.stella_trip.dao.user.UserProfileDAO;
+import com.ssafy.stella_trip.security.dto.JwtUserInfo;
 import com.ssafy.stella_trip.user.dto.UserProfileDTO;
 import com.ssafy.stella_trip.user.dto.request.MyProfileUpdateRequestDTO;
 import com.ssafy.stella_trip.user.dto.response.MyProfileResponseDTO;
@@ -10,6 +11,7 @@ import com.ssafy.stella_trip.user.exception.ProfileUpdateFailureException;
 import com.ssafy.stella_trip.user.exception.PasswordUpdateFailureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +25,8 @@ public class UserProfileService {
 
     private int getCurrentAuthenticatedUserId() {
         //TODO: 자신의 userId 획득
-        return 1;
+        JwtUserInfo userInfo = (JwtUserInfo) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userInfo.getUserId();
     }
 
 
