@@ -26,6 +26,6 @@ public class AttractionDTO {
     private String addr2;
     private String homepage;
     private String overview;
-    private float rating;
+    private double rating;
     private int likeCount;
 }
