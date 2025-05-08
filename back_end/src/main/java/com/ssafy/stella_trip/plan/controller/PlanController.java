@@ -21,23 +21,23 @@ public class PlanController {
 
     private final PlanService planService;
 
-//    @GetMapping("/")
-//    public CommonResponse<PageDTO<PlanResponseDTO>> getPlan(
-//            @RequestParam(value = "page", defaultValue = "1") int page,
-//            @RequestParam(value = "size", defaultValue = "20") int size,
-//            @RequestParam(value = "search", defaultValue = "")  String search,
-//            @RequestParam(value = "username", defaultValue = "") String userName,
-//            @RequestParam(value = "duration", defaultValue = "0") int duration,
-//            @RequestParam(value = "sort", defaultValue = "recent") String sort
-//    ) {
-//        return new CommonResponse<>(planService.searchPlanByCondition(
-//                page,
-//                size,
-//                search,
-//                userName,
-//                duration,
-//                sort
-//        ), HttpStatus.OK);
-//    }
+    @GetMapping
+    public CommonResponse<PageDTO<PlanResponseDTO>> getPlan(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "20") int size,
+            @RequestParam(value = "search", defaultValue = "")  String search,
+            @RequestParam(value = "username", defaultValue = "") String userName,
+            @RequestParam(value = "duration", defaultValue = "0") int duration,
+            @RequestParam(value = "sort", defaultValue = "recent") String sort
+    ) {
+        return new CommonResponse<>(planService.searchPlanByCondition(
+                page,
+                size,
+                search,
+                userName,
+                duration,
+                sort
+        ), HttpStatus.OK);
+    }
 
 }
