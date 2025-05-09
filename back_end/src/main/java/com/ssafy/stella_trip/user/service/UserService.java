@@ -8,6 +8,7 @@ import com.ssafy.stella_trip.user.annotation.PasswordEncoded;
 import com.ssafy.stella_trip.user.dto.UserDTO;
 import com.ssafy.stella_trip.user.dto.UserRole;
 import com.ssafy.stella_trip.user.dto.response.LoginResponseDTO;
+import com.ssafy.stella_trip.user.dto.response.SignupResponseDTO;
 import com.ssafy.stella_trip.user.dto.response.TokenRefreshResponseDTO;
 import com.ssafy.stella_trip.user.exception.SignupFailureException;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +55,7 @@ public class UserService {
      * @param password 비밀번호 (아직 encoding 안됨)
      * @return 회원가입한 유저 정보
      */
-    public UserDTO signup(String name, String email, String password) {
+    public SignupResponseDTO signup(String name, String email, String password) {
         // password 인코딩하기
         String encodedPassword = passwordEncoder.encode(password);
         UserDTO user = UserDTO.builder()
@@ -64,8 +65,9 @@ public class UserService {
                 .role(UserRole.USER)
                 .build();
         int res = userDAO.insertUser(user);
-        if(res > 0)
-            return user;
+        if(res > 0){
+            return new SignupResponseDTO(user.getUserId(), user.getEmail(), user.getName());
+        }
         else throw new SignupFailureException("회원가입에 실패하였습니다.");
     }
 
