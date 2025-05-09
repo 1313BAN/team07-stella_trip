@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.stella_trip.dao.plan.PlanDAO">
+    <resultMap id="PlanMap" type="com.ssafy.stella_trip.plan.dto.PlanDTO">
+        <id column="plan_id" property="planId"/>
+        <result column="title" property="title"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="description" property="description"/>
+        <result column="like_count" property="likeCount"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="modified_at" property="modifiedAt"/>
+        <result column="is_public" property="isPublic"/>
+        <result column="stella" property="stella"/>
+
+        <!-- 즉시 로딩: writers -->
+        <collection property="writers" ofType="com.ssafy.stella_trip.user.dto.UserDTO">
+            <id column="user_id" property="userId"/>
+            <result column="user_name" property="name"/>
+            <result column="email" property="email"/>
+            <result column="role" property="role"/>
+            <result column="description" property="description"/>
+            <result column="image" property="image"/>
+            <result column="created_at" property="createdAt"/>
+            <result column="modified_at" property="modifiedAt"/>
+        </collection>
+
+        <!-- 즉시 로딩: tags -->
+        <collection property="tags" ofType="com.ssafy.stella_trip.plan.dto.TagDTO">
+            <id column="tag_id" property="tagId"/>
+            <result column="tag_name" property="name"/>
+        </collection>
+
+        <!-- Lazy loading: routes -->
+        <collection property="routes" ofType="com.ssafy.stella_trip.plan.dto.RouteDTO"
+                    select="getRoutesByPlanId" column="plan_id"/>
+    </resultMap>
+
+    <resultMap id="RouteMap" type="com.ssafy.stella_trip.plan.dto.RouteDTO">
+        <id column="route_id" property="routeId"/>
+        <result column="attraction_id" property="attractionId"/>
+        <result column="day_index" property="dayIndex"/>
+        <result column="order" property="order"/>
+        <result column="visit_time" property="visitTime"/>
+        <result column="memo" property="memo"/>
+        <association property="attraction" javaType="com.ssafy.stella_trip.attraction.dto.AttractionDTO"
+                     select="com.ssafy.stella_trip.dao.attraction.AttractionDAO.getAttractionById" column="attraction_id"/>
+    </resultMap>
+
+
+    <select id="getPlanById" resultMap="PlanMap">
+        SELECT
+        p.*,
+        u.user_id, u.name as user_name, u.email, u.role, u.description, u.image, u.created_at, u.modified_at,
+        t.tag_id, t.name
+        FROM plan p
+        LEFT JOIN plan_writer pw ON p.plan_id = pw.plan_id
+        LEFT JOIN user u ON pw.user_id = u.user_id
+        LEFT JOIN tag_plan tp ON p.plan_id = tp.plan_id
+        LEFT JOIN tag t ON tp.tag_id = t.tag_id
+        WHERE p.plan_id = #{planId}
+    </select>
+
+    <select id="getRoutesByPlanId" resultMap="RouteMap">
+        SELECT
+        r.route_id,
+        r.attraction_id,
+        r.day_index,
+        r.order,
+        r.visit_time,
+        r.memo
+        FROM route r
+        WHERE r.plan_id = #{planId}
+    </select>
+
+    <select id="getPlansByCondition" resultMap="PlanMap">
+        SELECT
+        p.plan_id,
+        p.title,
+        p.start_date,
+        p.end_date,
+        p.description,
+        p.like_count,
+        p.created_at,
+        p.modified_at,
+        p.is_public,
+        p.stella,
+        u.user_id, u.name as user_name, u.email, u.role, u.description, u.image, u.created_at, u.modified_at,
+        t.tag_id, t.name as tag_name
+        FROM plan p
+        LEFT JOIN plan_writer pw ON p.plan_id = pw.plan_id
+        LEFT JOIN user u ON pw.user_id = u.user_id
+        LEFT JOIN tag_plan tp ON p.plan_id = tp.plan_id
+        LEFT JOIN tag t ON tp.tag_id = t.tag_id
+        WHERE p.is_public = 1
+        <if test="search != null and search != ''">
+            AND p.title LIKE CONCAT('%', #{search}, '%')
+        </if>
+        <if test="userName != null and userName != ''">
+            AND EXISTS (
+            SELECT 1
+            FROM user u2
+            WHERE u2.user_id = pw.user_id
+            AND u2.name = #{userName}
+            )
+        </if>
+        <if test="duration > 0">
+            AND DATEDIFF(p.end_date, p.start_date) + 1 = #{duration}
+        </if>
+        ORDER BY
+        <choose>
+            <when test="sort == 'like'">
+                p.like_count DESC
+            </when>
+            <when test="sort == 'recent'">
+                p.created_at DESC
+            </when>
+            <otherwise>
+                p.plan_id ASC
+            </otherwise>
+        </choose>
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countPlansByCondition" resultType="int">
+        SELECT COUNT(DISTINCT p.plan_id)
+        FROM plan p
+        <if test="userName != null and userName != ''">
+            LEFT JOIN plan_writer pw ON p.plan_id = pw.plan_id
+            LEFT JOIN user u ON pw.user_id = u.user_id
+        </if>
+        WHERE p.is_public = 1
+        <if test="search != null and search != ''">
+            AND p.title LIKE CONCAT('%', #{search}, '%')
+        </if>
+        <if test="userName != null and userName != ''">
+            AND u.name = #{userName}
+        </if>
+        <if test="duration > 0">
+            AND DATEDIFF(p.end_date, p.start_date) + 1 = #{duration}
+        </if>
+    </select>
+
+</mapper>

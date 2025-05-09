@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.stella_trip.dao.attraction.AttractionDAO">
+    <!-- Attraction 결과 맵 정의 -->
+    <resultMap id="AttractionResultMap" type="AttractionDTO">
+        <id property="attractionId" column="attraction_id"/>
+        <result property="sidoCode" column="sido_code"/>
+        <result property="gugunCode" column="gugun_code"/>
+        <result property="contentTypeId" column="content_type_id"/>
+        <result property="contentId" column="content_id"/>
+        <result property="title" column="title"/>
+        <result property="firstImage1" column="first_image1"/>
+        <result property="firstImage2" column="first_image2"/>
+        <result property="mapLevel" column="map_level"/>
+        <result property="latitude" column="latitude"/>
+        <result property="longitude" column="longitude"/>
+        <result property="tel" column="tel"/>
+        <result property="addr1" column="addr1"/>
+        <result property="addr2" column="addr2"/>
+        <result property="homepage" column="homepage"/>
+        <result property="overview" column="overview"/>
+        <result property="rating" column="rating"/>
+        <result property="likeCount" column="like_count"/>
+    </resultMap>
+
+    <select id="getAttractionById" resultMap="AttractionResultMap">
+        select * from attraction
+        where attraction_id = #{attractionId}
+    </select>
+
+    <select id="getAttractionsBySidoCode" resultMap="AttractionResultMap">
+        select * from attraction
+        where sido_code = #{sidoCode}
+    </select>
+
+    <select id="getAttractionsBySidoAndGugunCode" resultMap="AttractionResultMap">
+        select * from attraction
+        where sido_code = #{sidoCode} and gugun_code = #{gugunCode}
+    </select>
+
+    <select id="getAttractionsByContentTypeId" resultMap="AttractionResultMap">
+        select * from attraction
+        where content_type_id = #{contentTypeId}
+    </select>
+
+</mapper>

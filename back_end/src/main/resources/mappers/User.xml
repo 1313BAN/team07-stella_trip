@@ -14,7 +14,14 @@
         <result column="created_at" property="createdAt"/>
         <result column="modified_at" property="modifiedAt"/>
     </resultMap>
-    
+
+    <select id="getWritersByPlanId" resultMap="UserMap">
+        select u.* from user u
+        left join plan_writer p
+        on p.user_id = u.user_id
+        where p.plan_id = #{planId}
+    </select>
+
     <select id="getUserByEmail" resultMap="UserMap">
         select * from user where email = #{email}
     </select>
