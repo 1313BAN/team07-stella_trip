@@ -22,8 +22,8 @@ public class PlanDTO {
     private LocalDate endDate;
     private String description;
     private int likeCount;
-    private LocalDateTime created_at;
-    private LocalDateTime modified_at;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
     private boolean isPublic;
     private String stella;
 }

@@ -10,8 +10,8 @@
         <result column="end_date" property="endDate"/>
         <result column="description" property="description"/>
         <result column="like_count" property="likeCount"/>
-        <result column="created_at" property="created_at"/>
-        <result column="modified_at" property="modified_at"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="modified_at" property="modifiedAt"/>
         <result column="is_public" property="isPublic"/>
         <result column="stella" property="stella"/>
 
