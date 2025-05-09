@@ -23,7 +23,7 @@ public class PlanResponseDTO {
     @JsonProperty("end_date")
     private LocalDate endDate;
     private int likeCount;
-    private boolean is_public;
+    private boolean isPublic;
     @JsonProperty("plan_writers")
     private List<WriterResponseDTO> planWriters;
     private List<TagResponseDTO> tags;

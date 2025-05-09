@@ -74,7 +74,7 @@ public class PlanService {
                     .startDate(planDTO.getStartDate())
                     .endDate(planDTO.getEndDate())
                     .likeCount(planDTO.getLikeCount())
-                    .is_public(planDTO.isPublic())
+                    .isPublic(planDTO.isPublic())
                     .planWriters(writerResponseDTOList)
                     .tags(tagResponseDTOList)
                     .build();
