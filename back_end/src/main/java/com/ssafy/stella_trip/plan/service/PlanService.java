@@ -46,24 +46,10 @@ public class PlanService {
         List<PlanResponseDTO> planResponseDTOList = new ArrayList<>();
         for (PlanDTO planDTO : planDTOList) {
             // 태그 리스트
-            List<TagResponseDTO> tagResponseDTOList = new ArrayList<>();
-            for (TagDTO tag : planDTO.getTags()) {
-                TagResponseDTO tagResponseDTO = TagResponseDTO.builder()
-                        .tagId(tag.getTagId())
-                        .name(tag.getName())
-                        .build();
-                tagResponseDTOList.add(tagResponseDTO);
-            }
+            List<TagResponseDTO> tagResponseDTOList = convertTagsToResponse(planDTO.getTags());
 
             // 작성자 리스트
-            List<WriterResponseDTO> writerResponseDTOList = new ArrayList<>();
-            for(UserDTO writer : planDTO.getWriters()) {
-                WriterResponseDTO writerResponseDTO = WriterResponseDTO.builder()
-                        .userId(writer.getUserId())
-                        .name(writer.getName())
-                        .build();
-                writerResponseDTOList.add(writerResponseDTO);
-            }
+            List<WriterResponseDTO> writerResponseDTOList = convertWritersToResponse(planDTO.getWriters());
 
             // PlanResponseDTO 생성
             PlanResponseDTO planResponseDTO = PlanResponseDTO.builder()
@@ -94,5 +80,28 @@ public class PlanService {
                 .build();
     }
 
+    private List<TagResponseDTO> convertTagsToResponse(List<TagDTO> tags) {
+        List<TagResponseDTO> tagResponseDTOList = new ArrayList<>();
+        for (TagDTO tag : tags) {
+            TagResponseDTO tagResponseDTO = TagResponseDTO.builder()
+                    .tagId(tag.getTagId())
+                    .name(tag.getName())
+                    .build();
+            tagResponseDTOList.add(tagResponseDTO);
+        }
+        return tagResponseDTOList;
+    }
+
+    private List<WriterResponseDTO> convertWritersToResponse(List<UserDTO> writers) {
+        List<WriterResponseDTO> writerResponseDTOList = new ArrayList<>();
+        for (UserDTO writer : writers) {
+            WriterResponseDTO writerResponseDTO = WriterResponseDTO.builder()
+                    .userId(writer.getUserId())
+                    .name(writer.getName())
+                    .build();
+            writerResponseDTOList.add(writerResponseDTO);
+        }
+        return writerResponseDTOList;
+    }
 
 }
