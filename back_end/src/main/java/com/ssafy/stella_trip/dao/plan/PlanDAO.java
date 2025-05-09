@@ -26,4 +26,13 @@ public interface PlanDAO {
 
     );
 
+    int increaseLikeCount(@Param("planId") int planId);
+
+    int decreaseLikeCount(@Param("planId") int planId);
+
+    void likePlan(@Param("planId") int planId, @Param("userId") int userId);
+
+    void unlikePlan(@Param("planId") int planId, @Param("userId") int userId);
+
+    boolean isPlanLikedByUser(@Param("planId") int planId, @Param("userId") int userId);
 }

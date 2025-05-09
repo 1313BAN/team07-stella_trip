@@ -51,5 +51,22 @@ public class PlanController {
         return new CommonResponse<>(planService.getPlanDetail(planId, user), HttpStatus.OK);
     }
 
+    @PostMapping("/{planId}/like")
+    public CommonResponse<Void> likePlan(
+            @PathVariable(value = "planId") int planId,
+            @AuthenticationPrincipal JwtUserInfo user
+    ) {
+        planService.likePlan(planId, user);
+        return new CommonResponse<>(null, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{planId}/like")
+    public CommonResponse<Void> unlikePlan(
+            @PathVariable(value = "planId") int planId,
+            @AuthenticationPrincipal JwtUserInfo user
+    ) {
+        planService.unlikePlan(planId, user);
+        return new CommonResponse<>(null, HttpStatus.OK);
+    }
 
 }

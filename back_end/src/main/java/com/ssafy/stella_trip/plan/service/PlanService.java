@@ -6,11 +6,13 @@ import com.ssafy.stella_trip.plan.dto.PlanDTO;
 import com.ssafy.stella_trip.plan.dto.RouteDTO;
 import com.ssafy.stella_trip.plan.dto.TagDTO;
 import com.ssafy.stella_trip.plan.dto.response.*;
+import com.ssafy.stella_trip.plan.exception.DuplicatedLikeException;
 import com.ssafy.stella_trip.plan.exception.PlanNotFoundException;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
 import com.ssafy.stella_trip.user.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -117,6 +119,24 @@ public class PlanService {
                 .build();
 
         return planDetailResponseDTO;
+    }
+
+    @Transactional
+    public void likePlan(int planId, JwtUserInfo user) {
+        if(planDAO.isPlanLikedByUser(planId, user.getUserId())) {
+            throw new DuplicatedLikeException("이미 좋아요를 누른 계획입니다.");
+        }
+        planDAO.likePlan(planId, user.getUserId());
+        planDAO.increaseLikeCount(planId);
+    }
+
+    @Transactional
+    public void unlikePlan(int planId, JwtUserInfo user) {
+        if(!planDAO.isPlanLikedByUser(planId, user.getUserId())) {
+            throw new DuplicatedLikeException("이미 좋아요가 없습니다..");
+        }
+        planDAO.unlikePlan(planId, user.getUserId());
+        planDAO.decreaseLikeCount(planId);
     }
 
     private List<TagResponseDTO> convertTagsToResponse(List<TagDTO> tags) {

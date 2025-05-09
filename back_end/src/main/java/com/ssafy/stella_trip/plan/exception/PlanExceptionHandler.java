@@ -21,4 +21,11 @@ public class PlanExceptionHandler {
         return new CommonResponse<>(new ErrorBody("PLAN-001", "해당 ID의 계획을 찾을 수 없습니다."),
                 HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(DuplicatedLikeException.class)
+    public CommonResponse<ErrorBody> duplicatedLikeException(DuplicatedLikeException e, HttpServletRequest request) {
+        log.warn("PLAN-002> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(new ErrorBody("PLAN-002", "중복된 좋아요 등록 / 취소 입니다."),
+                HttpStatus.BAD_REQUEST);
+    }
 }

@@ -156,4 +156,33 @@
         </if>
     </select>
 
+    <update id="increaseLikeCount">
+        UPDATE plan
+        SET like_count = like_count + 1
+        WHERE plan_id = #{planId};
+    </update>
+
+    <update id="decreaseLikeCount">
+        UPDATE plan
+        SET like_count = GREATEST(like_count - 1, 0)
+        WHERE plan_id = #{planId};
+    </update>
+
+    <insert id="likePlan">
+        INSERT INTO liked_plan (plan_id, user_id)
+        VALUES (#{planId}, #{userId});
+    </insert>
+
+    <update id="unlikePlan">
+        DELETE FROM liked_plan
+        WHERE plan_id = #{planId} AND user_id = #{userId};
+    </update>
+
+    <select id="isPlanLikedByUser" resultType="boolean">
+        SELECT EXISTS (
+        SELECT 1
+        FROM liked_plan
+        WHERE plan_id = #{planId} AND user_id = #{userId}
+        ) AS is_liked
+    </select>
 </mapper>
