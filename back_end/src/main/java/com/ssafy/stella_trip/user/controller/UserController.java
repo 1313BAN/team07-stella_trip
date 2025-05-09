@@ -6,12 +6,15 @@ import com.ssafy.stella_trip.user.dto.request.LoginRequestDTO;
 import com.ssafy.stella_trip.user.dto.request.SignupRequestDTO;
 import com.ssafy.stella_trip.user.dto.request.TokenRefreshRequestDTO;
 import com.ssafy.stella_trip.user.dto.response.LoginResponseDTO;
+import com.ssafy.stella_trip.user.dto.response.SignupResponseDTO;
 import com.ssafy.stella_trip.user.dto.response.TokenRefreshResponseDTO;
 import com.ssafy.stella_trip.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,19 +50,16 @@ public class UserController {
             description = ""
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "정상적으로 회원가입. 로그인 창으로 redirection"),
+            @ApiResponse(responseCode = "200", description = "정상적으로 회원가입"),
             @ApiResponse(responseCode = "400", description = "USER-003 - 중복된 회원이 있습니다."),
             @ApiResponse(responseCode = "400", description = "USER-004 - 회원가입에 실패하였습니다."),
     })
-    CommonResponse<?> signup(@RequestBody SignupRequestDTO signupRequestDTO, HttpServletRequest request) {
+    CommonResponse<SignupResponseDTO> signup(@RequestBody SignupRequestDTO signupRequestDTO, HttpServletRequest request) {
         String email = signupRequestDTO.getEmail();
         String password = signupRequestDTO.getPassword();
         String name = signupRequestDTO.getName();
-        UserDTO user = userService.signup(name, email, password);
-        return CommonResponse.builder()
-                .status(HttpStatus.FOUND)
-                .header("Location", request.getContextPath() +  "/")
-                .build();
+        SignupResponseDTO user = userService.signup(name, email, password);
+        return new CommonResponse<>(user, HttpStatus.OK);
     }
 
     @PostMapping("/refresh")
@@ -75,15 +75,22 @@ public class UserController {
         return new CommonResponse<TokenRefreshResponseDTO>(userService.refreshToken(refreshToken), HttpStatus.CREATED);
     }
 
-    @PostMapping("/logout")
+    @GetMapping("/logout")
     @Operation(
             summary = "로그아웃 처리 API",
-            description = "실제 로그아웃은 POST /logout 으로 요청하면 Spring Security에서 처리됩니다."
+            description = ""
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "302", description = "정상적으로 로그아웃됨. 메인 페이지로 redirection")
+            @ApiResponse(responseCode = "200", description = "정상적으로 로그아웃됨. 메인 페이지로 redirection")
     })
-    public CommonResponse<?> logoutDoc() {
-        return CommonResponse.builder().status(HttpStatus.FOUND).build(); // 실제로는 아무 동작 안 함
+    public CommonResponse<?> logout(HttpServletResponse response) {
+        // access 토큰 쿠키 삭제
+        Cookie jwtCookie = new Cookie("Authorization", null);
+        jwtCookie.setMaxAge(0);
+        jwtCookie.setPath("/");
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setSecure(true);
+        response.addCookie(jwtCookie);
+        return CommonResponse.builder().status(HttpStatus.OK).build(); // 실제로는 아무 동작 안 함
     }
 }
