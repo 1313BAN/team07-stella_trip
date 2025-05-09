@@ -127,8 +127,10 @@
     <select id="countPlansByCondition" resultType="int">
         SELECT COUNT(DISTINCT p.plan_id)
         FROM plan p
-        LEFT JOIN plan_writer pw ON p.plan_id = pw.plan_id
-        LEFT JOIN user u ON pw.user_id = u.user_id
+        <if test="userName != null and userName != ''">
+            LEFT JOIN plan_writer pw ON p.plan_id = pw.plan_id
+            LEFT JOIN user u ON pw.user_id = u.user_id
+        </if>
         LEFT JOIN tag_plan tp ON p.plan_id = tp.plan_id
         LEFT JOIN tag t ON tp.tag_id = t.tag_id
         WHERE p.is_public = 1
