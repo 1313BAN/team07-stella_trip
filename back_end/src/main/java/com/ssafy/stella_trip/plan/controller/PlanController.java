@@ -21,6 +21,7 @@ public class PlanController {
     private final PlanService planService;
 
     @GetMapping
+    @PreAuthorize("permitAll()")
     public CommonResponse<PageDTO<PlanResponseDTO>> getPlan(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "20") int size,
@@ -37,16 +38,18 @@ public class PlanController {
                 userName,
                 duration,
                 sort,
-                user.getUserId()
+                user
         ), HttpStatus.OK);
     }
 
     @GetMapping("/{planId}")
+    @PreAuthorize("permitAll()")
     public CommonResponse<PlanResponseDTO> getPlanDetail(
             @PathVariable(value = "planId") int planId,
             @AuthenticationPrincipal JwtUserInfo user
     ) {
-        return new CommonResponse<>(planService.getPlanDetail(planId, user.getUserId()), HttpStatus.OK);
+        return new CommonResponse<>(planService.getPlanDetail(planId, user), HttpStatus.OK);
     }
+
 
 }

@@ -7,6 +7,7 @@ import com.ssafy.stella_trip.plan.dto.RouteDTO;
 import com.ssafy.stella_trip.plan.dto.TagDTO;
 import com.ssafy.stella_trip.plan.dto.response.*;
 import com.ssafy.stella_trip.plan.exception.PlanNotFoundException;
+import com.ssafy.stella_trip.security.dto.JwtUserInfo;
 import com.ssafy.stella_trip.user.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class PlanService {
             String userName,
             int duration,
             String sort,
-            int currentUserId
+            JwtUserInfo user
     ){
         // 전체 검색수
         int totalCount = planDAO.countPlansByCondition(search, userName, duration);
@@ -44,7 +45,7 @@ public class PlanService {
         boolean isLast = (page == totalPages);
 
         // 검색 결과
-        List<PlanDTO> planDTOList = planDAO.getPlansByCondition(offset, size, search, userName, duration, sort, currentUserId);
+        List<PlanDTO> planDTOList = planDAO.getPlansByCondition(offset, size, search, userName, duration, sort, user != null ? user.getUserId() : -1);
         List<PlanResponseDTO> planResponseDTOList = new ArrayList<>();
         for (PlanDTO planDTO : planDTOList) {
             // 태그 리스트
@@ -83,9 +84,9 @@ public class PlanService {
                 .build();
     }
 
-    public PlanDetailResponseDTO getPlanDetail(int planId, int currentUserId) {
+    public PlanDetailResponseDTO getPlanDetail(int planId, JwtUserInfo user) {
         // PlanDTO 가져오기
-        PlanDTO planDTO = planDAO.getPlanById(planId, currentUserId);
+        PlanDTO planDTO = planDAO.getPlanById(planId, user != null ? user.getUserId() : -1);
         if (planDTO == null) {
             throw new PlanNotFoundException("해당 ID의 계획을 찾을 수 없습니다. planId: " + planId);
         }
