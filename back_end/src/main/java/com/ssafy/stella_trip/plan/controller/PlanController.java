@@ -5,6 +5,9 @@ import com.ssafy.stella_trip.common.response.CommonResponse;
 import com.ssafy.stella_trip.plan.dto.response.PlanResponseDTO;
 import com.ssafy.stella_trip.plan.service.PlanService;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,6 +25,13 @@ public class PlanController {
 
     @GetMapping
     @PreAuthorize("permitAll()")
+    @Operation(
+            summary = "여행 계획 검색",
+            description = "조건: 페이지, 사이즈, 검색어, 작성자 이름, 여행 기간, 정렬 방식(최신순/인기순)"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상적으로 조회 완료"),
+    })
     public CommonResponse<PageDTO<PlanResponseDTO>> getPlan(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "20") int size,
@@ -44,6 +54,14 @@ public class PlanController {
 
     @GetMapping("/{planId}")
     @PreAuthorize("permitAll()")
+    @Operation(
+            summary = "여행 계획 상세 조회",
+            description = "여행 계획 ID로 여행 계획 상세 조회"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상적으로 조회 완료"),
+            @ApiResponse(responseCode = "404", description = "PLAN-001: 해당 ID의 계획을 찾을 수 없습니다."),
+    })
     public CommonResponse<PlanResponseDTO> getPlanDetail(
             @PathVariable(value = "planId") int planId,
             @AuthenticationPrincipal JwtUserInfo user
@@ -52,6 +70,14 @@ public class PlanController {
     }
 
     @PostMapping("/{planId}/like")
+    @Operation(
+            summary = "좋아요 등록",
+            description = "여행 계획 ID로 여행 계획 좋아요 등록"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상적으로 등록 완료"),
+            @ApiResponse(responseCode = "400", description = "PLAN-002: 중복된 좋아요 등록 / 취소 입니다."),
+    })
     public CommonResponse<Void> likePlan(
             @PathVariable(value = "planId") int planId,
             @AuthenticationPrincipal JwtUserInfo user
@@ -61,6 +87,14 @@ public class PlanController {
     }
 
     @DeleteMapping("/{planId}/like")
+    @Operation(
+            summary = "좋아요 취소",
+            description = "여행 계획 ID로 여행 계획 좋아요 취소"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상적으로 취소 완료"),
+            @ApiResponse(responseCode = "400", description = "PLAN-002: 중복된 좋아요 등록 / 취소 입니다."),
+    })
     public CommonResponse<Void> unlikePlan(
             @PathVariable(value = "planId") int planId,
             @AuthenticationPrincipal JwtUserInfo user
