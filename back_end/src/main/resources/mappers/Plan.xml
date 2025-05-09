@@ -15,6 +15,9 @@
         <result column="is_public" property="isPublic"/>
         <result column="stella" property="stella"/>
 
+        <!-- 즉시 로딩: liked 여부-->
+        <result column="liked" property="liked"/>
+
         <!-- 즉시 로딩: writers -->
         <collection property="writers" ofType="com.ssafy.stella_trip.user.dto.UserDTO">
             <id column="user_id" property="userId"/>
@@ -54,12 +57,17 @@
         SELECT
         p.*,
         u.user_id, u.name as user_name, u.email, u.role, u.description, u.image, u.created_at, u.modified_at,
-        t.tag_id, t.name
+        t.tag_id, t.name,
+        CASE
+            WHEN pl.user_id IS NOT NULL THEN 1
+            ELSE 0
+        END AS liked
         FROM plan p
         LEFT JOIN plan_writer pw ON p.plan_id = pw.plan_id
         LEFT JOIN user u ON pw.user_id = u.user_id
         LEFT JOIN tag_plan tp ON p.plan_id = tp.plan_id
         LEFT JOIN tag t ON tp.tag_id = t.tag_id
+        LEFT JOIN liked_plan pl ON p.plan_id = pl.plan_id AND pl.user_id = #{currentUserId}
         WHERE p.plan_id = #{planId}
     </select>
 
@@ -88,12 +96,17 @@
         p.is_public,
         p.stella,
         u.user_id, u.name as user_name, u.email, u.role, u.description, u.image, u.created_at, u.modified_at,
-        t.tag_id, t.name as tag_name
+        t.tag_id, t.name as tag_name,
+        CASE
+            WHEN pl.user_id IS NOT NULL THEN 1
+            ELSE 0
+        END AS liked
         FROM plan p
         LEFT JOIN plan_writer pw ON p.plan_id = pw.plan_id
         LEFT JOIN user u ON pw.user_id = u.user_id
         LEFT JOIN tag_plan tp ON p.plan_id = tp.plan_id
         LEFT JOIN tag t ON tp.tag_id = t.tag_id
+        LEFT JOIN liked_plan pl ON p.plan_id = pl.plan_id AND pl.user_id = #{currentUserId}
         WHERE p.is_public = 1
         <if test="search != null and search != ''">
             AND p.title LIKE CONCAT('%', #{search}, '%')

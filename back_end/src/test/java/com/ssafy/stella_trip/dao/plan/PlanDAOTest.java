@@ -26,7 +26,7 @@ class PlanDAOTest {
         int planId = 1; // 테스트 데이터베이스에 존재하는 plan_id 값
 
         // when
-        PlanDTO plan = planDAO.getPlanById(planId);
+        PlanDTO plan = planDAO.getPlanById(planId, 1);
 
         // then
         assertThat(plan).isNotNull();
@@ -61,7 +61,7 @@ class PlanDAOTest {
         String sort = "recent"; // 정렬 기준
 
         // when
-        List<PlanDTO> plans = planDAO.getPlansByCondition(offset,size, search, userName, duration, sort);
+        List<PlanDTO> plans = planDAO.getPlansByCondition(offset,size, search, userName, duration, sort, 1);
 
         // 결과값 출력
         System.out.println("Plans: " + plans.get(0).getTags());

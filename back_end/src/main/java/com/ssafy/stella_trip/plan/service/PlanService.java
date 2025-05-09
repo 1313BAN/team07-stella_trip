@@ -27,7 +27,8 @@ public class PlanService {
             String search,
             String userName,
             int duration,
-            String sort
+            String sort,
+            int currentUserId
     ){
         // 전체 검색수
         int totalCount = planDAO.countPlansByCondition(search, userName, duration);
@@ -43,7 +44,7 @@ public class PlanService {
         boolean isLast = (page == totalPages);
 
         // 검색 결과
-        List<PlanDTO> planDTOList = planDAO.getPlansByCondition(offset, size, search, userName, duration, sort);
+        List<PlanDTO> planDTOList = planDAO.getPlansByCondition(offset, size, search, userName, duration, sort, currentUserId);
         List<PlanResponseDTO> planResponseDTOList = new ArrayList<>();
         for (PlanDTO planDTO : planDTOList) {
             // 태그 리스트
@@ -64,6 +65,7 @@ public class PlanService {
                     .isPublic(planDTO.isPublic())
                     .planWriters(writerResponseDTOList)
                     .tags(tagResponseDTOList)
+                    .liked(planDTO.isLiked())
                     .build();
 
             planResponseDTOList.add(planResponseDTO);
@@ -81,9 +83,9 @@ public class PlanService {
                 .build();
     }
 
-    public PlanDetailResponseDTO getPlanDetail(int planId) {
+    public PlanDetailResponseDTO getPlanDetail(int planId, int currentUserId) {
         // PlanDTO 가져오기
-        PlanDTO planDTO = planDAO.getPlanById(planId);
+        PlanDTO planDTO = planDAO.getPlanById(planId, currentUserId);
         if (planDTO == null) {
             throw new PlanNotFoundException("해당 ID의 계획을 찾을 수 없습니다. planId: " + planId);
         }
@@ -110,6 +112,7 @@ public class PlanService {
                 .planWriters(writerResponseDTOList)
                 .tags(tagResponseDTOList)
                 .details(routeResponseDTOMap)
+                .liked(planDTO.isLiked())
                 .build();
 
         return planDetailResponseDTO;
