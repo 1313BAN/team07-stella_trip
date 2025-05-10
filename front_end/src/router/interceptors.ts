@@ -1,5 +1,6 @@
 import type { Router } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { ROUTES } from './routes';
 
 /**
  * 제목 설정
@@ -25,7 +26,7 @@ const setupAuthInterceptor = (router: Router) => {
 
       if (!authStore.getIsAuthenticated) {
         next({
-          name: 'login',
+          name: ROUTES.HOME.name,
           query: { redirect: to.fullPath },
         });
         return;
