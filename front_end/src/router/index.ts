@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
-import { setupInterceptors } from './intorceptors';
+import { setupInterceptors } from './interceptors';
 import { ROUTES } from './routes';
 
 const routes: Array<RouteRecordRaw> = [
