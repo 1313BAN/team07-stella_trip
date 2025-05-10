@@ -14,4 +14,5 @@ public interface UserDAO {
     List<UserDTO> getWritersByPlanId(int planId);
     UserDTO getUserByEmail(String email);
     int insertUser(UserDTO user);
+    int deleteUserByUserId(int userId);
 }

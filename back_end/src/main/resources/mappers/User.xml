@@ -15,6 +15,11 @@
         <result column="modified_at" property="modifiedAt"/>
     </resultMap>
 
+    <resultMap id="UserProfileMap" type="UserProfileDTO" extends="UserMap">
+        <result column="follower_count" property="followerCount"/>
+        <result column="following_count" property="followingCount"/>
+    </resultMap>
+
     <select id="getWritersByPlanId" resultMap="UserMap">
         select u.* from user u
         left join plan_writer p
@@ -30,5 +35,48 @@
         insert into user(name, email, role, password)
         values( #{name}, #{email}, #{role}, #{password})
     </insert>
+
+    <!-- 자신의 ID로 회원 탈퇴 -->
+    <delete id="deleteUserByUserId">
+        delete from user where user_id=#{userId}
+    </delete>
+
+    <!-- 특정 사용자 ID로 프로필 정보 조회 -->
+    <select id="getUserProfile" resultMap="UserProfileMap">
+        select
+        u.*,
+        (select count(*) from follower f where f.user_id = u.user_id) as follower_count,
+        (select count(*) from follower f where f.following_id = u.user_id) as following_count
+        from user u
+        where u.user_id = #{userId}
+    </select>
+
+    <!-- 자신의 프로필 정보 수정 -->
+    <update id="updateMyProfileByUserId">
+        update user
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="image != null">image = #{image},</if>
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <!-- 자신의 비밀번호 수정 -->
+    <update id="updatePasswordByUserId">
+        update user
+        <set>
+            <if test="password != null">password = #{password},</if>
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <select id="getFollowersByUserId">
+
+    </select>
+
+    <select id="getFollowingsByUserId">
+
+    </select>
 
 </mapper>
