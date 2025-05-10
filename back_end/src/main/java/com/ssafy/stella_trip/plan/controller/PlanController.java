@@ -2,13 +2,14 @@ package com.ssafy.stella_trip.plan.controller;
 
 import com.ssafy.stella_trip.common.dto.PageDTO;
 import com.ssafy.stella_trip.common.response.CommonResponse;
+import com.ssafy.stella_trip.plan.dto.response.LockSuccessResponseDTO;
+import com.ssafy.stella_trip.plan.dto.response.LockStatusResponseDTO;
 import com.ssafy.stella_trip.plan.dto.response.PlanResponseDTO;
 import com.ssafy.stella_trip.plan.service.PlanService;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -103,4 +104,45 @@ public class PlanController {
         return new CommonResponse<>(null, HttpStatus.OK);
     }
 
+    @GetMapping("/{planId}/lock-check")
+    @Operation(
+            summary = "여행 계획 Lock 체크",
+            description = "여행 계획 ID로 여행 계획 Lock 체크"
+    )
+    @ApiResponses(value = {
+    })
+    public CommonResponse<LockStatusResponseDTO> checkPlanLock(
+            @PathVariable(value = "planId") int planId,
+            @AuthenticationPrincipal JwtUserInfo user
+    ) {
+        return new CommonResponse<>(planService.checkLock(planId, user), HttpStatus.OK);
+    }
+
+    @GetMapping("/{planId}/lock")
+    @Operation(
+            summary = "여행 계획 Lock",
+            description = "여행 계획 ID로 여행 계획 Lock"
+    )
+    @ApiResponses(value = {
+    })
+    public CommonResponse<LockSuccessResponseDTO> lockPlan(
+            @PathVariable(value = "planId") int planId,
+            @AuthenticationPrincipal JwtUserInfo user
+    ) {
+        return new CommonResponse<>(planService.lockPlan(planId, user), HttpStatus.OK);
+    }
+
+    @GetMapping("/{planId}/unlock")
+    @Operation(
+            summary = "여행 계획 Unlock",
+            description = "여행 계획 ID로 여행 계획 Unlock"
+    )
+    @ApiResponses(value = {
+    })
+    public CommonResponse<LockSuccessResponseDTO> unlockPlan(
+            @PathVariable(value = "planId") int planId,
+            @AuthenticationPrincipal JwtUserInfo user
+    ) {
+        return new CommonResponse<>(planService.releaseLock(planId, user), HttpStatus.OK);
+    }
 }

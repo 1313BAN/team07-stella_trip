@@ -8,14 +8,15 @@ import com.ssafy.stella_trip.plan.dto.TagDTO;
 import com.ssafy.stella_trip.plan.dto.response.*;
 import com.ssafy.stella_trip.plan.exception.DuplicatedLikeException;
 import com.ssafy.stella_trip.plan.exception.PlanNotFoundException;
+import com.ssafy.stella_trip.plan.exception.UnauthorizedPlanAccessException;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
 import com.ssafy.stella_trip.user.dto.UserDTO;
+import com.ssafy.stella_trip.util.PlanLockUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -23,6 +24,8 @@ import java.util.*;
 public class PlanService {
 
     private final PlanDAO planDAO;
+    private final PlanLockUtil planLockUtil;
+    private final int LOCK_TIMEOUT = 180; // 3분
 
     public PageDTO<PlanResponseDTO> searchPlanByCondition(
             int page,
@@ -139,6 +142,55 @@ public class PlanService {
         planDAO.decreaseLikeCount(planId);
     }
 
+    @Transactional
+    public LockStatusResponseDTO checkLock(int planId, JwtUserInfo user) {
+        // 권한 체크
+        checkPlanAuthority(planId, user);
+
+        // redis에서 lock 상태 확인
+        Integer val = planLockUtil.checkPlanLock(planId);
+
+        // 락이 없으면 false, 있으면 true 반환
+        boolean lockStatus = val != null;
+        int lockedUserId = lockStatus ? val : -1; // 락이 걸려있다면 userId를 파싱
+
+        return new LockStatusResponseDTO(lockedUserId, planId, lockStatus);
+    }
+
+    @Transactional
+    public LockSuccessResponseDTO lockPlan(int planId, JwtUserInfo user) {
+        // 권한 체크
+        checkPlanAuthority(planId, user);
+        // 3분 동안 락을 획득
+        boolean success = planLockUtil.acquirePlanLock(planId, user.getUserId(), LOCK_TIMEOUT);
+
+        return new LockSuccessResponseDTO(success);
+    }
+
+    @Transactional
+    public LockSuccessResponseDTO releaseLock(int planId, JwtUserInfo user) {
+        // 권한 체크
+        checkPlanAuthority(planId, user);
+
+        // 락 해제
+        boolean success = planLockUtil.releasePlanLock(planId);
+
+        return new LockSuccessResponseDTO(success);
+    }
+
+    private void checkPlanAuthority(int planId, JwtUserInfo user) throws PlanNotFoundException, UnauthorizedPlanAccessException{
+        // 계획 유무 체크
+        PlanDTO planDTO = planDAO.getPlanById(planId, user.getUserId());
+        if(planDTO == null) {
+            throw new PlanNotFoundException("해당 ID의 계획을 찾을 수 없습니다. planId: " + planId);
+        }
+
+        // 권한 체크
+        if (planDTO.getWriters().stream().allMatch(writer -> writer.getUserId() != user.getUserId())) {
+            throw new UnauthorizedPlanAccessException("해당 계획에 대한 접근 권한이 없습니다. planId: " + planId);
+        }
+    }
+
     private List<TagResponseDTO> convertTagsToResponse(List<TagDTO> tags) {
         List<TagResponseDTO> tagResponseDTOList = new ArrayList<>();
         for (TagDTO tag : tags) {
@@ -191,5 +243,4 @@ public class PlanService {
                 .forEach(date -> routeResponseDTOMap.get(date).sort(Comparator.comparingInt(RouteResponseDTO::getOrder)));
         return routeResponseDTOMap;
     }
-
 }
