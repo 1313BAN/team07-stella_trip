@@ -28,4 +28,11 @@ public class PlanExceptionHandler {
         return new CommonResponse<>(new ErrorBody("PLAN-002", "중복된 좋아요 등록 / 취소 입니다."),
                 HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(UnauthorizedPlanAccessException.class)
+    public CommonResponse<ErrorBody> unauthorizedPlanAccessException(UnauthorizedPlanAccessException e, HttpServletRequest request) {
+        log.warn("PLAN-003> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(new ErrorBody("PLAN-003", "해당 계획에 대한 접근 권한이 없습니다."),
+                HttpStatus.FORBIDDEN);
+    }
 }
