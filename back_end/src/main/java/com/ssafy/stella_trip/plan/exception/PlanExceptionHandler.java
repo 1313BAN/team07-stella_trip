@@ -35,4 +35,11 @@ public class PlanExceptionHandler {
         return new CommonResponse<>(new ErrorBody("PLAN-003", "해당 계획에 대한 접근 권한이 없습니다."),
                 HttpStatus.FORBIDDEN);
     }
+
+    @ExceptionHandler(LockedPlanException.class)
+    public CommonResponse<ErrorBody> lockedPlanException(LockedPlanException e, HttpServletRequest request) {
+        log.warn("PLAN-004> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(new ErrorBody("PLAN-004", "해당 계획은 누군가 수정중입니다."),
+                HttpStatus.FORBIDDEN);
+    }
 }
