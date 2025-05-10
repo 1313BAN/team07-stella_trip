@@ -22,5 +22,6 @@ public interface PlanDAO {
             @Param("userName") String userName,
             @Param("duration") int duration
     );
-
+    int countUserPlansByUserId(int userId);
+    List<PlanDTO> getUserPlansByUserId(@Param("userId") int userId, @Param("page") int page, @Param("size") int size);
 }

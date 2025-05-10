@@ -1,6 +1,8 @@
 package com.ssafy.stella_trip.user.controller;
 
+import com.ssafy.stella_trip.common.dto.PageDTO;
 import com.ssafy.stella_trip.common.response.CommonResponse;
+import com.ssafy.stella_trip.plan.dto.response.PlanResponseDTO;
 import com.ssafy.stella_trip.user.dto.request.MyProfileUpdateRequestDTO;
 import com.ssafy.stella_trip.user.dto.request.PasswordUpdateRequestDTO;
 import com.ssafy.stella_trip.user.dto.response.MyProfileResponseDTO;
@@ -43,5 +45,12 @@ public class UserProfileController {
     public CommonResponse<Void> updatePassword(@RequestBody PasswordUpdateRequestDTO passwordUpdateRequestDTO) {
         userProfileService.updatePassword(passwordUpdateRequestDTO.getPassword());
         return new CommonResponse<>(null, HttpStatus.NO_CONTENT);
+    }
+
+    //자신의 여행 계획 목록 조회
+    @GetMapping("/plans")
+    public CommonResponse<PageDTO<PlanResponseDTO>> getUserPlans(@RequestParam(value = "page", defaultValue = "1") int page,
+                                                                 @RequestParam(value = "size", defaultValue = "20") int size){
+        return new CommonResponse<>(userProfileService.getUserPlans(page, size), HttpStatus.OK);
     }
 }
