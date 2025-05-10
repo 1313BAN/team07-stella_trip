@@ -1,7 +1,25 @@
 <script setup lang="ts">
-import { Button } from './components/ui/button';
+import { ref, onErrorCaptured } from 'vue';
+import GlobalErrorBoundary from '@/components/global/GlobalErrorBoundary.vue';
+import GlobalFallback from '@/components/global/GlobalFallback.vue';
+
+const hasError = ref(false);
+
+onErrorCaptured(() => {
+  hasError.value = true;
+
+  return false;
+});
 </script>
 
 <template>
-  <Button>Hello World</Button>
+  <GlobalErrorBoundary v-if="hasError" />
+  <Suspense v-else>
+    <template #default>
+      <RouterView />
+    </template>
+    <template #fallback>
+      <GlobalFallback />
+    </template>
+  </Suspense>
 </template>
