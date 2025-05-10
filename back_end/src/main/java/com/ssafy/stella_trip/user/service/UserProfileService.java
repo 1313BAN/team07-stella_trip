@@ -1,7 +1,5 @@
 package com.ssafy.stella_trip.user.service;
 
-import com.ssafy.stella_trip.attraction.dto.AttractionDTO;
-import com.ssafy.stella_trip.attraction.dto.response.AttractionResponseDTO;
 import com.ssafy.stella_trip.common.dto.PageDTO;
 import com.ssafy.stella_trip.dao.plan.PlanDAO;
 import com.ssafy.stella_trip.dao.user.UserProfileDAO;
@@ -14,7 +12,6 @@ import com.ssafy.stella_trip.security.dto.JwtUserInfo;
 import com.ssafy.stella_trip.user.dto.UserDTO;
 import com.ssafy.stella_trip.user.dto.UserProfileDTO;
 import com.ssafy.stella_trip.user.dto.request.MyProfileUpdateRequestDTO;
-import com.ssafy.stella_trip.user.dto.response.FollowerResponseDTO;
 import com.ssafy.stella_trip.user.dto.response.MyProfileResponseDTO;
 import com.ssafy.stella_trip.user.dto.response.UserProfileResponseDTO;
 import com.ssafy.stella_trip.user.exception.ProfileNotFoundException;
@@ -226,19 +223,55 @@ public class UserProfileService {
 //        List<AttractionDTO> likedAttractions = userProfileDAO.getLikedAttractions(userId, page, size);
 //        return ;
 //    }
-//
-//    /**
-//     * 사용자의 좋아요한 여행 계획 리스트 조회
-//     * @param page 페이지 번호
-//     * @param size 페이지 크기
-//     * @return 페이징된 좋아요한 여행 계획 리스트
-//     */
-//    public PageDTO<PlanResponseDTO> getLikedPlans(int page, int size) {
-//        int userId = getCurrentAuthenticatedUserId();
-//        List<PlanDTO> likedPlans = userProfileDAO.getLikedPlans(userId, page, size);
-//        return ;
-//    }
-//
+
+    /**
+     * 사용자의 좋아요한 여행 계획 리스트 조회
+     * @param page 페이지 번호
+     * @param size 페이지 크기
+     * @return 페이징된 좋아요한 여행 계획 리스트
+     */
+    public PageDTO<PlanResponseDTO> getLikedPlans(int page, int size) {
+        int userId = getCurrentAuthenticatedUserId();
+
+        int totalPlans = planDAO.countLikedPlansByUserId(userId);
+
+        int totalPages = (int) Math.ceil((double) totalPlans / size);
+        int offset = (page - 1) * size;
+        boolean hasNext = (page < totalPages);
+        boolean isFirst = (page == 1);
+        boolean isLast = (page == totalPages);
+
+        List<PlanDTO> likedPlans = planDAO.getLikedPlansByUserId(userId, size, offset);
+
+        List<PlanResponseDTO> planResponses = new ArrayList<>();
+        for (PlanDTO planDTO : likedPlans) {
+            PlanResponseDTO planResponseDTO = PlanResponseDTO.builder()
+                    .planId(planDTO.getPlanId())
+                    .title(planDTO.getTitle())
+                    .description(planDTO.getDescription())
+                    .stella(planDTO.getStella())
+                    .startDate(planDTO.getStartDate())
+                    .endDate(planDTO.getEndDate())
+                    .likeCount(planDTO.getLikeCount())
+                    .isPublic(planDTO.isPublic())
+                    .planWriters(convertWritersToResponse(planDTO.getWriters()))
+                    .tags(convertTagsToResponse(planDTO.getTags()))
+                    .build();
+            planResponses.add(planResponseDTO);
+        }
+
+        return PageDTO.<PlanResponseDTO>builder()
+                .content(planResponses)
+                .totalElements(totalPlans)
+                .totalPages(totalPages)
+                .page(page)
+                .size(size)
+                .isFirst(isFirst)
+                .isLast(isLast)
+                .hasNext(hasNext)
+                .build();
+    }
+
 //    /**
 //     * 특정 사용자의 팔로잉 목록 조회
 //     * @param userId 조회할 사용자 ID

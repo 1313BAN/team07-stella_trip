@@ -53,4 +53,11 @@ public class UserProfileController {
                                                                  @RequestParam(value = "size", defaultValue = "20") int size){
         return new CommonResponse<>(userProfileService.getUserPlans(page, size), HttpStatus.OK);
     }
+
+    //자신이 좋아요한 여행 계획 목록 조회
+    @GetMapping("/liked/plans")
+    public CommonResponse<PageDTO<PlanResponseDTO>> getLikedPlans(@RequestParam(value = "page", defaultValue = "1") int page,
+                                                                  @RequestParam(value = "size", defaultValue = "20") int size){
+        return new CommonResponse<>(userProfileService.getLikedPlans(page, size), HttpStatus.OK);
+    }
 }
