@@ -52,7 +52,7 @@
                      select="com.ssafy.stella_trip.dao.attraction.AttractionDAO.getAttractionById" column="attraction_id"/>
     </resultMap>
 
-
+    <!-- plan조회 -->
     <select id="getPlanById" resultMap="PlanMap">
         SELECT
         p.*,
@@ -156,6 +156,7 @@
         </if>
     </select>
 
+    <!-- 좋아요 관련 쿼리 -->
     <update id="increaseLikeCount">
         UPDATE plan
         SET like_count = like_count + 1
@@ -186,6 +187,7 @@
         ) AS is_liked
     </select>
 
+    <!-- 여행 계획 수정 관련 쿼리 -->
     <update id="updatePlanSchedule">
         UPDATE plan
         SET start_date = #{startDate}, end_date = #{endDate}
@@ -206,4 +208,9 @@
         DELETE FROM plan
         WHERE plan_id = #{planId};
     </delete>
+
+    <insert id="insertRoute">
+        INSERT INTO route (plan_id, attraction_id, day_index, `order`, visit_time, memo)
+        VALUES (#{planId}, #{attractionId}, #{dayIndex}, #{order}, #{visitTime}, #{memo});
+    </insert>
 </mapper>

@@ -42,4 +42,11 @@ public class PlanExceptionHandler {
         return new CommonResponse<>(new ErrorBody("PLAN-004", "해당 계획은 누군가 수정중입니다."),
                 HttpStatus.FORBIDDEN);
     }
+
+    @ExceptionHandler(IllegalDayIndexException.class)
+    public CommonResponse<ErrorBody> illegalDayIndexException(IllegalDayIndexException e, HttpServletRequest request) {
+        log.warn("PLAN-005> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(new ErrorBody("PLAN-005", "잘못된 여행 날짜입니다."),
+                HttpStatus.BAD_REQUEST);
+    }
 }

@@ -5,12 +5,10 @@ import com.ssafy.stella_trip.dao.plan.PlanDAO;
 import com.ssafy.stella_trip.plan.dto.PlanDTO;
 import com.ssafy.stella_trip.plan.dto.RouteDTO;
 import com.ssafy.stella_trip.plan.dto.TagDTO;
+import com.ssafy.stella_trip.plan.dto.request.AttractionPostRequestDTO;
 import com.ssafy.stella_trip.plan.dto.request.PlanScheduleRequestDTO;
 import com.ssafy.stella_trip.plan.dto.response.*;
-import com.ssafy.stella_trip.plan.exception.DuplicatedLikeException;
-import com.ssafy.stella_trip.plan.exception.LockedPlanException;
-import com.ssafy.stella_trip.plan.exception.PlanNotFoundException;
-import com.ssafy.stella_trip.plan.exception.UnauthorizedPlanAccessException;
+import com.ssafy.stella_trip.plan.exception.*;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
 import com.ssafy.stella_trip.user.dto.UserDTO;
 import com.ssafy.stella_trip.util.PlanLockUtil;
@@ -19,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
@@ -195,6 +194,40 @@ public class PlanService {
         // 일정 업데이트
         planDAO.updatePlanSchedule(planId, scheduleRequestDTO.getStartDate(), scheduleRequestDTO.getEndDate());
         planDAO.deleteRoutesExceedingDayIndex(planId);
+        return getPlanDetail(planId, user); // 업데이트된 계획을 가져오기 위해 다시 호출
+    }
+
+    public PlanResponseDTO addAttraction(int planId, AttractionPostRequestDTO attractionPostRequestDTO, JwtUserInfo user) {
+        // 권한 체크
+        checkPlanAuthority(planId, user);
+
+        // day index 체크
+        PlanDTO plan = planDAO.getPlanById(planId, user.getUserId());
+        long dateDiff = ChronoUnit.DAYS.between(plan.getStartDate(), plan.getEndDate());
+        if (attractionPostRequestDTO.getDayIndex() < 1 || attractionPostRequestDTO.getDayIndex() > dateDiff + 1) {
+            throw new IllegalDayIndexException("유효하지 않은 day index입니다. day index: " + attractionPostRequestDTO.getDayIndex());
+        }
+
+        // attractionId 체크
+        // TODO: attractionId 유효성 체크
+
+        // order 구하기
+        int insertOrder = 1;
+        for (RouteDTO route : plan.getRoutes()) {
+            if (route.getDayIndex() == attractionPostRequestDTO.getDayIndex()) {
+                insertOrder = Math.max(insertOrder, route.getOrder() + 1);
+            }
+        }
+
+        // 일정 추가
+        planDAO.insertRoute(
+                planId,
+                attractionPostRequestDTO.getAttractionId(),
+                attractionPostRequestDTO.getDayIndex(),
+                insertOrder,
+                attractionPostRequestDTO.getVisitTime(),
+                attractionPostRequestDTO.getMemo()
+        );
         return getPlanDetail(planId, user); // 업데이트된 계획을 가져오기 위해 다시 호출
     }
 

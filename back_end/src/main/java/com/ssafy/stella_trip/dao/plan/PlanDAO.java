@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Mapper
@@ -48,5 +49,14 @@ public interface PlanDAO {
 
     int deletePlan(
             @Param("planId") int planId
+    );
+
+    int insertRoute(
+            @Param("planId") int planId,
+            @Param("attractionId") int attractionId,
+            @Param("dayIndex") int dayIndex,
+            @Param("order") int order,
+            @Param("visitTime") LocalTime visitTime,
+            @Param("memo") String memo
     );
 }
