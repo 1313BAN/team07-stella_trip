@@ -3,8 +3,8 @@ package com.ssafy.stella_trip.dao.plan;
 import com.ssafy.stella_trip.plan.dto.PlanDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.security.core.parameters.P;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Mapper
@@ -35,4 +35,18 @@ public interface PlanDAO {
     void unlikePlan(@Param("planId") int planId, @Param("userId") int userId);
 
     boolean isPlanLikedByUser(@Param("planId") int planId, @Param("userId") int userId);
+
+    int updatePlanSchedule(
+            @Param("planId") int planId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    int deleteRoutesExceedingDayIndex(
+            @Param("planId") int planId
+    );
+
+    int deletePlan(
+            @Param("planId") int planId
+    );
 }

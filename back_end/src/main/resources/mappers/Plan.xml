@@ -185,4 +185,25 @@
         WHERE plan_id = #{planId} AND user_id = #{userId}
         ) AS is_liked
     </select>
+
+    <update id="updatePlanSchedule">
+        UPDATE plan
+        SET start_date = #{startDate}, end_date = #{endDate}
+        WHERE plan_id = #{planId};
+    </update>
+
+    <delete id="deleteRoutesExceedingDayIndex">
+        DELETE FROM route
+        WHERE plan_id = #{planId}
+        AND day_index > (
+            SELECT DATEDIFF(p.end_date, p.start_date) + 1
+            FROM plan p
+            WHERE p.plan_id = #{planId}
+        );
+    </delete>
+
+    <delete id="deletePlan">
+        DELETE FROM plan
+        WHERE plan_id = #{planId};
+    </delete>
 </mapper>

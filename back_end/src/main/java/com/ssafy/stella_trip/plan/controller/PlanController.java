@@ -2,6 +2,7 @@ package com.ssafy.stella_trip.plan.controller;
 
 import com.ssafy.stella_trip.common.dto.PageDTO;
 import com.ssafy.stella_trip.common.response.CommonResponse;
+import com.ssafy.stella_trip.plan.dto.request.PlanScheduleRequestDTO;
 import com.ssafy.stella_trip.plan.dto.response.LockSuccessResponseDTO;
 import com.ssafy.stella_trip.plan.dto.response.LockStatusResponseDTO;
 import com.ssafy.stella_trip.plan.dto.response.PlanResponseDTO;
@@ -153,5 +154,23 @@ public class PlanController {
             @AuthenticationPrincipal JwtUserInfo user
     ) {
         return new CommonResponse<>(planService.releaseLock(planId, user), HttpStatus.OK);
+    }
+
+    @PutMapping("/{planId}/schedule")
+    @Operation(
+            summary = "여행 계획 일정 수정",
+            description = "여행 계획 ID로 여행 계획 일정 수정"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상적으로 수정 완료"),
+            @ApiResponse(responseCode = "404", description = "PLAN-001: 해당 ID의 계획을 찾을 수 없습니다."),
+            @ApiResponse(responseCode = "403", description = "PLAN-003: 해당 계획에 대한 접근 권한이 없습니다."),
+    })
+    public CommonResponse<PlanResponseDTO> updatePlanSchedule(
+            @PathVariable(value = "planId") int planId,
+            @RequestBody PlanScheduleRequestDTO scheduleRequestDTO,
+            @AuthenticationPrincipal JwtUserInfo user
+    ) {
+        return new CommonResponse<>(planService.updatePlanSchedule(planId, scheduleRequestDTO, user), HttpStatus.OK);
     }
 }

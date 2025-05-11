@@ -5,8 +5,10 @@ import com.ssafy.stella_trip.dao.plan.PlanDAO;
 import com.ssafy.stella_trip.plan.dto.PlanDTO;
 import com.ssafy.stella_trip.plan.dto.RouteDTO;
 import com.ssafy.stella_trip.plan.dto.TagDTO;
+import com.ssafy.stella_trip.plan.dto.request.PlanScheduleRequestDTO;
 import com.ssafy.stella_trip.plan.dto.response.*;
 import com.ssafy.stella_trip.plan.exception.DuplicatedLikeException;
+import com.ssafy.stella_trip.plan.exception.LockedPlanException;
 import com.ssafy.stella_trip.plan.exception.PlanNotFoundException;
 import com.ssafy.stella_trip.plan.exception.UnauthorizedPlanAccessException;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
@@ -176,6 +178,23 @@ public class PlanService {
         boolean success = planLockUtil.releasePlanLock(planId);
 
         return new LockSuccessResponseDTO(success);
+    }
+
+    public PlanResponseDTO updatePlanSchedule(int planId, PlanScheduleRequestDTO scheduleRequestDTO, JwtUserInfo user) {
+        // 권한 체크
+        checkPlanAuthority(planId, user);
+
+        // 락 체크
+        Integer lockUserId = planLockUtil.checkPlanLock(planId);
+        boolean lockStatus = lockUserId != null;
+        if(lockStatus) {
+            throw new LockedPlanException("해당 계획은 다른 사용자에 의해 Lock 되어 있습니다. planId: " + planId);
+        }
+
+        // 일정 업데이트
+        planDAO.updatePlanSchedule(planId, scheduleRequestDTO.getStartDate(), scheduleRequestDTO.getEndDate());
+        planDAO.deleteRoutesExceedingDayIndex(planId);
+        return getPlanDetail(planId, user); // 업데이트된 계획을 가져오기 위해 다시 호출
     }
 
     private void checkPlanAuthority(int planId, JwtUserInfo user) throws PlanNotFoundException, UnauthorizedPlanAccessException{
