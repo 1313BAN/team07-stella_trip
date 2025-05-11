@@ -19,7 +19,7 @@ public class AttractionResponseDTO {
     private String image;
     private String address;
     @JsonProperty("content_type")
-    private String contentType;
+    private int contentType;
     private int like;
     private double rating;
     private double latitude;
