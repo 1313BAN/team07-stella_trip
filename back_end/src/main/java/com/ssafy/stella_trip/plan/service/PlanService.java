@@ -180,6 +180,7 @@ public class PlanService {
         return new LockSuccessResponseDTO(success);
     }
 
+    @Transactional
     public PlanResponseDTO updatePlanSchedule(int planId, PlanScheduleRequestDTO scheduleRequestDTO, JwtUserInfo user) {
         // 권한 체크
         checkPlanAuthority(planId, user);
