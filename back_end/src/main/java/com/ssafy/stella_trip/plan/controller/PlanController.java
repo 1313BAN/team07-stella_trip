@@ -39,7 +39,7 @@ public class PlanController {
     public CommonResponse<PageDTO<PlanResponseDTO>> getPlan(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "20") int size,
-            @RequestParam(value = "search", defaultValue = "")  String search,
+            @RequestParam(value = "search", defaultValue = "") String search,
             @RequestParam(value = "username", defaultValue = "") String userName,
             @RequestParam(value = "duration", defaultValue = "0") int duration,
             @RequestParam(value = "sort", defaultValue = "recent") String sort,
@@ -196,7 +196,7 @@ public class PlanController {
         return new CommonResponse<>(planService.addAttraction(planId, routeInsertRequestDTO, user), HttpStatus.OK);
     }
 
-    @PatchMapping("/{planId}")
+    @PatchMapping("/{planId}/attraction")
     @Operation(
             summary = "여행 계획 순서 변경 (수정, 삭제)",
             description = "여행 계획 ID로 여행 계획 수정"
