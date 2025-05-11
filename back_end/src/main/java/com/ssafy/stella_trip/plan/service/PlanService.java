@@ -197,6 +197,7 @@ public class PlanService {
         return getPlanDetail(planId, user); // 업데이트된 계획을 가져오기 위해 다시 호출
     }
 
+    @Transactional
     public PlanResponseDTO addAttraction(int planId, AttractionPostRequestDTO attractionPostRequestDTO, JwtUserInfo user) {
         // 권한 체크
         checkPlanAuthority(planId, user);
