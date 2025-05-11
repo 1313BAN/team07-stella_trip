@@ -171,7 +171,7 @@
         u.user_id, u.name as user_name, u.email, u.role, u.description, u.image, u.created_at, u.modified_at,
         t.tag_id, t.name
         FROM plan p
-        JOIN favorite_plan fp ON p.plan_id = fp.plan_id
+        JOIN liked_plan fp ON p.plan_id = fp.plan_id
         LEFT JOIN plan_writer pw ON p.plan_id = pw.plan_id
         LEFT JOIN user u ON pw.user_id = u.user_id
         LEFT JOIN tag_plan tp ON p.plan_id = tp.plan_id
@@ -184,7 +184,7 @@
     <select id="countLikedPlansByUserId">
         SELECT COUNT(DISTINCT p.plan_id)
         FROM plan p
-        JOIN favorite_plan fp ON p.plan_id = fp.plan_id
+        JOIN liked_plan fp ON p.plan_id = fp.plan_id
         WHERE fp.user_id = #{userId}
     </select>
 

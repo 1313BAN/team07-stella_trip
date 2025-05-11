@@ -85,7 +85,7 @@
         FROM
         attraction a
         JOIN
-        favorite_attraction fa ON a.attraction_id = fa.attraction_id
+        liked_attraction fa ON a.attraction_id = fa.attraction_id
         WHERE
         fa.user_id = #{userId}
     </select>
@@ -105,7 +105,7 @@
         FROM
         attraction a
         JOIN
-        favorite_attraction fa ON a.attraction_id = fa.attraction_id
+        liked_attraction fa ON a.attraction_id = fa.attraction_id
         LEFT JOIN
         (SELECT
         r1.*,
