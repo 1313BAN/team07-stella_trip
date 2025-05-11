@@ -2,6 +2,7 @@ package com.ssafy.stella_trip.plan.controller;
 
 import com.ssafy.stella_trip.common.dto.PageDTO;
 import com.ssafy.stella_trip.common.response.CommonResponse;
+import com.ssafy.stella_trip.plan.dto.request.PlanRequestDTO;
 import com.ssafy.stella_trip.plan.dto.request.RouteInsertRequestDTO;
 import com.ssafy.stella_trip.plan.dto.request.PlanScheduleRequestDTO;
 import com.ssafy.stella_trip.plan.dto.request.RoutesUpdateRequestDTO;
@@ -213,5 +214,20 @@ public class PlanController {
             @AuthenticationPrincipal JwtUserInfo user
     ) {
         return new CommonResponse<>(planService.updatePlanRoutes(planId, routesUpdateRequestDTO, user), HttpStatus.OK);
+    }
+
+    @PostMapping
+    @Operation(
+            summary = "여행 계획 추가",
+            description = "여행 계획 추가"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상적으로 추가 완료"),
+    })
+    public CommonResponse<PlanResponseDTO> addPlan(
+            @RequestBody PlanRequestDTO planRequestDTO,
+            @AuthenticationPrincipal JwtUserInfo user
+    ) {
+        return new CommonResponse<>(planService.addPlan(planRequestDTO, user), HttpStatus.OK);
     }
 }

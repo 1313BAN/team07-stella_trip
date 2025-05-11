@@ -15,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @SuperBuilder
 public class PlanResponseDTO {
+    @JsonProperty("plan_id")
     private int planId;
     private String title;
     private String description;
@@ -23,7 +24,9 @@ public class PlanResponseDTO {
     private LocalDate startDate;
     @JsonProperty("end_date")
     private LocalDate endDate;
+    @JsonProperty("like_count")
     private int likeCount;
+    @JsonProperty("is_public")
     private boolean isPublic;
     @JsonProperty("plan_writers")
     private List<WriterResponseDTO> planWriters;

@@ -5,6 +5,7 @@ import com.ssafy.stella_trip.dao.plan.PlanDAO;
 import com.ssafy.stella_trip.plan.dto.PlanDTO;
 import com.ssafy.stella_trip.plan.dto.RouteDTO;
 import com.ssafy.stella_trip.plan.dto.TagDTO;
+import com.ssafy.stella_trip.plan.dto.request.PlanRequestDTO;
 import com.ssafy.stella_trip.plan.dto.request.PlanScheduleRequestDTO;
 import com.ssafy.stella_trip.plan.dto.request.RouteInsertRequestDTO;
 import com.ssafy.stella_trip.plan.dto.request.RoutesUpdateRequestDTO;
@@ -195,6 +196,7 @@ public class PlanService {
         // 일정 업데이트
         planDAO.updatePlanSchedule(planId, scheduleRequestDTO.getStartDate(), scheduleRequestDTO.getEndDate());
         planDAO.deleteRoutesExceedingDayIndex(planId);
+        // TODO: stella 업데이트
         return getPlanDetail(planId, user); // 업데이트된 계획을 가져오기 위해 다시 호출
     }
 
@@ -230,6 +232,7 @@ public class PlanService {
                 routeInsertRequestDTO.getVisitTime(),
                 routeInsertRequestDTO.getMemo()
         );
+        // TODO: stella 업데이트
         return getPlanDetail(planId, user); // 업데이트된 계획을 가져오기 위해 다시 호출
     }
 
@@ -277,8 +280,36 @@ public class PlanService {
         }
         planDAO.updateRoutes(updatingRoutes);
         planDAO.deleteRoutes(deletingRoutes);
+        // TODO: stella 업데이트
         planLockUtil.releasePlanLock(planId);
         return getPlanDetail(planId, user); // 업데이트된 계획을 가져오기 위해 다시 호출
+    }
+
+    @Transactional
+    public PlanResponseDTO addPlan(PlanRequestDTO planRequestDTO, JwtUserInfo user) {
+
+        String stella = "0.0"; // TODO: stella 계산 로직 추가
+        // 계획 추가
+        PlanDTO planDTO = PlanDTO.builder()
+                .title(planRequestDTO.getTitle())
+                .description(planRequestDTO.getDescription())
+                .stella(stella)
+                .startDate(planRequestDTO.getStartDate())
+                .endDate(planRequestDTO.getEndDate())
+                .isPublic(planRequestDTO.isPublic())
+                .build();
+        planDAO.insertPlan(planDTO);
+
+        // 태그 추가 (두 단계로 분리)
+        if (planRequestDTO.getTags() != null && !planRequestDTO.getTags().isEmpty()) {
+            planDAO.insertTags(planRequestDTO.getTags());
+            planDAO.linkTagsToPlan(planDTO.getPlanId(), planRequestDTO.getTags());
+        }
+
+        // 작성자 추가
+        planDAO.insertPlanWriter(planDTO.getPlanId(), user.getUserId());
+
+        return getPlanDetail(planDTO.getPlanId(), user); // 생성된 계획을 가져오기 위해 다시 호출
     }
 
     private void checkPlanAuthority(int planId, JwtUserInfo user) throws PlanNotFoundException, UnauthorizedPlanAccessException{

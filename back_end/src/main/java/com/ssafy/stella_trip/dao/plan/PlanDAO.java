@@ -64,4 +64,16 @@ public interface PlanDAO {
     int updateRoutes(@Param("routes") List<RouteDTO> routes);
 
     int deleteRoutes(@Param("routes") List<RouteDTO> routes);
+
+    int insertPlan(@Param("plan") PlanDTO plan);
+
+    int insertTags(@Param("tags") List<String> tags);
+
+    int linkTagsToPlan(@Param("planId") int planId, @Param("tags") List<String> tags);
+
+    int deletePlanTagByPlanId(@Param("planId") int planId);
+
+    int insertPlanWriter(@Param("planId") int planId, @Param("userId") int userId);
+
+    int deletePlanWriter(@Param("planId") int planId, @Param("userId") int userId);
 }
