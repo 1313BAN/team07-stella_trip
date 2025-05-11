@@ -1,5 +1,6 @@
 package com.ssafy.stella_trip.user.controller;
 
+import com.ssafy.stella_trip.attraction.dto.response.AttractionResponseDTO;
 import com.ssafy.stella_trip.common.dto.PageDTO;
 import com.ssafy.stella_trip.common.response.CommonResponse;
 import com.ssafy.stella_trip.plan.dto.response.PlanResponseDTO;
@@ -60,6 +61,13 @@ public class UserProfileController {
     public CommonResponse<PageDTO<PlanResponseDTO>> getLikedPlans(@RequestParam(value = "page", defaultValue = "1") int page,
                                                                   @RequestParam(value = "size", defaultValue = "20") int size){
         return new CommonResponse<>(userProfileService.getLikedPlans(page, size), HttpStatus.OK);
+    }
+
+    //자신이 좋아요한 여행지 목록 조회
+    @GetMapping("/liked/attractions")
+    public CommonResponse<PageDTO<AttractionResponseDTO>> getLikedAttractions(@RequestParam(value = "page", defaultValue = "1") int page,
+                                                                              @RequestParam(value = "size", defaultValue = "20") int size) {
+        return new CommonResponse<>(userProfileService.getLikedAttractions(page, size), HttpStatus.OK);
     }
 
     //특정 사용자의 팔로워 조회

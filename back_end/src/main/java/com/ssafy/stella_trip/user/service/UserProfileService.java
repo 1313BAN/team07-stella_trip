@@ -1,6 +1,9 @@
 package com.ssafy.stella_trip.user.service;
 
+import com.ssafy.stella_trip.attraction.dto.AttractionWithReviewsDTO;
+import com.ssafy.stella_trip.attraction.dto.response.AttractionResponseDTO;
 import com.ssafy.stella_trip.common.dto.PageDTO;
+import com.ssafy.stella_trip.dao.attraction.AttractionDAO;
 import com.ssafy.stella_trip.dao.plan.PlanDAO;
 import com.ssafy.stella_trip.dao.user.UserDAO;
 import com.ssafy.stella_trip.plan.dto.PlanDTO;
@@ -26,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +38,7 @@ public class UserProfileService {
 
     private final UserDAO userDAO;
     private final PlanDAO planDAO;
+    private final AttractionDAO attractionDAO;
     private final PasswordEncoder passwordEncoder;
 
     private int getCurrentAuthenticatedUserId() {
@@ -333,6 +338,53 @@ public class UserProfileService {
         return PageDTO.<FollowResponseDTO>builder()
                 .content(followResponses)
                 .totalElements(totalFollowers)
+                .totalPages(totalPages)
+                .page(page)
+                .size(size)
+                .isFirst(isFirst)
+                .isLast(isLast)
+                .hasNext(hasNext)
+                .build();
+    }
+
+    /**
+     * 사용자가 좋아요한 관광지 목록 조회
+     * @param page 페이지 번호
+     * @param size 페이지 크기
+     * @return 페이징된 좋아요한 관광지 목록
+     */
+    public PageDTO<AttractionResponseDTO> getLikedAttractions(int page, int size) {
+        int userId = getCurrentAuthenticatedUserId();
+
+        int totalAttractions = attractionDAO.countLikedAttractionsByUserId(userId);
+
+        int totalPages = (int) Math.ceil((double) totalAttractions / size);
+        int offset = (page - 1) * size;
+        boolean hasNext = (page < totalPages);
+        boolean isFirst = (page == 1);
+        boolean isLast = (page == totalPages || totalPages == 0);
+
+        List<AttractionWithReviewsDTO> attractionsWithReviews =
+                attractionDAO.getLikedAttractionsWithReviews(userId, offset, size);
+
+        List<AttractionResponseDTO> attractionResponses = attractionsWithReviews.stream()
+                .map(attraction -> AttractionResponseDTO.builder()
+                        .attractionId(attraction.getAttractionId())
+                        .name(attraction.getTitle())
+                        .image(attraction.getFirstImage1())
+                        .address(attraction.getAddr1() + (attraction.getAddr2() != null ? " " + attraction.getAddr2() : ""))
+                        .contentType(attraction.getContentTypeId())
+                        .like(attraction.getLikeCount())
+                        .rating(attraction.getRating())
+                        .latitude(attraction.getLatitude())
+                        .longitude(attraction.getLongitude())
+                        .review(attraction.getReviews())
+                        .build())
+                .collect(Collectors.toList());
+
+        return PageDTO.<AttractionResponseDTO>builder()
+                .content(attractionResponses)
+                .totalElements(totalAttractions)
                 .totalPages(totalPages)
                 .page(page)
                 .size(size)
