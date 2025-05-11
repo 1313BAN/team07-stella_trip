@@ -114,6 +114,7 @@ public class PlanController {
             @ApiResponse(responseCode = "200", description = "정상적으로 체크 완료"),
             @ApiResponse(responseCode = "404", description = "PLAN-001: 해당 ID의 계획을 찾을 수 없습니다."),
             @ApiResponse(responseCode = "403", description = "PLAN-003: 해당 계획에 대한 접근 권한이 없습니다."),
+            @ApiResponse(responseCode = "403", description = "PLAN-004: 해당 계획은 누군가 수정중입니다."),
     })
     public CommonResponse<LockStatusResponseDTO> checkPlanLock(
             @PathVariable(value = "planId") int planId,
@@ -159,7 +160,7 @@ public class PlanController {
     @PutMapping("/{planId}/schedule")
     @Operation(
             summary = "여행 계획 일정 수정",
-            description = "여행 계획 ID로 여행 계획 일정 수정"
+            description = "여행 계획 ID로 여행 계획 일정 수정, 수정시에 일정 범위 밖의 모든 route는 삭제됨"
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "정상적으로 수정 완료"),
