@@ -5,6 +5,7 @@ import com.ssafy.stella_trip.common.response.CommonResponse;
 import com.ssafy.stella_trip.plan.dto.response.PlanResponseDTO;
 import com.ssafy.stella_trip.user.dto.request.MyProfileUpdateRequestDTO;
 import com.ssafy.stella_trip.user.dto.request.PasswordUpdateRequestDTO;
+import com.ssafy.stella_trip.user.dto.response.FollowResponseDTO;
 import com.ssafy.stella_trip.user.dto.response.MyProfileResponseDTO;
 import com.ssafy.stella_trip.user.dto.response.UserProfileResponseDTO;
 import com.ssafy.stella_trip.user.service.UserProfileService;
@@ -27,7 +28,7 @@ public class UserProfileController {
         return new CommonResponse<>(userProfileService.getMyProfile(), HttpStatus.OK);
     }
 
-    //다른 유저의 프로필 조회
+    //특정 사용자의 프로필 조회
     @GetMapping("/{userId}")
     @PreAuthorize("permitAll()")
     public CommonResponse<UserProfileResponseDTO> getUserProfile(@PathVariable int userId) {
@@ -59,5 +60,23 @@ public class UserProfileController {
     public CommonResponse<PageDTO<PlanResponseDTO>> getLikedPlans(@RequestParam(value = "page", defaultValue = "1") int page,
                                                                   @RequestParam(value = "size", defaultValue = "20") int size){
         return new CommonResponse<>(userProfileService.getLikedPlans(page, size), HttpStatus.OK);
+    }
+
+    //특정 사용자의 팔로워 조회
+    @PreAuthorize("permitAll()")
+    @GetMapping("/{userId}/followers")
+    public CommonResponse<PageDTO<FollowResponseDTO>> getFollowers(@PathVariable int userId,
+                                                                   @RequestParam(value = "page", defaultValue = "1") int page,
+                                                                   @RequestParam(value = "size", defaultValue = "20") int size){
+        return new CommonResponse<>(userProfileService.getFollowers(userId, page, size), HttpStatus.OK);
+    }
+
+    //특정 사용자의 팔로잉 조회
+    @PreAuthorize("permitAll()")
+    @GetMapping("/{userId}/followings")
+    public CommonResponse<PageDTO<FollowResponseDTO>> getFollowings(@PathVariable int userId,
+                                                                   @RequestParam(value = "page", defaultValue = "1") int page,
+                                                                   @RequestParam(value = "size", defaultValue = "20") int size){
+        return new CommonResponse<>(userProfileService.getFollowings(userId, page, size), HttpStatus.OK);
     }
 }
