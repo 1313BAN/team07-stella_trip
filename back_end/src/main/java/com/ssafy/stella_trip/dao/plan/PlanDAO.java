@@ -1,6 +1,7 @@
 package com.ssafy.stella_trip.dao.plan;
 
 import com.ssafy.stella_trip.plan.dto.PlanDTO;
+import com.ssafy.stella_trip.plan.dto.RouteDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -59,4 +60,8 @@ public interface PlanDAO {
             @Param("visitTime") LocalTime visitTime,
             @Param("memo") String memo
     );
+
+    int updateRoutes(@Param("routes") List<RouteDTO> routes);
+
+    int deleteRoutes(@Param("routes") List<RouteDTO> routes);
 }

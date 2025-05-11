@@ -2,8 +2,9 @@ package com.ssafy.stella_trip.plan.controller;
 
 import com.ssafy.stella_trip.common.dto.PageDTO;
 import com.ssafy.stella_trip.common.response.CommonResponse;
-import com.ssafy.stella_trip.plan.dto.request.AttractionPostRequestDTO;
+import com.ssafy.stella_trip.plan.dto.request.RouteInsertRequestDTO;
 import com.ssafy.stella_trip.plan.dto.request.PlanScheduleRequestDTO;
+import com.ssafy.stella_trip.plan.dto.request.RoutesUpdateRequestDTO;
 import com.ssafy.stella_trip.plan.dto.response.LockSuccessResponseDTO;
 import com.ssafy.stella_trip.plan.dto.response.LockStatusResponseDTO;
 import com.ssafy.stella_trip.plan.dto.response.PlanResponseDTO;
@@ -189,9 +190,28 @@ public class PlanController {
     })
     public CommonResponse<PlanResponseDTO> addAttraction(
             @PathVariable(value = "planId") int planId,
-            @RequestBody AttractionPostRequestDTO attractionPostRequestDTO,
+            @RequestBody RouteInsertRequestDTO routeInsertRequestDTO,
             @AuthenticationPrincipal JwtUserInfo user
     ) {
-        return new CommonResponse<>(planService.addAttraction(planId, attractionPostRequestDTO, user), HttpStatus.OK);
+        return new CommonResponse<>(planService.addAttraction(planId, routeInsertRequestDTO, user), HttpStatus.OK);
+    }
+
+    @PatchMapping("/{planId}")
+    @Operation(
+            summary = "여행 계획 순서 변경 (수정, 삭제)",
+            description = "여행 계획 ID로 여행 계획 수정"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상적으로 수정 완료"),
+            @ApiResponse(responseCode = "404", description = "PLAN-001: 해당 ID의 계획을 찾을 수 없습니다."),
+            @ApiResponse(responseCode = "403", description = "PLAN-003: 해당 계획에 대한 접근 권한이 없습니다."),
+            @ApiResponse(responseCode = "404", description = "PLAN-005: 잘못된 여행 날짜입니다."),
+    })
+    public CommonResponse<PlanResponseDTO> updatePlanRoutes(
+            @PathVariable(value = "planId") int planId,
+            @RequestBody RoutesUpdateRequestDTO routesUpdateRequestDTO,
+            @AuthenticationPrincipal JwtUserInfo user
+    ) {
+        return new CommonResponse<>(planService.updatePlanRoutes(planId, routesUpdateRequestDTO, user), HttpStatus.OK);
     }
 }

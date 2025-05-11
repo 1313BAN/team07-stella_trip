@@ -10,7 +10,7 @@ import java.time.LocalTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AttractionPostRequestDTO {
+public class RouteInsertRequestDTO {
     @JsonProperty("day_index")
     private int dayIndex;
     @JsonProperty("attraction_id")

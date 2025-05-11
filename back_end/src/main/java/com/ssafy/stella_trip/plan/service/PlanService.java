@@ -5,8 +5,9 @@ import com.ssafy.stella_trip.dao.plan.PlanDAO;
 import com.ssafy.stella_trip.plan.dto.PlanDTO;
 import com.ssafy.stella_trip.plan.dto.RouteDTO;
 import com.ssafy.stella_trip.plan.dto.TagDTO;
-import com.ssafy.stella_trip.plan.dto.request.AttractionPostRequestDTO;
 import com.ssafy.stella_trip.plan.dto.request.PlanScheduleRequestDTO;
+import com.ssafy.stella_trip.plan.dto.request.RouteInsertRequestDTO;
+import com.ssafy.stella_trip.plan.dto.request.RoutesUpdateRequestDTO;
 import com.ssafy.stella_trip.plan.dto.response.*;
 import com.ssafy.stella_trip.plan.exception.*;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
@@ -198,15 +199,15 @@ public class PlanService {
     }
 
     @Transactional
-    public PlanResponseDTO addAttraction(int planId, AttractionPostRequestDTO attractionPostRequestDTO, JwtUserInfo user) {
+    public PlanResponseDTO addAttraction(int planId, RouteInsertRequestDTO routeInsertRequestDTO, JwtUserInfo user) {
         // 권한 체크
         checkPlanAuthority(planId, user);
 
         // day index 체크
         PlanDTO plan = planDAO.getPlanById(planId, user.getUserId());
         long dateDiff = ChronoUnit.DAYS.between(plan.getStartDate(), plan.getEndDate());
-        if (attractionPostRequestDTO.getDayIndex() < 1 || attractionPostRequestDTO.getDayIndex() > dateDiff + 1) {
-            throw new IllegalDayIndexException("유효하지 않은 day index입니다. day index: " + attractionPostRequestDTO.getDayIndex());
+        if (routeInsertRequestDTO.getDayIndex() < 1 || routeInsertRequestDTO.getDayIndex() > dateDiff + 1) {
+            throw new IllegalDayIndexException("유효하지 않은 day index입니다. day index: " + routeInsertRequestDTO.getDayIndex());
         }
 
         // attractionId 체크
@@ -215,7 +216,7 @@ public class PlanService {
         // order 구하기
         int insertOrder = 1;
         for (RouteDTO route : plan.getRoutes()) {
-            if (route.getDayIndex() == attractionPostRequestDTO.getDayIndex()) {
+            if (route.getDayIndex() == routeInsertRequestDTO.getDayIndex()) {
                 insertOrder = Math.max(insertOrder, route.getOrder() + 1);
             }
         }
@@ -223,12 +224,60 @@ public class PlanService {
         // 일정 추가
         planDAO.insertRoute(
                 planId,
-                attractionPostRequestDTO.getAttractionId(),
-                attractionPostRequestDTO.getDayIndex(),
+                routeInsertRequestDTO.getAttractionId(),
+                routeInsertRequestDTO.getDayIndex(),
                 insertOrder,
-                attractionPostRequestDTO.getVisitTime(),
-                attractionPostRequestDTO.getMemo()
+                routeInsertRequestDTO.getVisitTime(),
+                routeInsertRequestDTO.getMemo()
         );
+        return getPlanDetail(planId, user); // 업데이트된 계획을 가져오기 위해 다시 호출
+    }
+
+    @Transactional
+    public PlanResponseDTO updatePlanRoutes(int planId, RoutesUpdateRequestDTO routesUpdateRequestDTO, JwtUserInfo user) {
+        // 권한 체크
+        checkPlanAuthority(planId, user);
+
+        // 락 체크
+        Integer lockUserId = planLockUtil.checkPlanLock(planId);
+        if(lockUserId != null && lockUserId != user.getUserId()) {
+            throw new LockedPlanException("해당 계획은 다른 사용자에 의해 Lock 되어 있습니다. planId: " + planId);
+        }
+        if(lockUserId == null){
+            throw new UnlockedException("해당 계획은 Lock 되어 있지 않습니다. planId: " + planId);
+        }
+
+        // 혹시 모를 상황에 대비해 lock 연장
+        planLockUtil.acquirePlanLock(planId, user.getUserId(), LOCK_TIMEOUT);
+
+        // 일정 범위 체크
+        PlanDTO plan = planDAO.getPlanById(planId, user.getUserId());
+        long dateDiff = ChronoUnit.DAYS.between(plan.getStartDate(), plan.getEndDate());
+
+        // 루트 업데이트
+        List<RouteDTO> updatingRoutes = new ArrayList<>();
+        List<RouteDTO> deletingRoutes = new ArrayList<>();
+        for (RoutesUpdateRequestDTO.RouteDTO route : routesUpdateRequestDTO.getRoutes()) {
+            if(route.isDeleted()){
+                RouteDTO routeDTO = RouteDTO.builder()
+                        .routeId(route.getRouteId())
+                        .build();
+                deletingRoutes.add(routeDTO);
+            }else{
+                if (route.getDayIndex() < 1 || route.getDayIndex() > dateDiff + 1) {
+                    throw new IllegalDayIndexException("유효하지 않은 day index입니다. day index: " + route.getDayIndex());
+                }
+                RouteDTO routeDTO = RouteDTO.builder()
+                        .routeId(route.getRouteId())
+                        .dayIndex(route.getDayIndex())
+                        .order(route.getOrder())
+                        .build();
+                updatingRoutes.add(routeDTO);
+            }
+        }
+        planDAO.updateRoutes(updatingRoutes);
+        planDAO.deleteRoutes(deletingRoutes);
+        planLockUtil.releasePlanLock(planId);
         return getPlanDetail(planId, user); // 업데이트된 계획을 가져오기 위해 다시 호출
     }
 

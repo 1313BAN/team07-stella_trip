@@ -13,14 +13,16 @@ public class PlanLockUtil {
     private final RedisTemplate<String, Object> redisTemplate;
     private final String LOCK_PREFIX = "plan-lock:";
 
-    /**
-     * Redis 분산 락을 획득합니다.
-     * @param planId  락을 획득할 여행 계획 ID
-     * @param timeout 락의 만료 시간 (초)
-     * @return 락 획득 성공 여부
-     */
     public boolean acquirePlanLock(int planId, Integer userId, long timeout) {
         String lockKey = LOCK_PREFIX + planId;
+        Integer currentUserId = (Integer) redisTemplate.opsForValue().get(lockKey);
+
+        // 만일 같은 사용자가 락을 획득한 경우, 만료 시간을 연장
+        if (userId.equals(currentUserId)) {
+            redisTemplate.expire(lockKey, timeout, TimeUnit.SECONDS);
+            return true;
+        }
+
         Boolean success = redisTemplate.opsForValue().setIfAbsent(lockKey, userId, timeout, TimeUnit.SECONDS);
         return Boolean.TRUE.equals(success);
     }

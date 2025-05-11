@@ -213,4 +213,21 @@
         INSERT INTO route (plan_id, attraction_id, day_index, `order`, visit_time, memo)
         VALUES (#{planId}, #{attractionId}, #{dayIndex}, #{order}, #{visitTime}, #{memo});
     </insert>
+
+    <update id="updateRoutes">
+        <foreach collection="routes" item="route" separator=";">
+            UPDATE route
+            SET
+            day_index = #{route.dayIndex},
+            `order` = #{route.order}
+            WHERE route_id = #{route.routeId}
+        </foreach>
+    </update>
+
+    <delete id="deleteRoutes">
+        <foreach collection="routes" item="route" separator=";">
+            DELETE FROM route
+            WHERE route_id = #{route.routeId}
+        </foreach>
+    </delete>
 </mapper>

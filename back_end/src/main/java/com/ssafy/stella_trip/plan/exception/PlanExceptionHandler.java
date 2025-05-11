@@ -49,4 +49,11 @@ public class PlanExceptionHandler {
         return new CommonResponse<>(new ErrorBody("PLAN-005", "잘못된 여행 날짜입니다."),
                 HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(UnlockedException.class)
+    public CommonResponse<ErrorBody> unlockedException(UnlockedException e, HttpServletRequest request) {
+        log.warn("PLAN-006> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(new ErrorBody("PLAN-006", "잠금 없이는 수정할 수 없습니다."),
+                HttpStatus.BAD_REQUEST);
+    }
 }
