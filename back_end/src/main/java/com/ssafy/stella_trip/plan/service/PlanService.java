@@ -189,7 +189,7 @@ public class PlanService {
         checkPlanAuthority(planId, user);
 
         // 락 해제
-        boolean success = planLockUtil.releasePlanLock(planId);
+        boolean success = planLockUtil.releasePlanLock(planId, user.getUserId());
 
         return new LockSuccessResponseDTO(success);
     }
@@ -294,7 +294,7 @@ public class PlanService {
         planDAO.updateRoutes(updatingRoutes);
         planDAO.deleteRoutes(deletingRoutes);
         // TODO: stella 업데이트
-        planLockUtil.releasePlanLock(planId);
+        planLockUtil.releasePlanLock(planId, user.getUserId()); // 락 해제
         return getPlanDetail(planId, user); // 업데이트된 계획을 가져오기 위해 다시 호출
     }
 

@@ -27,8 +27,13 @@ public class PlanLockUtil {
         return Boolean.TRUE.equals(success);
     }
 
-    public boolean releasePlanLock(int planId) {
-        return redisTemplate.opsForValue().getAndDelete(LOCK_PREFIX + planId) != null;
+    public boolean releasePlanLock(int planId, Integer userId) {
+        String key = LOCK_PREFIX + planId;
+        Integer owner = (Integer) redisTemplate.opsForValue().get(key);
+        if (!userId.equals(owner)) {
+            return false;   // 소유자 불일치
+        }
+        return redisTemplate.opsForValue().getAndDelete(key) != null;
     }
 
     public Integer checkPlanLock(int planId) {
