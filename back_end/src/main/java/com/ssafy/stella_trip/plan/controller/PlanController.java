@@ -229,7 +229,7 @@ public class PlanController {
         return new CommonResponse<>(planService.addPlan(planRequestDTO, user), HttpStatus.CREATED);
     }
 
-    @GetMapping("/{planId}/leave")
+    @PostMapping("/{planId}/leave")
     @Operation(
             summary = "여행 계획 나가기",
             description = "여행 계획 ID로 여행 계획 나가기. 작성자가 없는 plan은 삭제"
