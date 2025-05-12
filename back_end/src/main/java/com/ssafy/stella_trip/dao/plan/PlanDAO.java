@@ -52,6 +52,8 @@ public interface PlanDAO {
             @Param("planId") int planId
     );
 
+    RouteDTO getRouteByRouteId(@Param("routeId") int routeId);
+
     int insertRoute(
             @Param("planId") int planId,
             @Param("attractionId") int attractionId,
@@ -76,4 +78,21 @@ public interface PlanDAO {
     int insertPlanWriter(@Param("planId") int planId, @Param("userId") int userId);
 
     int deletePlanWriter(@Param("planId") int planId, @Param("userId") int userId);
+
+    int getPlanWritersCount(@Param("planId") int planId);
+
+    boolean checkPlanWriter(@Param("planId") int planId, @Param("userId") int userId);
+
+    int updateBasicPlanInfo(
+            @Param("planId") int planId,
+            @Param("title") String title,
+            @Param("description") String description,
+            @Param("isPublic") boolean isPublic
+    );
+
+    int updateRouteInfo(
+            @Param("routeId") int routeId,
+            @Param("visitTime") LocalTime visitTime,
+            @Param("memo") String memo
+    );
 }

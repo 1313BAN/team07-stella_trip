@@ -43,6 +43,7 @@
 
     <resultMap id="RouteMap" type="com.ssafy.stella_trip.plan.dto.RouteDTO">
         <id column="route_id" property="routeId"/>
+        <result column="plan_id" property="planId"/>
         <result column="attraction_id" property="attractionId"/>
         <result column="day_index" property="dayIndex"/>
         <result column="order" property="order"/>
@@ -89,7 +90,7 @@
 
     <delete id="deletePlanWriter">
         DELETE FROM plan_writer
-        WHERE plan_id = #{planId};
+        WHERE plan_id = #{planId} AND user_id = #{userId};
     </delete>
 
     <!-- plan조회 -->
@@ -114,6 +115,7 @@
     <select id="getRoutesByPlanId" resultMap="RouteMap">
         SELECT
         r.route_id,
+        r.plan_id,
         r.attraction_id,
         r.day_index,
         r.order,
@@ -196,6 +198,33 @@
         </if>
     </select>
 
+    <select id="getRouteByRouteId" resultMap="RouteMap">
+        SELECT
+        r.route_id,
+        r.plan_id,
+        r.attraction_id,
+        r.day_index,
+        r.order,
+        r.visit_time,
+        r.memo
+        FROM route r
+        WHERE r.route_id = #{routeId}
+    </select>
+
+    <select id="getPlanWritersCount">
+        SELECT COUNT(DISTINCT pw.user_id)
+        FROM plan_writer pw
+        WHERE pw.plan_id = #{planId}
+    </select>
+
+    <select id="checkPlanWriter">
+        SELECT EXISTS (
+            SELECT 1
+            FROM plan_writer pw
+            WHERE pw.plan_id = #{planId} AND pw.user_id = #{userId}
+        ) AS is_writer
+    </select>
+
     <!-- 좋아요 관련 쿼리 -->
     <update id="increaseLikeCount">
         UPDATE plan
@@ -228,6 +257,14 @@
     </select>
 
     <!-- 여행 계획 수정 관련 쿼리 -->
+    <update id="updateBasicPlanInfo">
+        UPDATE plan
+        SET title = #{title},
+            description = #{description},
+            is_public = #{isPublic}
+        WHERE plan_id = #{planId};
+    </update>
+
     <update id="updatePlanSchedule">
         UPDATE plan
         SET start_date = #{startDate}, end_date = #{endDate}
@@ -262,6 +299,14 @@
             `order` = #{route.order}
             WHERE route_id = #{route.routeId}
         </foreach>
+    </update>
+
+    <update id="updateRouteInfo">
+        UPDATE route
+        SET
+        visit_time = #{visitTime},
+        memo = #{memo}
+        WHERE route_id = #{routeId}
     </update>
 
     <delete id="deleteRoutes">

@@ -2,13 +2,11 @@ package com.ssafy.stella_trip.plan.service;
 
 import com.ssafy.stella_trip.common.dto.PageDTO;
 import com.ssafy.stella_trip.dao.plan.PlanDAO;
+import com.ssafy.stella_trip.dao.user.UserDAO;
 import com.ssafy.stella_trip.plan.dto.PlanDTO;
 import com.ssafy.stella_trip.plan.dto.RouteDTO;
 import com.ssafy.stella_trip.plan.dto.TagDTO;
-import com.ssafy.stella_trip.plan.dto.request.PlanRequestDTO;
-import com.ssafy.stella_trip.plan.dto.request.PlanScheduleRequestDTO;
-import com.ssafy.stella_trip.plan.dto.request.RouteInsertRequestDTO;
-import com.ssafy.stella_trip.plan.dto.request.RoutesUpdateRequestDTO;
+import com.ssafy.stella_trip.plan.dto.request.*;
 import com.ssafy.stella_trip.plan.dto.response.*;
 import com.ssafy.stella_trip.plan.exception.*;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
@@ -27,6 +25,7 @@ import java.util.*;
 public class PlanService {
 
     private final PlanDAO planDAO;
+    private final UserDAO userDAO;
     private final PlanLockUtil planLockUtil;
     private final int LOCK_TIMEOUT = 180; // 3분
 
@@ -97,6 +96,15 @@ public class PlanService {
         PlanDTO planDTO = planDAO.getPlanById(planId, user != null ? user.getUserId() : -1);
         if (planDTO == null) {
             throw new PlanNotFoundException("해당 ID의 계획을 찾을 수 없습니다. planId: " + planId);
+        }
+
+        // 권한 체크
+        if (!planDTO.isPublic()) {
+            if(user == null) {
+                throw new UnauthorizedPlanAccessException("해당 계획에 대한 접근 권한이 없습니다. planId: " + planId);
+            }else if (planDTO.getWriters().stream().noneMatch(writer -> writer.getUserId() == user.getUserId())) {
+                throw new UnauthorizedPlanAccessException("해당 계획에 대한 접근 권한이 없습니다. planId: " + planId);
+            }
         }
 
         // 태그 리스트
@@ -312,6 +320,80 @@ public class PlanService {
         return getPlanDetail(planDTO.getPlanId(), user); // 생성된 계획을 가져오기 위해 다시 호출
     }
 
+    @Transactional
+    public Boolean leavePlan(int planId, JwtUserInfo user) {
+        // 권한 체크
+        checkPlanAuthority(planId, user);
+
+        // 계획에서 나가기
+        planDAO.deletePlanWriter(planId, user.getUserId());
+
+        // 작성자가 없으면 계획 삭제
+        if (planDAO.getPlanWritersCount(planId) == 0) {
+            planDAO.deletePlan(planId);
+            return true;
+        }
+        return true;
+    }
+
+    @Transactional
+    public Boolean invitePlan(int planId, String email, JwtUserInfo user) {
+        // 권한 체크
+        checkPlanAuthority(planId, user);
+
+        // 이메일로 사용자 찾기
+        UserDTO invitedUser = userDAO.getUserByEmail(email);
+        if (invitedUser == null) {
+            throw new UserNotFoundException("해당 이메일의 사용자를 찾을 수 없습니다. email: " + email);
+        }
+
+        // 이미 초대된 사용자 체크
+        if (planDAO.checkPlanWriter(planId, invitedUser.getUserId())) {
+            throw new DuplicatedWriterException("이미 초대된 사용자입니다. email: " + email);
+        }
+
+        // 초대하기
+        planDAO.insertPlanWriter(planId, invitedUser.getUserId());
+        return true;
+    }
+
+    @Transactional
+    public PlanResponseDTO updatePlan(int planId, BasicPlanRequestDTO basicPlanRequestDTO, JwtUserInfo user) {
+        // 권한 체크
+        checkPlanAuthority(planId, user);
+
+        planDAO.updateBasicPlanInfo(
+                planId,
+                basicPlanRequestDTO.getTitle(),
+                basicPlanRequestDTO.getDescription(),
+                basicPlanRequestDTO.isPublic()
+        );
+
+        return getPlanDetail(planId, user); // 생성된 계획을 가져오기 위해 다시 호출
+    }
+
+    @Transactional
+    public RouteResponseDTO updateRoute(int planId, int routeId, RouteUpdateRequestDTO routeUpdateRequestDTO, JwtUserInfo user) {
+        // 권한 체크
+        checkPlanAuthority(planId, user);
+        RouteDTO route = planDAO.getRouteByRouteId(routeId);
+        if (route == null) {
+            throw new RouteNotFoundException("해당 ID의 루트를 찾을 수 없습니다. routeId: " + routeId);
+        }
+        if(route.getPlanId() != planId){
+            throw new RouteNotInPlanException("해당 루트는 계획에 속하지 않습니다. planId: " + planId + ", routeId: " + routeId);
+        }
+
+        // 일정 업데이트
+        planDAO.updateRouteInfo(
+                routeId,
+                routeUpdateRequestDTO.getVisitTime(),
+                routeUpdateRequestDTO.getMemo()
+        );
+
+        return convertRouteToResponse(planDAO.getRouteByRouteId(routeId));
+    }
+
     private void checkPlanAuthority(int planId, JwtUserInfo user) throws PlanNotFoundException, UnauthorizedPlanAccessException{
         // 계획 유무 체크
         PlanDTO planDTO = planDAO.getPlanById(planId, user.getUserId());
@@ -349,24 +431,29 @@ public class PlanService {
         return writerResponseDTOList;
     }
 
+    private RouteResponseDTO convertRouteToResponse(RouteDTO routeDTO) {
+        return RouteResponseDTO.builder()
+                .routeId(routeDTO.getRouteId())
+                .attractionId(routeDTO.getAttractionId())
+                .order(routeDTO.getOrder())
+                .name(routeDTO.getAttraction().getTitle())
+                .image(routeDTO.getAttraction().getFirstImage1())
+                .address(routeDTO.getAttraction().getAddr1())
+                .contentTypeId(routeDTO.getAttraction().getContentTypeId())
+                .likeCount(routeDTO.getAttraction().getLikeCount())
+                .rating(routeDTO.getAttraction().getRating())
+                .latitude(routeDTO.getAttraction().getLatitude())
+                .longitude(routeDTO.getAttraction().getLongitude())
+                .visitTime(routeDTO.getVisitTime())
+                .memo(routeDTO.getMemo())
+                .build();
+    }
+
     private Map<LocalDate, List<RouteResponseDTO>> convertRoutesToResponse(List<RouteDTO> routes, LocalDate startDate) {
         Map<LocalDate, List<RouteResponseDTO>> routeResponseDTOMap = new HashMap<>();
         for (RouteDTO route : routes) {
-            RouteResponseDTO routeResponseDTO = RouteResponseDTO.builder()
-                    .routeId(route.getRouteId())
-                    .attractionId(route.getAttractionId())
-                    .order(route.getOrder())
-                    .name(route.getAttraction().getTitle())
-                    .image(route.getAttraction().getFirstImage1())
-                    .address(route.getAttraction().getAddr1())
-                    .contentTypeId(route.getAttraction().getContentTypeId())
-                    .likeCount(route.getAttraction().getLikeCount())
-                    .rating(route.getAttraction().getRating())
-                    .latitude(route.getAttraction().getLatitude())
-                    .longitude(route.getAttraction().getLongitude())
-                    .visitTime(route.getVisitTime())
-                    .memo(route.getMemo())
-                    .build();
+            // RouteResponseDTO 생성
+            RouteResponseDTO routeResponseDTO = convertRouteToResponse(route);
             // 날짜에 맞춰서 리스트에 추가
             LocalDate visitDate = startDate.plusDays(route.getDayIndex() - 1);
             routeResponseDTOMap.computeIfAbsent(visitDate, k -> new ArrayList<>()).add(routeResponseDTO);

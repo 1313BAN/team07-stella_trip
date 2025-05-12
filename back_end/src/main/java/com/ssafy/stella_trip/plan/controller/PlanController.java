@@ -2,13 +2,11 @@ package com.ssafy.stella_trip.plan.controller;
 
 import com.ssafy.stella_trip.common.dto.PageDTO;
 import com.ssafy.stella_trip.common.response.CommonResponse;
-import com.ssafy.stella_trip.plan.dto.request.PlanRequestDTO;
-import com.ssafy.stella_trip.plan.dto.request.RouteInsertRequestDTO;
-import com.ssafy.stella_trip.plan.dto.request.PlanScheduleRequestDTO;
-import com.ssafy.stella_trip.plan.dto.request.RoutesUpdateRequestDTO;
+import com.ssafy.stella_trip.plan.dto.request.*;
 import com.ssafy.stella_trip.plan.dto.response.LockSuccessResponseDTO;
 import com.ssafy.stella_trip.plan.dto.response.LockStatusResponseDTO;
 import com.ssafy.stella_trip.plan.dto.response.PlanResponseDTO;
+import com.ssafy.stella_trip.plan.dto.response.RouteResponseDTO;
 import com.ssafy.stella_trip.plan.service.PlanService;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -229,5 +227,82 @@ public class PlanController {
             @AuthenticationPrincipal JwtUserInfo user
     ) {
         return new CommonResponse<>(planService.addPlan(planRequestDTO, user), HttpStatus.OK);
+    }
+
+    @GetMapping("/{planId}/leave")
+    @Operation(
+            summary = "여행 계획 나가기",
+            description = "여행 계획 ID로 여행 계획 나가기. 작성자가 없는 plan은 삭제"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상적으로 나가기 완료"),
+            @ApiResponse(responseCode = "404", description = "PLAN-001: 해당 ID의 계획을 찾을 수 없습니다."),
+            @ApiResponse(responseCode = "403", description = "PLAN-003: 해당 계획에 대한 접근 권한이 없습니다."),
+    })
+    public CommonResponse<Boolean> leavePlan(
+            @PathVariable(value = "planId") int planId,
+            @AuthenticationPrincipal JwtUserInfo user
+    ) {
+
+        return new CommonResponse<>(planService.leavePlan(planId, user), HttpStatus.OK);
+    }
+
+    @PostMapping("/{planId}/invite")
+    @Operation(
+            summary = "여행 계획 초대",
+            description = "사용자 이메일로 여행 계획 초대"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상적으로 초대 완료"),
+            @ApiResponse(responseCode = "404", description = "PLAN-001: 해당 ID의 계획을 찾을 수 없습니다."),
+            @ApiResponse(responseCode = "403", description = "PLAN-003: 해당 계획에 대한 접근 권한이 없습니다."),
+            @ApiResponse(responseCode = "404", description = "PLAN-007: 해당 이메일의 사용자를 찾을 수 없습니다."),
+            @ApiResponse(responseCode = "400", description = "PLAN-008: 해당 사용자는 이미 작성자입니다."),
+    })
+    public CommonResponse<Boolean> invitePlan(
+            @PathVariable(value = "planId") int planId,
+            @RequestBody UserInvitationRequestDTO userInvitationRequestDTO,
+            @AuthenticationPrincipal JwtUserInfo user
+    ) {
+        return new CommonResponse<>(planService.invitePlan(planId, userInvitationRequestDTO.getEmail(), user), HttpStatus.OK);
+    }
+
+    @PutMapping("/{planId}")
+    @Operation(
+            summary = "여행 기본정보 수정",
+            description = "여행 계획 ID로 여행 기본정보 수정"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상적으로 수정 완료"),
+            @ApiResponse(responseCode = "404", description = "PLAN-001: 해당 ID의 계획을 찾을 수 없습니다."),
+            @ApiResponse(responseCode = "403", description = "PLAN-003: 해당 계획에 대한 접근 권한이 없습니다."),
+    })
+    public CommonResponse<PlanResponseDTO> updatePlan(
+            @PathVariable(value = "planId") int planId,
+            @RequestBody BasicPlanRequestDTO basicPlanRequestDTO,
+            @AuthenticationPrincipal JwtUserInfo user
+    ) {
+        return new CommonResponse<>(planService.updatePlan(planId, basicPlanRequestDTO, user), HttpStatus.OK);
+    }
+
+    @PutMapping("/{planId}/routes/{routeId}")
+    @Operation(
+            summary = "여행 경유지 상세정보 수정",
+            description = "routeId ID로 여행 경유지 상세정보 수정"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상적으로 수정 완료"),
+            @ApiResponse(responseCode = "404", description = "PLAN-001: 해당 ID의 계획을 찾을 수 없습니다."),
+            @ApiResponse(responseCode = "403", description = "PLAN-003: 해당 계획에 대한 접근 권한이 없습니다."),
+            @ApiResponse(responseCode = "404", description = "PLAN-009: 해당 경로는 계획에 포함되어 있지 않습니다."),
+            @ApiResponse(responseCode = "404", description = "PLAN-010: 해당 경로는 존재하지 않습니다."),
+    })
+    public CommonResponse<RouteResponseDTO> updateRoute(
+            @PathVariable(value = "planId") int planId,
+            @PathVariable(value = "routeId") int routeId,
+            @RequestBody RouteUpdateRequestDTO routeUpdateRequestDTO,
+            @AuthenticationPrincipal JwtUserInfo user
+    ) {
+        return new CommonResponse<>(planService.updateRoute(planId, routeId, routeUpdateRequestDTO, user), HttpStatus.OK);
     }
 }
