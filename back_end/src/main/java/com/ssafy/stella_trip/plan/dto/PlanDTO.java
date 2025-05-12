@@ -26,5 +26,5 @@ public class PlanDTO {
     private LocalDateTime modifiedAt;
     private boolean isPublic;
     private String stella;
-    private boolean liked;
+    private boolean isLiked;
 }
