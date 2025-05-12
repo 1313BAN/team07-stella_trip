@@ -3,6 +3,7 @@ package com.ssafy.stella_trip.user.service;
 import com.ssafy.stella_trip.attraction.dto.AttractionWithReviewsDTO;
 import com.ssafy.stella_trip.attraction.dto.response.AttractionResponseDTO;
 import com.ssafy.stella_trip.common.dto.PageDTO;
+import com.ssafy.stella_trip.common.util.PaginationUtils;
 import com.ssafy.stella_trip.dao.attraction.AttractionDAO;
 import com.ssafy.stella_trip.dao.plan.PlanDAO;
 import com.ssafy.stella_trip.dao.user.UserDAO;
@@ -29,7 +30,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -174,39 +174,14 @@ public class UserProfileService {
      */
     public PageDTO<PlanResponseDTO> getUserPlans(int page, int size) {
         int userId = getCurrentAuthenticatedUserId();
-        int totalPlans = planDAO.countUserPlansByUserId(userId);
 
-        PageInfo pageInfo = calculatePageInfo(totalPlans, page, size);
-
-        List<PlanDTO> userPlans = planDAO.getUserPlansByUserId(userId, pageInfo.offset, size);
-
-        List<PlanResponseDTO> planResponses = new ArrayList<>();
-        for (PlanDTO planDTO : userPlans) {
-            PlanResponseDTO planResponseDTO = PlanResponseDTO.builder()
-                    .planId(planDTO.getPlanId())
-                    .title(planDTO.getTitle())
-                    .description(planDTO.getDescription())
-                    .stella(planDTO.getStella())
-                    .startDate(planDTO.getStartDate())
-                    .endDate(planDTO.getEndDate())
-                    .likeCount(planDTO.getLikeCount())
-                    .isPublic(planDTO.isPublic())
-                    .planWriters(convertWritersToResponse(planDTO.getWriters()))
-                    .tags(convertTagsToResponse(planDTO.getTags()))
-                    .build();
-            planResponses.add(planResponseDTO);
-        }
-
-        return PageDTO.<PlanResponseDTO>builder()
-                .content(planResponses)
-                .totalElements(totalPlans)
-                .totalPages(pageInfo.totalPages)
-                .page(page)
-                .size(size)
-                .isFirst(pageInfo.isFirst)
-                .isLast(pageInfo.isLast)
-                .hasNext(pageInfo.hasNext)
-                .build();
+        return PaginationUtils.getPagedResult(
+                page,
+                size,
+                () -> planDAO.countUserPlansByUserId(userId),
+                (offset, pageSize) -> planDAO.getUserPlansByUserId(userId, offset, pageSize),
+                this::convertPlanToResponseDTO
+        );
     }
 
     /**
@@ -217,39 +192,14 @@ public class UserProfileService {
      */
     public PageDTO<PlanResponseDTO> getLikedPlans(int page, int size) {
         int userId = getCurrentAuthenticatedUserId();
-        int totalPlans = planDAO.countLikedPlansByUserId(userId);
 
-        PageInfo pageInfo = calculatePageInfo(totalPlans, page, size);
-
-        List<PlanDTO> likedPlans = planDAO.getLikedPlansByUserId(userId, pageInfo.offset, size);
-
-        List<PlanResponseDTO> planResponses = new ArrayList<>();
-        for (PlanDTO planDTO : likedPlans) {
-            PlanResponseDTO planResponseDTO = PlanResponseDTO.builder()
-                    .planId(planDTO.getPlanId())
-                    .title(planDTO.getTitle())
-                    .description(planDTO.getDescription())
-                    .stella(planDTO.getStella())
-                    .startDate(planDTO.getStartDate())
-                    .endDate(planDTO.getEndDate())
-                    .likeCount(planDTO.getLikeCount())
-                    .isPublic(planDTO.isPublic())
-                    .planWriters(convertWritersToResponse(planDTO.getWriters()))
-                    .tags(convertTagsToResponse(planDTO.getTags()))
-                    .build();
-            planResponses.add(planResponseDTO);
-        }
-
-        return PageDTO.<PlanResponseDTO>builder()
-                .content(planResponses)
-                .totalElements(totalPlans)
-                .totalPages(pageInfo.totalPages)
-                .page(page)
-                .size(size)
-                .isFirst(pageInfo.isFirst)
-                .isLast(pageInfo.isLast)
-                .hasNext(pageInfo.hasNext)
-                .build();
+        return PaginationUtils.getPagedResult(
+                page,
+                size,
+                () -> planDAO.countLikedPlansByUserId(userId),
+                (offset, pageSize) -> planDAO.getLikedPlansByUserId(userId, offset, pageSize),
+                this::convertPlanToResponseDTO
+        );
     }
 
     /**
@@ -260,26 +210,13 @@ public class UserProfileService {
      * @return 페이징된 팔로잉 목록
      */
     public PageDTO<FollowResponseDTO> getFollowings(int userId, int page, int size) {
-        int totalFollowings = userDAO.countFollowingsByUserId(userId);
-
-        PageInfo pageInfo = calculatePageInfo(totalFollowings, page, size);
-
-        List<UserDTO> followings = userDAO.getFollowingsByUserId(userId, pageInfo.offset, size);
-
-        List<FollowResponseDTO> followResponses = followings.stream()
-                .map(this::convertToFollowResponseDTO)
-                .toList();
-
-        return PageDTO.<FollowResponseDTO>builder()
-                .content(followResponses)
-                .totalElements(totalFollowings)
-                .totalPages(pageInfo.totalPages)
-                .page(page)
-                .size(size)
-                .isFirst(pageInfo.isFirst)
-                .isLast(pageInfo.isLast)
-                .hasNext(pageInfo.hasNext)
-                .build();
+        return PaginationUtils.getPagedResult(
+                page,
+                size,
+                () -> userDAO.countFollowingsByUserId(userId),
+                (offset, pageSize) -> userDAO.getFollowingsByUserId(userId, offset, pageSize),
+                this::convertToFollowResponseDTO
+        );
     }
 
     /**
@@ -290,26 +227,13 @@ public class UserProfileService {
      * @return 페이징된 팔로워 목록
      */
     public PageDTO<FollowResponseDTO> getFollowers(int userId, int page, int size) {
-        int totalFollowers = userDAO.countFollowersByUserId(userId);
-
-        PageInfo pageInfo = calculatePageInfo(totalFollowers, page, size);
-
-        List<UserDTO> followers = userDAO.getFollowersByUserId(userId, pageInfo.offset, size);
-
-        List<FollowResponseDTO> followResponses = followers.stream()
-                .map(this::convertToFollowResponseDTO)
-                .toList();
-
-        return PageDTO.<FollowResponseDTO>builder()
-                .content(followResponses)
-                .totalElements(totalFollowers)
-                .totalPages(pageInfo.totalPages)
-                .page(page)
-                .size(size)
-                .isFirst(pageInfo.isFirst)
-                .isLast(pageInfo.isLast)
-                .hasNext(pageInfo.hasNext)
-                .build();
+        return PaginationUtils.getPagedResult(
+                page,
+                size,
+                () -> userDAO.countFollowersByUserId(userId),
+                (offset, pageSize) -> userDAO.getFollowersByUserId(userId, offset, pageSize),
+                this::convertToFollowResponseDTO
+        );
     }
 
     /**
@@ -320,37 +244,53 @@ public class UserProfileService {
      */
     public PageDTO<AttractionResponseDTO> getLikedAttractions(int page, int size) {
         int userId = getCurrentAuthenticatedUserId();
-        int totalAttractions = attractionDAO.countLikedAttractionsByUserId(userId);
 
-        PageInfo pageInfo = calculatePageInfo(totalAttractions, page, size);
+        return PaginationUtils.getPagedResult(
+                page,
+                size,
+                () -> attractionDAO.countLikedAttractionsByUserId(userId),
+                (offset, pageSize) -> attractionDAO.getLikedAttractionsWithReviews(userId, offset, pageSize),
+                this::convertAttractionToResponseDTO
+        );
+    }
 
-        List<AttractionWithReviewsDTO> attractionsWithReviews =
-                attractionDAO.getLikedAttractionsWithReviews(userId, pageInfo.offset, size);
+    /**
+     * PlanDTO를 PlanResponseDTO로 변환
+     * @param planDTO planDTO
+     * @return PlanResponseDTO
+     */
+    private PlanResponseDTO convertPlanToResponseDTO(PlanDTO planDTO) {
+        return PlanResponseDTO.builder()
+                .planId(planDTO.getPlanId())
+                .title(planDTO.getTitle())
+                .description(planDTO.getDescription())
+                .stella(planDTO.getStella())
+                .startDate(planDTO.getStartDate())
+                .endDate(planDTO.getEndDate())
+                .likeCount(planDTO.getLikeCount())
+                .isPublic(planDTO.isPublic())
+                .planWriters(convertWritersToResponse(planDTO.getWriters()))
+                .tags(convertTagsToResponse(planDTO.getTags()))
+                .build();
+    }
 
-        List<AttractionResponseDTO> attractionResponses = attractionsWithReviews.stream()
-                .map(attraction -> AttractionResponseDTO.builder()
-                        .attractionId(attraction.getAttractionId())
-                        .name(attraction.getTitle())
-                        .image(attraction.getFirstImage1())
-                        .address(attraction.getAddr1() + (attraction.getAddr2() != null ? " " + attraction.getAddr2() : ""))
-                        .contentType(attraction.getContentTypeId())
-                        .like(attraction.getLikeCount())
-                        .rating(attraction.getRating())
-                        .latitude(attraction.getLatitude())
-                        .longitude(attraction.getLongitude())
-                        .review(attraction.getReviews())
-                        .build())
-                .collect(Collectors.toList());
-
-        return PageDTO.<AttractionResponseDTO>builder()
-                .content(attractionResponses)
-                .totalElements(totalAttractions)
-                .totalPages(pageInfo.totalPages)
-                .page(page)
-                .size(size)
-                .isFirst(pageInfo.isFirst)
-                .isLast(pageInfo.isLast)
-                .hasNext(pageInfo.hasNext)
+    /**
+     * AttractionDTO를 AttractionResponseDTO로 변환
+     * @param attraction attractionDTO
+     * @return AttractionResponseDTO
+     */
+    private AttractionResponseDTO convertAttractionToResponseDTO(AttractionWithReviewsDTO attraction) {
+        return AttractionResponseDTO.builder()
+                .attractionId(attraction.getAttractionId())
+                .name(attraction.getTitle())
+                .image(attraction.getFirstImage1())
+                .address(attraction.getAddr1() + (attraction.getAddr2() != null ? " " + attraction.getAddr2() : ""))
+                .contentType(attraction.getContentTypeId())
+                .like(attraction.getLikeCount())
+                .rating(attraction.getRating())
+                .latitude(attraction.getLatitude())
+                .longitude(attraction.getLongitude())
+                .review(attraction.getReviews())
                 .build();
     }
 
@@ -391,41 +331,4 @@ public class UserProfileService {
                 userDTO.getDescription()
         );
     }
-
-    /**
-     * 페이징 정보를 계산
-     */
-    private PageInfo calculatePageInfo(int totalElements, int page, int size) {
-        if (size <= 0) {
-            throw new IllegalArgumentException("Size must be greater than 0");
-        }
-
-        int totalPages = totalElements == 0 ? 0 : (int) Math.ceil((double) totalElements / size);
-        int offset = (page - 1) * size;
-        boolean hasNext = page < totalPages;
-        boolean isFirst = page == 1;
-        boolean isLast = totalPages == 0 || page >= totalPages;
-
-        return new PageInfo(totalPages, offset, hasNext, isFirst, isLast);
-    }
-
-    /**
-     * 페이징 정보를 담는 클래스
-     */
-    private static class PageInfo {
-        final int totalPages;
-        final int offset;
-        final boolean hasNext;
-        final boolean isFirst;
-        final boolean isLast;
-
-        PageInfo(int totalPages, int offset, boolean hasNext, boolean isFirst, boolean isLast) {
-            this.totalPages = totalPages;
-            this.offset = offset;
-            this.hasNext = hasNext;
-            this.isFirst = isFirst;
-            this.isLast = isLast;
-        }
-    }
-
 }
