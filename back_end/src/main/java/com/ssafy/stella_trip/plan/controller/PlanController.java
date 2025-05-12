@@ -226,7 +226,7 @@ public class PlanController {
             @RequestBody PlanRequestDTO planRequestDTO,
             @AuthenticationPrincipal JwtUserInfo user
     ) {
-        return new CommonResponse<>(planService.addPlan(planRequestDTO, user), HttpStatus.OK);
+        return new CommonResponse<>(planService.addPlan(planRequestDTO, user), HttpStatus.CREATED);
     }
 
     @GetMapping("/{planId}/leave")
