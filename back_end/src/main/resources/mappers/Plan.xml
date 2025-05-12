@@ -310,9 +310,10 @@
     </update>
 
     <delete id="deleteRoutes">
-        <foreach collection="routes" item="route" separator=";">
-            DELETE FROM route
-            WHERE route_id = #{route.routeId}
+        DELETE FROM route
+        WHERE route_id IN
+        <foreach collection="routes" item="route" open="(" separator="," close=")">
+            #{route.routeId}
         </foreach>
     </delete>
   
