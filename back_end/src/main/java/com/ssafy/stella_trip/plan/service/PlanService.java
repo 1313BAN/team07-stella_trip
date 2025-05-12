@@ -38,6 +38,11 @@ public class PlanService {
             String sort,
             JwtUserInfo user
     ){
+        // size 체크
+        if(size < 1) {
+            size = 20;
+        }
+
         // 전체 검색수
         int totalCount = planDAO.countPlansByCondition(search, userName, duration);
         // 전체 페이지 수
