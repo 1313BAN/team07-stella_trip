@@ -1,10 +1,10 @@
 package com.ssafy.stella_trip.user.controller;
 
 import com.ssafy.stella_trip.common.response.CommonResponse;
-import com.ssafy.stella_trip.user.dto.UserDTO;
 import com.ssafy.stella_trip.user.dto.request.LoginRequestDTO;
 import com.ssafy.stella_trip.user.dto.request.SignupRequestDTO;
 import com.ssafy.stella_trip.user.dto.request.TokenRefreshRequestDTO;
+import com.ssafy.stella_trip.user.dto.response.ActionResponseDTO;
 import com.ssafy.stella_trip.user.dto.response.LoginResponseDTO;
 import com.ssafy.stella_trip.user.dto.response.SignupResponseDTO;
 import com.ssafy.stella_trip.user.dto.response.TokenRefreshResponseDTO;
@@ -93,4 +93,19 @@ public class UserController {
         response.addCookie(jwtCookie);
         return CommonResponse.builder().status(HttpStatus.OK).build(); // 실제로는 아무 동작 안 함
     }
+
+    @PostMapping("/signout")
+    @Operation(
+            summary = "회원탈퇴 처리 API",
+            description = ""
+    )
+    @ApiResponses(value = {
+                    @ApiResponse(responseCode = "200", description = "정상적으로 회원탈퇴 처리됨"),
+                    @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자"),
+                    @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
+            })
+    CommonResponse<ActionResponseDTO> signout() {
+        return new CommonResponse<ActionResponseDTO>(userService.signout(), HttpStatus.OK);
+    }
+
 }

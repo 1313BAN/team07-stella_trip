@@ -124,7 +124,7 @@
         LIMIT #{size} OFFSET #{offset}
     </select>
 
-    <select id="countPlansByCondition" resultType="int">
+    <select id="countPlansByCondition">
         SELECT COUNT(DISTINCT p.plan_id)
         FROM plan p
         <if test="userName != null and userName != ''">
@@ -141,6 +141,51 @@
         <if test="duration > 0">
             AND DATEDIFF(p.end_date, p.start_date) + 1 = #{duration}
         </if>
+    </select>
+
+    <select id="countUserPlansByUserId">
+        select count(distinct p.plan_id)
+        from plan p
+        join plan_writer pw on p.plan_id = pw.plan_id
+        where pw.user_id = #{userId}
+    </select>
+
+    <select id="getUserPlansByUserId" resultMap="PlanMap">
+        SELECT
+        p.*,
+        u.user_id, u.name as user_name, u.email, u.role, u.description, u.image, u.created_at, u.modified_at,
+        t.tag_id, t.name
+        FROM plan p
+        JOIN plan_writer pw ON p.plan_id = pw.plan_id
+        LEFT JOIN user u ON pw.user_id = u.user_id
+        LEFT JOIN tag_plan tp ON p.plan_id = tp.plan_id
+        LEFT JOIN tag t ON tp.tag_id = t.tag_id
+        WHERE pw.user_id = #{userId}
+        ORDER BY p.created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="getLikedPlansByUserId" resultMap="PlanMap">
+        SELECT
+        p.*,
+        u.user_id, u.name as user_name, u.email, u.role, u.description, u.image, u.created_at, u.modified_at,
+        t.tag_id, t.name
+        FROM plan p
+        JOIN liked_plan fp ON p.plan_id = fp.plan_id
+        LEFT JOIN plan_writer pw ON p.plan_id = pw.plan_id
+        LEFT JOIN user u ON pw.user_id = u.user_id
+        LEFT JOIN tag_plan tp ON p.plan_id = tp.plan_id
+        LEFT JOIN tag t ON tp.tag_id = t.tag_id
+        WHERE fp.user_id = #{userId}
+        ORDER BY fp.created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countLikedPlansByUserId">
+        SELECT COUNT(DISTINCT p.plan_id)
+        FROM plan p
+        JOIN liked_plan fp ON p.plan_id = fp.plan_id
+        WHERE fp.user_id = #{userId}
     </select>
 
 </mapper>

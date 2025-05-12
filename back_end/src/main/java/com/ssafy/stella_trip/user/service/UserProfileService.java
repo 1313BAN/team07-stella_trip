@@ -1,10 +1,23 @@
 package com.ssafy.stella_trip.user.service;
 
-import com.ssafy.stella_trip.dao.user.UserProfileDAO;
+import com.ssafy.stella_trip.attraction.dto.AttractionWithReviewsDTO;
+import com.ssafy.stella_trip.attraction.dto.response.AttractionResponseDTO;
+import com.ssafy.stella_trip.common.dto.PageDTO;
+import com.ssafy.stella_trip.common.util.PaginationUtils;
+import com.ssafy.stella_trip.dao.attraction.AttractionDAO;
+import com.ssafy.stella_trip.dao.plan.PlanDAO;
+import com.ssafy.stella_trip.dao.user.UserDAO;
+import com.ssafy.stella_trip.plan.dto.PlanDTO;
+import com.ssafy.stella_trip.plan.dto.TagDTO;
+import com.ssafy.stella_trip.plan.dto.response.PlanResponseDTO;
+import com.ssafy.stella_trip.plan.dto.response.TagResponseDTO;
+import com.ssafy.stella_trip.plan.dto.response.WriterResponseDTO;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
+import com.ssafy.stella_trip.user.dto.FollowUserDTO;
 import com.ssafy.stella_trip.user.dto.UserDTO;
 import com.ssafy.stella_trip.user.dto.UserProfileDTO;
 import com.ssafy.stella_trip.user.dto.request.MyProfileUpdateRequestDTO;
+import com.ssafy.stella_trip.user.dto.response.FollowResponseDTO;
 import com.ssafy.stella_trip.user.dto.response.MyProfileResponseDTO;
 import com.ssafy.stella_trip.user.dto.response.UserProfileResponseDTO;
 import com.ssafy.stella_trip.user.exception.ProfileNotFoundException;
@@ -16,12 +29,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserProfileService {
 
-    private final UserProfileDAO userProfileDAO;
+    private final UserDAO userDAO;
+    private final PlanDAO planDAO;
+    private final AttractionDAO attractionDAO;
     private final PasswordEncoder passwordEncoder;
 
     private int getCurrentAuthenticatedUserId() {
@@ -42,7 +60,7 @@ public class UserProfileService {
      * @throws ProfileNotFoundException 프로필을 찾을 수 없는 경우
      */
     public UserProfileResponseDTO getUserProfile(int userId) {
-        UserProfileDTO profile = userProfileDAO.getUserProfile(userId);
+        UserProfileDTO profile = userDAO.getUserProfile(userId);
 
         if (profile == null) {
             throw new ProfileNotFoundException("사용자 ID " + userId + "에 해당하는 프로필을 찾을 수 없습니다.");
@@ -67,7 +85,7 @@ public class UserProfileService {
     public MyProfileResponseDTO getMyProfile() {
         int userId = getCurrentAuthenticatedUserId();
 
-        UserProfileDTO profile = userProfileDAO.getUserProfile(userId);
+        UserProfileDTO profile = userDAO.getUserProfile(userId);
 
         if (profile == null) {
             throw new ProfileNotFoundException("자신의 프로필을 찾을 수 없습니다.");
@@ -96,7 +114,7 @@ public class UserProfileService {
         int userId = getCurrentAuthenticatedUserId();
 
         // 업데이트 수행 및 결과 확인
-        int affectedRows = userProfileDAO.updateMyProfileByUserId(
+        int affectedRows = userDAO.updateMyProfileByUserId(
                 UserDTO.builder()
                         .userId(userId)
                         .name(myProfileUpdateRequestDTO.getName())
@@ -109,7 +127,7 @@ public class UserProfileService {
         }
 
         // 업데이트된 프로필 조회
-        UserProfileDTO profile = userProfileDAO.getUserProfile(userId);
+        UserProfileDTO profile = userDAO.getUserProfile(userId);
         if (profile == null) {
             throw new ProfileNotFoundException("업데이트된 프로필을 찾을 수 없습니다.");
         }
@@ -136,7 +154,7 @@ public class UserProfileService {
         int userId = getCurrentAuthenticatedUserId();
 
         String encodedPassword = passwordEncoder.encode(password);
-        int affectedRows = userProfileDAO.updatePasswordByUserId(
+        int affectedRows = userDAO.updatePasswordByUserId(
                 UserDTO.builder()
                         .userId(userId)
                         .password(encodedPassword)
@@ -147,5 +165,172 @@ public class UserProfileService {
         }
 
         return true;
+    }
+
+    /**
+     * 사용자의 여행 계획 리스트 조회
+     * @param page 페이지 번호
+     * @param size 페이지 크기
+     * @return 페이징된 여행 계획 리스트
+     */
+    public PageDTO<PlanResponseDTO> getUserPlans(int page, int size) {
+        int userId = getCurrentAuthenticatedUserId();
+
+        return PaginationUtils.getPagedResult(
+                page,
+                size,
+                () -> planDAO.countUserPlansByUserId(userId),
+                (offset, pageSize) -> planDAO.getUserPlansByUserId(userId, offset, pageSize),
+                this::convertPlanToResponseDTO
+        );
+    }
+
+    /**
+     * 사용자의 좋아요한 여행 계획 리스트 조회
+     * @param page 페이지 번호
+     * @param size 페이지 크기
+     * @return 페이징된 좋아요한 여행 계획 리스트
+     */
+    public PageDTO<PlanResponseDTO> getLikedPlans(int page, int size) {
+        int userId = getCurrentAuthenticatedUserId();
+
+        return PaginationUtils.getPagedResult(
+                page,
+                size,
+                () -> planDAO.countLikedPlansByUserId(userId),
+                (offset, pageSize) -> planDAO.getLikedPlansByUserId(userId, offset, pageSize),
+                this::convertPlanToResponseDTO
+        );
+    }
+
+    /**
+     * 특정 사용자의 팔로잉 목록 조회
+     * @param userId 조회할 사용자 ID
+     * @param page 페이지 번호
+     * @param size 페이지 크기
+     * @return 페이징된 팔로잉 목록
+     */
+    public PageDTO<FollowResponseDTO> getFollowings(int userId, int page, int size) {
+        return PaginationUtils.getPagedResult(
+                page,
+                size,
+                () -> userDAO.countFollowingsByUserId(userId),
+                (offset, pageSize) -> userDAO.getFollowingsByUserId(userId, offset, pageSize),
+                this::convertToFollowResponseDTO
+        );
+    }
+
+    /**
+     * 특정 사용자의 팔로워 목록 조회
+     * @param userId 조회할 사용자 ID
+     * @param page 페이지 번호
+     * @param size 페이지 크기
+     * @return 페이징된 팔로워 목록
+     */
+    public PageDTO<FollowResponseDTO> getFollowers(int userId, int page, int size) {
+        return PaginationUtils.getPagedResult(
+                page,
+                size,
+                () -> userDAO.countFollowersByUserId(userId),
+                (offset, pageSize) -> userDAO.getFollowersByUserId(userId, offset, pageSize),
+                this::convertToFollowResponseDTO
+        );
+    }
+
+    /**
+     * 사용자가 좋아요한 관광지 목록 조회
+     * @param page 페이지 번호
+     * @param size 페이지 크기
+     * @return 페이징된 좋아요한 관광지 목록
+     */
+    public PageDTO<AttractionResponseDTO> getLikedAttractions(int page, int size) {
+        int userId = getCurrentAuthenticatedUserId();
+
+        return PaginationUtils.getPagedResult(
+                page,
+                size,
+                () -> attractionDAO.countLikedAttractionsByUserId(userId),
+                (offset, pageSize) -> attractionDAO.getLikedAttractionsWithReviews(userId, offset, pageSize),
+                this::convertAttractionToResponseDTO
+        );
+    }
+
+    /**
+     * PlanDTO를 PlanResponseDTO로 변환
+     * @param planDTO planDTO
+     * @return PlanResponseDTO
+     */
+    private PlanResponseDTO convertPlanToResponseDTO(PlanDTO planDTO) {
+        return PlanResponseDTO.builder()
+                .planId(planDTO.getPlanId())
+                .title(planDTO.getTitle())
+                .description(planDTO.getDescription())
+                .stella(planDTO.getStella())
+                .startDate(planDTO.getStartDate())
+                .endDate(planDTO.getEndDate())
+                .likeCount(planDTO.getLikeCount())
+                .isPublic(planDTO.isPublic())
+                .planWriters(convertWritersToResponse(planDTO.getWriters()))
+                .tags(convertTagsToResponse(planDTO.getTags()))
+                .build();
+    }
+
+    /**
+     * AttractionDTO를 AttractionResponseDTO로 변환
+     * @param attraction attractionDTO
+     * @return AttractionResponseDTO
+     */
+    private AttractionResponseDTO convertAttractionToResponseDTO(AttractionWithReviewsDTO attraction) {
+        return AttractionResponseDTO.builder()
+                .attractionId(attraction.getAttractionId())
+                .name(attraction.getTitle())
+                .image(attraction.getFirstImage1())
+                .address(attraction.getAddr1())
+                .contentType(attraction.getContentTypeId())
+                .like(attraction.getLikeCount())
+                .rating(attraction.getRating())
+                .latitude(attraction.getLatitude())
+                .longitude(attraction.getLongitude())
+                .review(attraction.getReviews())
+                .build();
+    }
+
+
+
+    private List<TagResponseDTO> convertTagsToResponse(List<TagDTO> tags) {
+        List<TagResponseDTO> tagResponseDTOList = new ArrayList<>();
+        for (TagDTO tag : tags) {
+            TagResponseDTO tagResponseDTO = TagResponseDTO.builder()
+                    .tagId(tag.getTagId())
+                    .name(tag.getName())
+                    .build();
+            tagResponseDTOList.add(tagResponseDTO);
+        }
+        return tagResponseDTOList;
+    }
+
+    private List<WriterResponseDTO> convertWritersToResponse(List<UserDTO> writers) {
+        List<WriterResponseDTO> writerResponseDTOList = new ArrayList<>();
+        for (UserDTO writer : writers) {
+            WriterResponseDTO writerResponseDTO = WriterResponseDTO.builder()
+                    .userId(writer.getUserId())
+                    .name(writer.getName())
+                    .build();
+            writerResponseDTOList.add(writerResponseDTO);
+        }
+        return writerResponseDTOList;
+    }
+
+    /**
+     * UserDTO를 FollowResponseDTO로 변환
+     */
+    private FollowResponseDTO convertToFollowResponseDTO(FollowUserDTO FollowUserDTO) {
+        return new FollowResponseDTO(
+                FollowUserDTO.getUserId(),
+                FollowUserDTO.getName(),
+                FollowUserDTO.getImage(),
+                FollowUserDTO.getDescription(),
+                FollowUserDTO.getFollowsCreatedAt()
+        );
     }
 }
