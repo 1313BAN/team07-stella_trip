@@ -12,6 +12,7 @@ import java.time.LocalTime;
 @Builder
 public class RouteDTO {
     private int routeId;
+    private int planId;
     private int attractionId;
     private AttractionDTO attraction;
     private int dayIndex;

@@ -15,6 +15,9 @@
         <result column="is_public" property="isPublic"/>
         <result column="stella" property="stella"/>
 
+        <!-- 즉시 로딩: liked 여부-->
+        <result column="liked" property="liked"/>
+
         <!-- 즉시 로딩: writers -->
         <collection property="writers" ofType="com.ssafy.stella_trip.user.dto.UserDTO">
             <id column="user_id" property="userId"/>
@@ -40,6 +43,7 @@
 
     <resultMap id="RouteMap" type="com.ssafy.stella_trip.plan.dto.RouteDTO">
         <id column="route_id" property="routeId"/>
+        <result column="plan_id" property="planId"/>
         <result column="attraction_id" property="attractionId"/>
         <result column="day_index" property="dayIndex"/>
         <result column="order" property="order"/>
@@ -49,26 +53,72 @@
                      select="com.ssafy.stella_trip.dao.attraction.AttractionDAO.getAttractionById" column="attraction_id"/>
     </resultMap>
 
+    <!-- plan 등록 관련 쿼리 -->
+    <insert id="insertPlan" useGeneratedKeys="true" keyProperty="planId">
+        INSERT INTO plan (title, start_date, end_date, description, like_count, is_public, stella)
+        VALUES (#{plan.title}, #{plan.startDate}, #{plan.endDate}, #{plan.description}, 0, #{plan.isPublic}, #{plan.stella});
+    </insert>
 
+    <insert id="insertTags">
+        INSERT INTO tag (name)
+        VALUES
+        <foreach collection="tags" item="tag" separator=",">
+            (#{tag})
+        </foreach>
+        ON DUPLICATE KEY UPDATE name = name
+    </insert>
+
+    <insert id="linkTagsToPlan">
+        INSERT INTO tag_plan (plan_id, tag_id)
+        SELECT #{planId}, tag_id FROM tag
+        WHERE name IN
+        <foreach collection="tags" item="tag" open="(" separator="," close=")">
+            #{tag}
+        </foreach>
+        ON DUPLICATE KEY UPDATE plan_id = plan_id
+    </insert>
+
+    <delete id="deletePlanTagByPlanId">
+        DELETE FROM tag_plan
+        WHERE plan_id = #{planId};
+    </delete>
+
+    <insert id="insertPlanWriter">
+        INSERT INTO plan_writer (plan_id, user_id)
+        VALUES (#{planId}, #{userId});
+    </insert>
+
+    <delete id="deletePlanWriter">
+        DELETE FROM plan_writer
+        WHERE plan_id = #{planId} AND user_id = #{userId};
+    </delete>
+
+    <!-- plan조회 -->
     <select id="getPlanById" resultMap="PlanMap">
         SELECT
         p.*,
         u.user_id, u.name as user_name, u.email, u.role, u.description, u.image, u.created_at, u.modified_at,
-        t.tag_id, t.name
+        t.tag_id, t.name as tag_name,
+        CASE
+            WHEN pl.user_id IS NOT NULL THEN 1
+            ELSE 0
+        END AS liked
         FROM plan p
         LEFT JOIN plan_writer pw ON p.plan_id = pw.plan_id
         LEFT JOIN user u ON pw.user_id = u.user_id
         LEFT JOIN tag_plan tp ON p.plan_id = tp.plan_id
         LEFT JOIN tag t ON tp.tag_id = t.tag_id
+        LEFT JOIN liked_plan pl ON p.plan_id = pl.plan_id AND pl.user_id = #{currentUserId}
         WHERE p.plan_id = #{planId}
     </select>
 
     <select id="getRoutesByPlanId" resultMap="RouteMap">
         SELECT
         r.route_id,
+        r.plan_id,
         r.attraction_id,
         r.day_index,
-        r.order,
+        r.`order`,
         r.visit_time,
         r.memo
         FROM route r
@@ -88,12 +138,17 @@
         p.is_public,
         p.stella,
         u.user_id, u.name as user_name, u.email, u.role, u.description, u.image, u.created_at, u.modified_at,
-        t.tag_id, t.name as tag_name
+        t.tag_id, t.name as tag_name,
+        CASE
+            WHEN pl.user_id IS NOT NULL THEN 1
+            ELSE 0
+        END AS liked
         FROM plan p
         LEFT JOIN plan_writer pw ON p.plan_id = pw.plan_id
         LEFT JOIN user u ON pw.user_id = u.user_id
         LEFT JOIN tag_plan tp ON p.plan_id = tp.plan_id
         LEFT JOIN tag t ON tp.tag_id = t.tag_id
+        LEFT JOIN liked_plan pl ON p.plan_id = pl.plan_id AND pl.user_id = #{currentUserId}
         WHERE p.is_public = 1
         <if test="search != null and search != ''">
             AND p.title LIKE CONCAT('%', #{search}, '%')
@@ -142,7 +197,126 @@
             AND DATEDIFF(p.end_date, p.start_date) + 1 = #{duration}
         </if>
     </select>
+  
+    <select id="getRouteByRouteId" resultMap="RouteMap">
+        SELECT
+        r.route_id,
+        r.plan_id,
+        r.attraction_id,
+        r.day_index,
+        r.`order`,
+        r.visit_time,
+        r.memo
+        FROM route r
+        WHERE r.route_id = #{routeId}
+    </select>
 
+    <select id="getPlanWritersCount">
+        SELECT COUNT(DISTINCT pw.user_id)
+        FROM plan_writer pw
+        WHERE pw.plan_id = #{planId}
+    </select>
+
+    <select id="checkPlanWriter">
+        SELECT EXISTS (
+            SELECT 1
+            FROM plan_writer pw
+            WHERE pw.plan_id = #{planId} AND pw.user_id = #{userId}
+        ) AS is_writer
+    </select>
+
+    <!-- 좋아요 관련 쿼리 -->
+    <update id="increaseLikeCount">
+        UPDATE plan
+        SET like_count = like_count + 1
+        WHERE plan_id = #{planId};
+    </update>
+
+    <update id="decreaseLikeCount">
+        UPDATE plan
+        SET like_count = GREATEST(like_count - 1, 0)
+        WHERE plan_id = #{planId};
+    </update>
+
+    <insert id="likePlan">
+        INSERT INTO liked_plan (plan_id, user_id)
+        VALUES (#{planId}, #{userId});
+    </insert>
+
+    <update id="unlikePlan">
+        DELETE FROM liked_plan
+        WHERE plan_id = #{planId} AND user_id = #{userId};
+    </update>
+
+    <select id="isPlanLikedByUser" resultType="boolean">
+        SELECT EXISTS (
+        SELECT 1
+        FROM liked_plan
+        WHERE plan_id = #{planId} AND user_id = #{userId}
+        ) AS is_liked
+    </select>
+
+    <!-- 여행 계획 수정 관련 쿼리 -->
+    <update id="updateBasicPlanInfo">
+        UPDATE plan
+        SET title = #{title},
+            description = #{description},
+            is_public = #{isPublic}
+        WHERE plan_id = #{planId};
+    </update>
+
+    <update id="updatePlanSchedule">
+        UPDATE plan
+        SET start_date = #{startDate}, end_date = #{endDate}
+        WHERE plan_id = #{planId};
+    </update>
+
+    <delete id="deleteRoutesExceedingDayIndex">
+        DELETE FROM route
+        WHERE plan_id = #{planId}
+        AND day_index > (
+            SELECT DATEDIFF(p.end_date, p.start_date) + 1
+            FROM plan p
+            WHERE p.plan_id = #{planId}
+        );
+    </delete>
+
+    <delete id="deletePlan">
+        DELETE FROM plan
+        WHERE plan_id = #{planId};
+    </delete>
+
+    <insert id="insertRoute">
+        INSERT INTO route (plan_id, attraction_id, day_index, `order`, visit_time, memo)
+        VALUES (#{planId}, #{attractionId}, #{dayIndex}, #{order}, #{visitTime}, #{memo});
+    </insert>
+
+    <update id="updateRoutes">
+        <foreach collection="routes" item="route" separator=";">
+            UPDATE route
+            SET
+            day_index = #{route.dayIndex},
+            `order` = #{route.order}
+            WHERE route_id = #{route.routeId}
+        </foreach>
+    </update>
+
+    <update id="updateRouteInfo">
+        UPDATE route
+        SET
+        visit_time = #{visitTime},
+        memo = #{memo}
+        WHERE route_id = #{routeId}
+    </update>
+
+    <delete id="deleteRoutes">
+        DELETE FROM route
+        WHERE route_id IN
+        <foreach collection="routes" item="route" open="(" separator="," close=")">
+            #{route.routeId}
+        </foreach>
+    </delete>
+  
     <select id="countUserPlansByUserId">
         select count(distinct p.plan_id)
         from plan p
@@ -187,5 +361,4 @@
         JOIN liked_plan fp ON p.plan_id = fp.plan_id
         WHERE fp.user_id = #{userId}
     </select>
-
 </mapper>

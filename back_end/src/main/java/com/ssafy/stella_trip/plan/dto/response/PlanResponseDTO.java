@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -12,8 +13,9 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 public class PlanResponseDTO {
+    @JsonProperty("plan_id")
     private int planId;
     private String title;
     private String description;
@@ -22,9 +24,12 @@ public class PlanResponseDTO {
     private LocalDate startDate;
     @JsonProperty("end_date")
     private LocalDate endDate;
+    @JsonProperty("like_count")
     private int likeCount;
+    @JsonProperty("is_public")
     private boolean isPublic;
     @JsonProperty("plan_writers")
     private List<WriterResponseDTO> planWriters;
     private List<TagResponseDTO> tags;
+    private boolean liked;
 }
