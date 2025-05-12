@@ -100,7 +100,7 @@
         r.title as review_title,
         r.content as review_content,
         r.rating as review_rating,
-        r.visit_date as review_visited_date,
+        r.visit_date as review_visit_date,
         r.created_at as review_created_at
         FROM
         attraction a
