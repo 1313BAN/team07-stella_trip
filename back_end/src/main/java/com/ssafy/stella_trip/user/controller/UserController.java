@@ -99,6 +99,11 @@ public class UserController {
             summary = "회원탈퇴 처리 API",
             description = ""
     )
+    @ApiResponses(value = {
+                    @ApiResponse(responseCode = "200", description = "정상적으로 회원탈퇴 처리됨"),
+                    @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자"),
+                    @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
+            })
     CommonResponse<ActionResponseDTO> signout() {
         return new CommonResponse<ActionResponseDTO>(userService.signout(), HttpStatus.OK);
     }
