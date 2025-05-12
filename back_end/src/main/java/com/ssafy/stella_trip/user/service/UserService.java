@@ -2,14 +2,16 @@ package com.ssafy.stella_trip.user.service;
 
 import com.ssafy.stella_trip.dao.user.UserDAO;
 import com.ssafy.stella_trip.security.dto.CustomUserDetails;
+import com.ssafy.stella_trip.security.dto.JwtUserInfo;
 import com.ssafy.stella_trip.security.exception.InvalidTokenException;
 import com.ssafy.stella_trip.security.util.JwtTokenProvider;
-import com.ssafy.stella_trip.user.annotation.PasswordEncoded;
 import com.ssafy.stella_trip.user.dto.UserDTO;
 import com.ssafy.stella_trip.user.dto.UserRole;
+import com.ssafy.stella_trip.user.dto.response.ActionResponseDTO;
 import com.ssafy.stella_trip.user.dto.response.LoginResponseDTO;
 import com.ssafy.stella_trip.user.dto.response.SignupResponseDTO;
 import com.ssafy.stella_trip.user.dto.response.TokenRefreshResponseDTO;
+import com.ssafy.stella_trip.user.exception.ProfileNotFoundException;
 import com.ssafy.stella_trip.user.exception.SignupFailureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -87,5 +89,25 @@ public class UserService {
         String accessToken = "Bearer " + jwtTokenProvider.generateAccessToken(user.getUserId(), email, user.getRole());
         String refreshTokenRefresh = "Bearer " + jwtTokenProvider.generateRefreshToken(email);
         return new TokenRefreshResponseDTO(accessToken, refreshTokenRefresh);
+    }
+
+    private int getCurrentAuthenticatedUserId() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(!(principal instanceof JwtUserInfo)) {
+            throw new ProfileNotFoundException("인증된 사용자의 정보가 아닙니다.");
+        }
+        JwtUserInfo userInfo = (JwtUserInfo) principal;
+        return userInfo.getUserId();
+    }
+
+    /**
+     * 회원 탈퇴 Service
+     * @return 회원탈퇴 성공 여부
+     */
+    public ActionResponseDTO signout(){
+        int userId = getCurrentAuthenticatedUserId();
+
+        userDAO.deleteUserByUserId(userId);
+        return new ActionResponseDTO(true);
     }
 }
