@@ -118,7 +118,7 @@
         r.plan_id,
         r.attraction_id,
         r.day_index,
-        r.order,
+        r.`order`,
         r.visit_time,
         r.memo
         FROM route r
@@ -204,7 +204,7 @@
         r.plan_id,
         r.attraction_id,
         r.day_index,
-        r.order,
+        r.`order`,
         r.visit_time,
         r.memo
         FROM route r
