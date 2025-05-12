@@ -1,6 +1,6 @@
 package com.ssafy.stella_trip.dao.user;
 
-import com.ssafy.stella_trip.attraction.dto.AttractionDTO;
+import com.ssafy.stella_trip.user.dto.FollowUserDTO;
 import com.ssafy.stella_trip.user.dto.UserDTO;
 import com.ssafy.stella_trip.user.dto.UserProfileDTO;
 import org.apache.ibatis.annotations.Mapper;
@@ -20,9 +20,8 @@ public interface UserDAO {
     UserProfileDTO getUserProfile(int userId);
     int updateMyProfileByUserId(UserDTO userDTO);
     int updatePasswordByUserId(UserDTO userDTO);
-    List<AttractionDTO> getLikedAttractions(@Param("userId") int userId, @Param("offset") int offset, @Param("size") int size);
     int countFollowingsByUserId(@Param("userId") int userId);
     int countFollowersByUserId(@Param("userId") int userId);
-    List<UserDTO> getFollowingsByUserId(@Param("userId") int userId, @Param("offset") int offset, @Param("size") int size);
-    List<UserDTO> getFollowersByUserId(@Param("userId") int userId, @Param("offset") int offset, @Param("size") int size);
+    List<FollowUserDTO> getFollowingsByUserId(@Param("userId") int userId, @Param("offset") int offset, @Param("size") int size);
+    List<FollowUserDTO> getFollowersByUserId(@Param("userId") int userId, @Param("offset") int offset, @Param("size") int size);
 }

@@ -13,6 +13,7 @@ import com.ssafy.stella_trip.plan.dto.response.PlanResponseDTO;
 import com.ssafy.stella_trip.plan.dto.response.TagResponseDTO;
 import com.ssafy.stella_trip.plan.dto.response.WriterResponseDTO;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
+import com.ssafy.stella_trip.user.dto.FollowUserDTO;
 import com.ssafy.stella_trip.user.dto.UserDTO;
 import com.ssafy.stella_trip.user.dto.UserProfileDTO;
 import com.ssafy.stella_trip.user.dto.request.MyProfileUpdateRequestDTO;
@@ -323,12 +324,13 @@ public class UserProfileService {
     /**
      * UserDTO를 FollowResponseDTO로 변환
      */
-    private FollowResponseDTO convertToFollowResponseDTO(UserDTO userDTO) {
+    private FollowResponseDTO convertToFollowResponseDTO(FollowUserDTO FollowUserDTO) {
         return new FollowResponseDTO(
-                userDTO.getUserId(),
-                userDTO.getName(),
-                userDTO.getImage(),
-                userDTO.getDescription()
+                FollowUserDTO.getUserId(),
+                FollowUserDTO.getName(),
+                FollowUserDTO.getImage(),
+                FollowUserDTO.getDescription(),
+                FollowUserDTO.getFollowsCreatedAt()
         );
     }
 }
