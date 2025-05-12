@@ -174,20 +174,11 @@ public class UserProfileService {
      */
     public PageDTO<PlanResponseDTO> getUserPlans(int page, int size) {
         int userId = getCurrentAuthenticatedUserId();
-
         int totalPlans = planDAO.countUserPlansByUserId(userId);
 
-        int totalPages = (int) Math.ceil((double) totalPlans / size);
-        // offset 계산
-        int offset = (page - 1) * size;
-        // 다음 페이지 여부
-        boolean hasNext = (page < totalPages);
-        // 첫 페이지 여부
-        boolean isFirst = (page == 1);
-        // 마지막 페이지 여부
-        boolean isLast = (page == totalPages);
+        PageInfo pageInfo = calculatePageInfo(totalPlans, page, size);
 
-        List<PlanDTO> userPlans = planDAO.getUserPlansByUserId(userId, offset, size);
+        List<PlanDTO> userPlans = planDAO.getUserPlansByUserId(userId, pageInfo.offset, size);
 
         List<PlanResponseDTO> planResponses = new ArrayList<>();
         for (PlanDTO planDTO : userPlans) {
@@ -209,26 +200,14 @@ public class UserProfileService {
         return PageDTO.<PlanResponseDTO>builder()
                 .content(planResponses)
                 .totalElements(totalPlans)
-                .totalPages(totalPages)
+                .totalPages(pageInfo.totalPages)
                 .page(page)
                 .size(size)
-                .isFirst(isFirst)
-                .isLast(isLast)
-                .hasNext(hasNext)
+                .isFirst(pageInfo.isFirst)
+                .isLast(pageInfo.isLast)
+                .hasNext(pageInfo.hasNext)
                 .build();
     }
-
-//    /**
-//     * 사용자의 좋아요한 여행지 리스트 조회
-//     * @param page 페이지 번호
-//     * @param size 페이지 크기
-//     * @return 페이징된 좋아요한 여행지 리스트
-//     */
-//    public PageDTO<AttractionResponseDTO> getLikedAttractions(int page, int size) {
-//        int userId = getCurrentAuthenticatedUserId();
-//        List<AttractionDTO> likedAttractions = userDAO.getLikedAttractions(userId, page, size);
-//        return ;
-//    }
 
     /**
      * 사용자의 좋아요한 여행 계획 리스트 조회
@@ -238,16 +217,11 @@ public class UserProfileService {
      */
     public PageDTO<PlanResponseDTO> getLikedPlans(int page, int size) {
         int userId = getCurrentAuthenticatedUserId();
-
         int totalPlans = planDAO.countLikedPlansByUserId(userId);
 
-        int totalPages = (int) Math.ceil((double) totalPlans / size);
-        int offset = (page - 1) * size;
-        boolean hasNext = (page < totalPages);
-        boolean isFirst = (page == 1);
-        boolean isLast = (page == totalPages);
+        PageInfo pageInfo = calculatePageInfo(totalPlans, page, size);
 
-        List<PlanDTO> likedPlans = planDAO.getLikedPlansByUserId(userId, offset, size);
+        List<PlanDTO> likedPlans = planDAO.getLikedPlansByUserId(userId, pageInfo.offset, size);
 
         List<PlanResponseDTO> planResponses = new ArrayList<>();
         for (PlanDTO planDTO : likedPlans) {
@@ -269,15 +243,14 @@ public class UserProfileService {
         return PageDTO.<PlanResponseDTO>builder()
                 .content(planResponses)
                 .totalElements(totalPlans)
-                .totalPages(totalPages)
+                .totalPages(pageInfo.totalPages)
                 .page(page)
                 .size(size)
-                .isFirst(isFirst)
-                .isLast(isLast)
-                .hasNext(hasNext)
+                .isFirst(pageInfo.isFirst)
+                .isLast(pageInfo.isLast)
+                .hasNext(pageInfo.hasNext)
                 .build();
     }
-
 
     /**
      * 특정 사용자의 팔로잉 목록 조회
@@ -289,13 +262,9 @@ public class UserProfileService {
     public PageDTO<FollowResponseDTO> getFollowings(int userId, int page, int size) {
         int totalFollowings = userDAO.countFollowingsByUserId(userId);
 
-        int totalPages = (int) Math.ceil((double) totalFollowings / size);
-        int offset = (page - 1) * size;
-        boolean hasNext = (page < totalPages);
-        boolean isFirst = (page == 1);
-        boolean isLast = (page == totalPages || totalPages == 0);
+        PageInfo pageInfo = calculatePageInfo(totalFollowings, page, size);
 
-        List<UserDTO> followings = userDAO.getFollowingsByUserId(userId, offset, size);
+        List<UserDTO> followings = userDAO.getFollowingsByUserId(userId, pageInfo.offset, size);
 
         List<FollowResponseDTO> followResponses = followings.stream()
                 .map(this::convertToFollowResponseDTO)
@@ -304,12 +273,12 @@ public class UserProfileService {
         return PageDTO.<FollowResponseDTO>builder()
                 .content(followResponses)
                 .totalElements(totalFollowings)
-                .totalPages(totalPages)
+                .totalPages(pageInfo.totalPages)
                 .page(page)
                 .size(size)
-                .isFirst(isFirst)
-                .isLast(isLast)
-                .hasNext(hasNext)
+                .isFirst(pageInfo.isFirst)
+                .isLast(pageInfo.isLast)
+                .hasNext(pageInfo.hasNext)
                 .build();
     }
 
@@ -323,13 +292,9 @@ public class UserProfileService {
     public PageDTO<FollowResponseDTO> getFollowers(int userId, int page, int size) {
         int totalFollowers = userDAO.countFollowersByUserId(userId);
 
-        int totalPages = (int) Math.ceil((double) totalFollowers / size);
-        int offset = (page - 1) * size;
-        boolean hasNext = (page < totalPages);
-        boolean isFirst = (page == 1);
-        boolean isLast = (page == totalPages || totalPages == 0);
+        PageInfo pageInfo = calculatePageInfo(totalFollowers, page, size);
 
-        List<UserDTO> followers = userDAO.getFollowersByUserId(userId, offset, size);
+        List<UserDTO> followers = userDAO.getFollowersByUserId(userId, pageInfo.offset, size);
 
         List<FollowResponseDTO> followResponses = followers.stream()
                 .map(this::convertToFollowResponseDTO)
@@ -338,12 +303,12 @@ public class UserProfileService {
         return PageDTO.<FollowResponseDTO>builder()
                 .content(followResponses)
                 .totalElements(totalFollowers)
-                .totalPages(totalPages)
+                .totalPages(pageInfo.totalPages)
                 .page(page)
                 .size(size)
-                .isFirst(isFirst)
-                .isLast(isLast)
-                .hasNext(hasNext)
+                .isFirst(pageInfo.isFirst)
+                .isLast(pageInfo.isLast)
+                .hasNext(pageInfo.hasNext)
                 .build();
     }
 
@@ -355,17 +320,12 @@ public class UserProfileService {
      */
     public PageDTO<AttractionResponseDTO> getLikedAttractions(int page, int size) {
         int userId = getCurrentAuthenticatedUserId();
-
         int totalAttractions = attractionDAO.countLikedAttractionsByUserId(userId);
 
-        int totalPages = (int) Math.ceil((double) totalAttractions / size);
-        int offset = (page - 1) * size;
-        boolean hasNext = (page < totalPages);
-        boolean isFirst = (page == 1);
-        boolean isLast = (page == totalPages || totalPages == 0);
+        PageInfo pageInfo = calculatePageInfo(totalAttractions, page, size);
 
         List<AttractionWithReviewsDTO> attractionsWithReviews =
-                attractionDAO.getLikedAttractionsWithReviews(userId, offset, size);
+                attractionDAO.getLikedAttractionsWithReviews(userId, pageInfo.offset, size);
 
         List<AttractionResponseDTO> attractionResponses = attractionsWithReviews.stream()
                 .map(attraction -> AttractionResponseDTO.builder()
@@ -385,14 +345,16 @@ public class UserProfileService {
         return PageDTO.<AttractionResponseDTO>builder()
                 .content(attractionResponses)
                 .totalElements(totalAttractions)
-                .totalPages(totalPages)
+                .totalPages(pageInfo.totalPages)
                 .page(page)
                 .size(size)
-                .isFirst(isFirst)
-                .isLast(isLast)
-                .hasNext(hasNext)
+                .isFirst(pageInfo.isFirst)
+                .isLast(pageInfo.isLast)
+                .hasNext(pageInfo.hasNext)
                 .build();
     }
+
+
 
     private List<TagResponseDTO> convertTagsToResponse(List<TagDTO> tags) {
         List<TagResponseDTO> tagResponseDTOList = new ArrayList<>();
@@ -429,4 +391,41 @@ public class UserProfileService {
                 userDTO.getDescription()
         );
     }
+
+    /**
+     * 페이징 정보를 계산
+     */
+    private PageInfo calculatePageInfo(int totalElements, int page, int size) {
+        if (size <= 0) {
+            throw new IllegalArgumentException("Size must be greater than 0");
+        }
+
+        int totalPages = totalElements == 0 ? 0 : (int) Math.ceil((double) totalElements / size);
+        int offset = (page - 1) * size;
+        boolean hasNext = page < totalPages;
+        boolean isFirst = page == 1;
+        boolean isLast = totalPages == 0 || page >= totalPages;
+
+        return new PageInfo(totalPages, offset, hasNext, isFirst, isLast);
+    }
+
+    /**
+     * 페이징 정보를 담는 클래스
+     */
+    private static class PageInfo {
+        final int totalPages;
+        final int offset;
+        final boolean hasNext;
+        final boolean isFirst;
+        final boolean isLast;
+
+        PageInfo(int totalPages, int offset, boolean hasNext, boolean isFirst, boolean isLast) {
+            this.totalPages = totalPages;
+            this.offset = offset;
+            this.hasNext = hasNext;
+            this.isFirst = isFirst;
+            this.isLast = isLast;
+        }
+    }
+
 }
