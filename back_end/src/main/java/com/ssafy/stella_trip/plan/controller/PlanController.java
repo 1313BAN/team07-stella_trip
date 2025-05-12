@@ -124,7 +124,7 @@ public class PlanController {
         return new CommonResponse<>(planService.checkLock(planId, user), HttpStatus.OK);
     }
 
-    @GetMapping("/{planId}/lock")
+    @PostMapping("/{planId}/lock")
     @Operation(
             summary = "여행 계획 Lock",
             description = "여행 계획 ID로 여행 계획 Lock"
@@ -141,7 +141,7 @@ public class PlanController {
         return new CommonResponse<>(planService.lockPlan(planId, user), HttpStatus.OK);
     }
 
-    @GetMapping("/{planId}/unlock")
+    @PostMapping("/{planId}/unlock")
     @Operation(
             summary = "여행 계획 Unlock",
             description = "여행 계획 ID로 여행 계획 Unlock"
