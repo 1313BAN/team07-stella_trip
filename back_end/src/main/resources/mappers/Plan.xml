@@ -124,7 +124,7 @@
         LIMIT #{size} OFFSET #{offset}
     </select>
 
-    <select id="countPlansByCondition" resultType="int">
+    <select id="countPlansByCondition">
         SELECT COUNT(DISTINCT p.plan_id)
         FROM plan p
         <if test="userName != null and userName != ''">
