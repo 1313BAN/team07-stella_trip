@@ -4,9 +4,7 @@ import com.ssafy.stella_trip.attraction.dto.ReviewDTO;
 import com.ssafy.stella_trip.attraction.dto.ReviewWithUserNameDTO;
 import com.ssafy.stella_trip.attraction.dto.request.ReviewRequestDTO;
 import com.ssafy.stella_trip.attraction.dto.response.ReviewResponseDTO;
-import com.ssafy.stella_trip.attraction.exception.ReviewNotFoundException;
-import com.ssafy.stella_trip.attraction.exception.ReviewNotMatchToAttractionException;
-import com.ssafy.stella_trip.attraction.exception.ReviewWriterNotMatchToUser;
+import com.ssafy.stella_trip.attraction.exception.*;
 import com.ssafy.stella_trip.common.dto.PageDTO;
 import com.ssafy.stella_trip.common.util.PaginationUtils;
 import com.ssafy.stella_trip.dao.attraction.AttractionDAO;
@@ -83,11 +81,80 @@ public class AttractionService {
         return new ActionResponseDTO(attractionDAO.updateReview(reviewDTO) > 0);
     }
 
+    /**
+     * 자신이 작성한 여행지의 리뷰 삭제
+     * @param attractionId attractionId
+     * @param reviewId reviewId
+     * @param userId userId
+     * @return 삭제 성공 여부
+     */
     @Transactional
     public ActionResponseDTO deleteAttractionReview(int attractionId, int reviewId, int userId) {
         validateReview(attractionId, reviewId, userId);
 
         return new ActionResponseDTO(attractionDAO.deleteReviewByReviewId(reviewId) > 0);
+    }
+
+    /**
+     * 리뷰에 좋아요 추가하기
+     * @param attractionId attractionId
+     * @param reviewId reviewId
+     * @param userId userId
+     * @return 좋아요 추가 성공 여부
+     */
+    public ActionResponseDTO addLikeToAttractionReview(int attractionId, int reviewId, int userId) {
+        ReviewDTO existingReview = attractionDAO.getReviewByReviewId(reviewId);
+
+        if (existingReview == null) {
+            throw new ReviewNotFoundException("해당 id의 리뷰를 찾을 수 없습니다.");
+        }
+
+        if (existingReview.getAttractionId() != attractionId) {
+            throw new ReviewNotMatchToAttractionException("해당 리뷰의 id와 여행지 id가 일치하지 않습니다.");
+        }
+
+        if (attractionDAO.findLikedReview(userId, reviewId) != null) {
+            throw new ReviewAlreadyLikedException("이미 좋아요를 누른 리뷰입니다.");
+        }
+
+        int insertResult = attractionDAO.insertLikedReview(userId, attractionId, reviewId);
+
+        if (insertResult > 0) {
+            attractionDAO.increaseReviewLikeCount(reviewId);
+        }
+
+        return new ActionResponseDTO(insertResult > 0);
+    }
+
+    /**
+     * 리뷰에 좋아요 제거하기
+     * @param attractionId attractionId
+     * @param reviewId reviewId
+     * @param userId userId
+     * @return 좋아요 제거 성공 여부
+     */
+    public ActionResponseDTO removeLikeFromAttractionReview(int attractionId, int reviewId, int userId) {
+        ReviewDTO existingReview = attractionDAO.getReviewByReviewId(reviewId);
+
+        if (existingReview == null) {
+            throw new ReviewNotFoundException("해당 id의 리뷰를 찾을 수 없습니다.");
+        }
+
+        if (existingReview.getAttractionId() != attractionId) {
+            throw new ReviewNotMatchToAttractionException("해당 리뷰의 id와 여행지 id가 일치하지 않습니다.");
+        }
+
+        if (attractionDAO.findLikedReview(userId, reviewId) == null) {
+            throw new ReviewNotLikedException("좋아요를 누르지 않은 리뷰입니다.");
+        }
+
+        int deleteResult = attractionDAO.deleteLikedReview(userId, attractionId, reviewId);
+
+        if (deleteResult > 0) {
+            attractionDAO.decreaseReviewLikeCount(reviewId);
+        }
+
+        return new ActionResponseDTO(deleteResult > 0);
     }
 
     /**

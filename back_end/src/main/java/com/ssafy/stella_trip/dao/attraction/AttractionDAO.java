@@ -1,9 +1,6 @@
 package com.ssafy.stella_trip.dao.attraction;
 
-import com.ssafy.stella_trip.attraction.dto.AttractionDTO;
-import com.ssafy.stella_trip.attraction.dto.AttractionWithReviewsDTO;
-import com.ssafy.stella_trip.attraction.dto.ReviewDTO;
-import com.ssafy.stella_trip.attraction.dto.ReviewWithUserNameDTO;
+import com.ssafy.stella_trip.attraction.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -25,5 +22,9 @@ public interface AttractionDAO {
     int insertReview(ReviewDTO reviewDTO);
     int updateReview(ReviewDTO reviewDTO);
     int deleteReviewByReviewId(int reviewId);
-
+    int increaseReviewLikeCount(int reviewId);
+    int decreaseReviewLikeCount(int reviewId);
+    int insertLikedReview(@Param("userId") int userId, @Param("attractionId") int attractionId ,@Param("reviewId") int reviewId);
+    int deleteLikedReview(@Param("userId") int userId, @Param("attractionId") int attractionId ,@Param("reviewId") int reviewId);
+    LikedReviewDTO findLikedReview(@Param("userId") int userId, @Param("reviewId") int reviewId);
 }

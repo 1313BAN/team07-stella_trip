@@ -23,15 +23,31 @@ public class AttractionExceptionHandler {
 
     @ExceptionHandler(ReviewNotMatchToAttractionException.class)
     public CommonResponse<ErrorBody> ReviewNotMatchToAttractionException(ReviewNotMatchToAttractionException e, HttpServletRequest request) {
-        log.warn("ATTRACTION-001> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
-        return new CommonResponse<>(new ErrorBody("ATTRACTION-001", "해당 ID의 리뷰를 찾을 수 없습니다."),
+        log.warn("ATTRACTION-002> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(new ErrorBody("ATTRACTION-002", "해당 리뷰의 id와 여행지 id가 일치하지 않습니다."),
                 HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ReviewWriterNotMatchToUser.class)
     public CommonResponse<ErrorBody> ReviewWriterNotMatchToUser(ReviewWriterNotMatchToUser e, HttpServletRequest request) {
-        log.warn("ATTRACTION-001> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
-        return new CommonResponse<>(new ErrorBody("ATTRACTION-001", "해당 ID의 리뷰를 찾을 수 없습니다."),
+        log.warn("ATTRACTION-003> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(new ErrorBody("ATTRACTION-003", "해당 리뷰에 대한 권한이 없습니다."),
                 HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ReviewAlreadyLikedException.class)
+    public CommonResponse<ErrorBody> handleReviewAlreadyLikedException(
+            ReviewAlreadyLikedException e, HttpServletRequest request) {
+        log.warn("ATTRACTION-004> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(new ErrorBody("ATTRACTION-004", "이미 좋아요를 누른 리뷰입니다."),
+                HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(ReviewNotLikedException.class)
+    public CommonResponse<ErrorBody> handleReviewNotLikedException(
+            ReviewNotLikedException e, HttpServletRequest request) {
+        log.warn("ATTRACTION-005> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(new ErrorBody("ATTRACTION-005", "좋아요를 누르지 않은 리뷰입니다."),
+                HttpStatus.UNPROCESSABLE_ENTITY);
     }
 }

@@ -8,6 +8,7 @@ import com.ssafy.stella_trip.common.response.CommonResponse;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
 import com.ssafy.stella_trip.user.dto.response.ActionResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -63,23 +64,23 @@ public class AttractionController {
         return new CommonResponse<>(attractionService.deleteAttractionReview(attractionId, reviewId, user.getUserId()), HttpStatus.OK);
     }
 
-//    //리뷰 좋아요 추가
-//    @PostMapping("/{attractionId}/reviews/{reviewId}/like")
-//    public CommonResponse<?> addLikeToAttractionReview(
-//            @PathVariable int attractionId,
-//            @PathVariable int reviewId,
-//            @AuthenticationPrincipal JwtUserInfo user
-//    ){
-//        return CommonResponse<>();
-//    }
-//
-//    //리뷰 좋아요 삭제
-//    @PostMapping("/{attractionId}/reviews/{reviewId}/like")
-//    public CommonResponse<?> removeLikeFromAttractionReview(
-//            @PathVariable int attractionId,
-//            @PathVariable int reviewId,
-//            @AuthenticationPrincipal JwtUserInfo user
-//    ){
-//        return CommonResponse<>();
-//    }
+    //리뷰 좋아요 추가
+    @PostMapping("/{attractionId}/reviews/{reviewId}/like")
+    public CommonResponse<ActionResponseDTO> addLikeToAttractionReview(
+            @PathVariable int attractionId,
+            @PathVariable int reviewId,
+            @AuthenticationPrincipal JwtUserInfo user
+    ){
+        return new CommonResponse<>(attractionService.addLikeToAttractionReview(attractionId, reviewId, user.getUserId()), HttpStatus.OK);
+    }
+
+    //리뷰 좋아요 삭제
+    @DeleteMapping("/{attractionId}/reviews/{reviewId}/like")
+    public CommonResponse<ActionResponseDTO> removeLikeFromAttractionReview(
+            @PathVariable int attractionId,
+            @PathVariable int reviewId,
+            @AuthenticationPrincipal JwtUserInfo user
+    ){
+        return new CommonResponse<>(attractionService.removeLikeFromAttractionReview(attractionId, reviewId, user.getUserId()), HttpStatus.OK);
+    }
 }
