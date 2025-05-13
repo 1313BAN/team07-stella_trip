@@ -1,6 +1,7 @@
 package com.ssafy.stella_trip.plan.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRawValue;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +20,7 @@ public class PlanResponseDTO {
     private int planId;
     private String title;
     private String description;
+    @JsonRawValue
     private String stella;
     @JsonProperty("start_date")
     private LocalDate startDate;

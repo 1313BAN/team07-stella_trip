@@ -84,4 +84,11 @@ public class PlanExceptionHandler {
         return new CommonResponse<>(new ErrorBody("PLAN-010", "해당 ID의 경로를 찾을 수 없습니다."),
                 HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(StellaErrorException.class)
+    public CommonResponse<ErrorBody> stellaErrorException(StellaErrorException e, HttpServletRequest request) {
+        log.warn("PLAN-011> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(new ErrorBody("PLAN-011", "별자리 생성 중 오류가 발생했습니다."),
+                HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
