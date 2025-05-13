@@ -9,6 +9,7 @@ import java.time.LocalDate;
 @Setter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class ReviewRequestDTO {
     private String title;
     private String content;
