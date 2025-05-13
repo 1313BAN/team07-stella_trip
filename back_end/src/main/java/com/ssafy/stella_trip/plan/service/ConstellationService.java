@@ -40,6 +40,12 @@ public class ConstellationService {
 
         List<AttractionDTO> places = routes.stream().map(RouteDTO::getAttraction).toList();
 
+        if(places.isEmpty()) {
+            String json = convertConstellationToJson(new ConstellationDTO());
+            planDAO.updateStella(planId, json);
+            return new ConstellationDTO();
+        }
+
         double centerLat = places.stream().mapToDouble(AttractionDTO::getLatitude).average().orElse(0);
         double centerLon = places.stream().mapToDouble(AttractionDTO::getLongitude).average().orElse(0);
 
