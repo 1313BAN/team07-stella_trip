@@ -51,7 +51,7 @@ public class AttractionService {
                 .userId(userId)
                 .title(reviewRequestDTO.getTitle())
                 .content(reviewRequestDTO.getContent())
-                .visitDate(reviewRequestDTO.getVisitedDate())
+                .visitDate(reviewRequestDTO.getVisitDate())
                 .rating(reviewRequestDTO.getRating())
                 .build();
 
@@ -76,7 +76,7 @@ public class AttractionService {
                 .reviewId(reviewId)
                 .title(reviewRequestDTO.getTitle())
                 .content(reviewRequestDTO.getContent())
-                .visitDate(reviewRequestDTO.getVisitedDate())
+                .visitDate(reviewRequestDTO.getVisitDate())
                 .rating(reviewRequestDTO.getRating())
                 .build();
 

@@ -131,7 +131,7 @@
         r.title as review_title,
         r.content as review_content,
         r.rating as review_rating,
-        r.visit_date as review_visited_date,
+        r.visit_date as review_visit_date,
         r.created_at as review_created_at
         FROM (
         SELECT DISTINCT a.*, fa.created_at as fa_created_at
@@ -184,7 +184,7 @@
         content,
         title,
         rating,
-        visited_date,
+        visit_date
         ) VALUES (
         #{attractionId},
         #{userId},
@@ -202,7 +202,7 @@
         title = #{title},
         content = #{content},
         rating = #{rating},
-        visited_date = #{visitDate}
+        visit_date = #{visitDate}
         WHERE review_id = #{reviewId}
     </update>
 
