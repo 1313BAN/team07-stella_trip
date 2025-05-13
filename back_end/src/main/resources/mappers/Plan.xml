@@ -310,6 +310,13 @@
         WHERE plan_id = #{planId};
     </delete>
 
+    <!-- 여행 별자리 수정 -->
+    <update id="updateStella">
+        UPDATE plan
+        SET stella = #{stella}
+        WHERE plan_id = #{planId};
+    </update>
+
     <!-- 새로운 여행 경로 추가 -->
     <insert id="insertRoute">
         INSERT INTO route (plan_id, attraction_id, day_index, `order`, visit_time, memo)

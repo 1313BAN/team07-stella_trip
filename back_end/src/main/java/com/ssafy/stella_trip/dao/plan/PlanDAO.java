@@ -54,6 +54,11 @@ public interface PlanDAO {
 
     RouteDTO getRouteByRouteId(@Param("routeId") int routeId);
 
+    int updateStella(
+            @Param("planId") int planId,
+            @Param("stella") String stella
+    );
+
     int insertRoute(
             @Param("planId") int planId,
             @Param("attractionId") int attractionId,
