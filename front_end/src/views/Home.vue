@@ -1,7 +1,11 @@
-<script setup lang="ts"></script>
-
 <template>
-  <div>
-    <h2>홈페이지</h2>
-  </div>
+  <HeroBackground />
+  <main>
+    <HeroSection />
+  </main>
 </template>
+
+<script setup lang="ts">
+import HeroBackground from '@/components/background/HeroBackground.vue';
+import HeroSection from '@/components/views/home/HeroSection.vue';
+</script>
