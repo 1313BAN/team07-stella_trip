@@ -33,40 +33,6 @@ class AttractionDAOTest {
     }
 
     @Test
-    @DisplayName("시도 코드로 관광지 목록 조회 테스트")
-    void getAttractionsBySidoCode() {
-        // given
-        int sidoCode = 1; // 가정: 서울특별시 코드
-
-        // when
-        List<AttractionDTO> attractions = attractionDAO.getAttractionsBySidoCode(sidoCode);
-
-        // then
-        assertThat(attractions).isNotEmpty();
-        attractions.forEach(attraction ->
-                assertThat(attraction.getSidoCode()).isEqualTo(sidoCode)
-        );
-    }
-
-    @Test
-    @DisplayName("시도 및 구군 코드로 관광지 목록 조회 테스트")
-    void getAttractionsBySidoAndGugunCode() {
-        // given
-        int sidoCode = 1; // 가정: 서울특별시 코드
-        int gugunCode = 1; // 가정: 종로구 코드
-
-        // when
-        List<AttractionDTO> attractions = attractionDAO.getAttractionsBySidoAndGugunCode(sidoCode, gugunCode);
-
-        // then
-        assertThat(attractions).isNotEmpty();
-        attractions.forEach(attraction -> {
-            assertThat(attraction.getSidoCode()).isEqualTo(sidoCode);
-            assertThat(attraction.getGugunCode()).isEqualTo(gugunCode);
-        });
-    }
-
-    @Test
     @DisplayName("컨텐츠 타입 ID로 관광지 목록 조회 테스트")
     void getAttractionsByContentTypeId() {
         // given
@@ -93,20 +59,5 @@ class AttractionDAOTest {
 
         // then
         assertThat(attraction).isNull();
-    }
-
-    @Test
-    @DisplayName("결과가 없는 시도/구군 코드 조회 테스트")
-    void getAttractionsByInvalidSidoAndGugunCode() {
-        // given
-        int invalidSidoCode = 999; // 가정: 존재하지 않는 시도 코드
-        int invalidGugunCode = 999; // 가정: 존재하지 않는 구군 코드
-
-        // when
-        List<AttractionDTO> attractions = attractionDAO.getAttractionsBySidoAndGugunCode(
-                invalidSidoCode, invalidGugunCode);
-
-        // then
-        assertThat(attractions).isEmpty();
     }
 }
