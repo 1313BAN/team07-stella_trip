@@ -50,4 +50,28 @@ public class AttractionExceptionHandler {
         return new CommonResponse<>(new ErrorBody("ATTRACTION-005", "좋아요를 누르지 않은 리뷰입니다."),
                 HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(AttractionNotFoundException.class)
+    public CommonResponse<ErrorBody> AttractionNotFoundException(
+            AttractionNotFoundException e, HttpServletRequest request) {
+        log.warn("ATTRACTION-006> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(new ErrorBody("ATTRACTION-006", "해당 id의 여행지를 찾을 수 없습니다."),
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AttractionAlreadyLikedException.class)
+    public CommonResponse<ErrorBody> AttractionAlreadyLikedException(
+            AttractionAlreadyLikedException e, HttpServletRequest request) {
+        log.warn("ATTRACTION-007> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(new ErrorBody("ATTRACTION-007", "이미 좋아요를 누른 여행지입니다."),
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AttractionNotLikedException.class)
+    public CommonResponse<ErrorBody> AttractionNotLikedException(
+            AttractionNotLikedException e, HttpServletRequest request) {
+        log.warn("ATTRACTION-008> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(new ErrorBody("ATTRACTION-008", "좋아요를 누르지 않은 여행지입니다."),
+                HttpStatus.BAD_REQUEST);
+    }
 }

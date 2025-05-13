@@ -83,4 +83,22 @@ public class AttractionController {
     ){
         return new CommonResponse<>(attractionService.removeLikeFromAttractionReview(attractionId, reviewId, user.getUserId()), HttpStatus.OK);
     }
+
+    //여행지 좋아요 추가
+    @PostMapping("/{attractionId}/like")
+    public CommonResponse<ActionResponseDTO> addLikeToAttraction(
+            @PathVariable int attractionId,
+            @AuthenticationPrincipal JwtUserInfo user
+    ){
+        return new CommonResponse<>(attractionService.addLikeToAttraction(attractionId, user.getUserId()), HttpStatus.OK);
+    }
+
+    //여행지 좋아요 삭제
+    @DeleteMapping("/{attractionId}/like")
+    public CommonResponse<ActionResponseDTO> removeLikeFromAttraction(
+            @PathVariable int attractionId,
+            @AuthenticationPrincipal JwtUserInfo user
+    ){
+        return new CommonResponse<>(attractionService.removeLikeFromAttraction(attractionId, user.getUserId()), HttpStatus.OK);
+    }
 }
