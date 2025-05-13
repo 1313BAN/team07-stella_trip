@@ -1,6 +1,6 @@
-package com.ssafy.stella_trip.dao.admin;
+package com.ssafy.stella_trip.dao.notification;
 
-import com.ssafy.stella_trip.admin.dto.NotificationDTO;
+import com.ssafy.stella_trip.notification.dto.NotificationDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -9,7 +9,7 @@ import java.util.List;
 @Mapper
 public interface NotificationDAO {
     List<NotificationDTO> getNotifications(@Param("size") int size,
-                                           @Param("page") int page);
+                                           @Param("offset") int offset);
 
     int getNotificationCount();
 

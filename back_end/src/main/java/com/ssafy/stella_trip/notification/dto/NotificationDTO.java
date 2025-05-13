@@ -1,4 +1,4 @@
-package com.ssafy.stella_trip.admin.dto;
+package com.ssafy.stella_trip.notification.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,6 +14,6 @@ public class NotificationDTO {
     private int userId;
     private String title;
     private String content;
-    private LocalDateTime creatdAt;
-    private LocalDateTime updatdAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 }
