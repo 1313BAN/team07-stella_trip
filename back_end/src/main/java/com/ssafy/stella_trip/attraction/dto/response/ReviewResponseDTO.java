@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -23,7 +24,8 @@ public class ReviewResponseDTO {
     private String content;
     private double rating;
     @JsonProperty("visit_date")
-    private String visitDate;
+    private LocalDate visitDate;
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
+    private boolean isLiked;
 }

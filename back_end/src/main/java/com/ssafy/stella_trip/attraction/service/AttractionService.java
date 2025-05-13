@@ -1,0 +1,132 @@
+package com.ssafy.stella_trip.attraction.service;
+
+import com.ssafy.stella_trip.attraction.dto.ReviewDTO;
+import com.ssafy.stella_trip.attraction.dto.ReviewWithUserNameDTO;
+import com.ssafy.stella_trip.attraction.dto.request.ReviewRequestDTO;
+import com.ssafy.stella_trip.attraction.dto.response.ReviewResponseDTO;
+import com.ssafy.stella_trip.attraction.exception.ReviewNotFoundException;
+import com.ssafy.stella_trip.attraction.exception.ReviewNotMatchToAttractionException;
+import com.ssafy.stella_trip.attraction.exception.ReviewWriterNotMatchToUser;
+import com.ssafy.stella_trip.common.dto.PageDTO;
+import com.ssafy.stella_trip.common.util.PaginationUtils;
+import com.ssafy.stella_trip.dao.attraction.AttractionDAO;
+import com.ssafy.stella_trip.user.dto.response.ActionResponseDTO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class AttractionService {
+
+    private final AttractionDAO attractionDAO;
+
+    /**
+     * 여행지의 리뷰 목록 페이징 조회
+     * @param attractionId attractionId
+     * @param page 페이지
+     * @param size 한 페이지 크기
+     * @return PageDTO
+     */
+    public PageDTO<ReviewResponseDTO> getAttractionReviews(int attractionId, int page, int size, int userId){
+        return PaginationUtils.getPagedResult(
+                page,
+                size,
+                () -> attractionDAO.countReviewsByAttractionId(attractionId),
+                (offset, pageSize) -> attractionDAO.getReviewsByAttractionId(attractionId, offset, pageSize, userId),
+                this::convertReviewWithUserNameToResponseDTO
+        );
+    }
+
+    /**
+     * 여행지에 리뷰 추가
+     * @param attractionId attractionId
+     * @param reviewRequestDTO createReviewRequestDTO
+     * @param userId userId
+     * @return 생성 성공 여부
+     */
+    public ActionResponseDTO addAttractionReview(int attractionId, ReviewRequestDTO reviewRequestDTO, int userId) {
+        ReviewDTO reviewDTO = ReviewDTO.builder()
+                .attractionId(attractionId)
+                .userId(userId)
+                .title(reviewRequestDTO.getTitle())
+                .content(reviewRequestDTO.getContent())
+                .visitDate(reviewRequestDTO.getVisitedDate())
+                .rating(reviewRequestDTO.getRating())
+                .build();
+
+        return new ActionResponseDTO(attractionDAO.insertReview(reviewDTO) > 0);
+    }
+
+    /**
+     * 자신이 작성한 여행지의 리뷰 수정
+     * @param attractionId attractionId
+     * @param reviewId reviewId
+     * @param reviewRequestDTO reviewRequestDTO
+     * @param userId userId
+     * @return 수정 성공 여부
+     */
+    @Transactional
+    public ActionResponseDTO modifyAttractionReview(int attractionId, int reviewId, ReviewRequestDTO reviewRequestDTO, int userId) {
+        validateReview(attractionId, reviewId, userId);
+
+        ReviewDTO reviewDTO = ReviewDTO.builder()
+                .attractionId(attractionId)
+                .userId(userId)
+                .reviewId(reviewId)
+                .title(reviewRequestDTO.getTitle())
+                .content(reviewRequestDTO.getContent())
+                .visitDate(reviewRequestDTO.getVisitedDate())
+                .rating(reviewRequestDTO.getRating())
+                .build();
+
+        return new ActionResponseDTO(attractionDAO.updateReview(reviewDTO) > 0);
+    }
+
+    @Transactional
+    public ActionResponseDTO deleteAttractionReview(int attractionId, int reviewId, int userId) {
+        validateReview(attractionId, reviewId, userId);
+
+        return new ActionResponseDTO(attractionDAO.deleteReviewByReviewId(reviewId) > 0);
+    }
+
+    /**
+     * ReviewWithUserNameDTO 를 ReviewResponseDTO 로 변환
+     * @param review ReviewWithUserNameDTO
+     * @return ReviewResponseDTO
+     */
+    private ReviewResponseDTO convertReviewWithUserNameToResponseDTO(ReviewWithUserNameDTO review) {
+        return ReviewResponseDTO.builder()
+                .reviewId(review.getReviewId())
+                .userId(review.getUserId())
+                .userName(review.getUserName())
+                .title(review.getTitle())
+                .content(review.getContent())
+                .rating(review.getRating())
+                .visitDate(review.getVisitDate())
+                .createdAt(review.getCreatedAt())
+                .isLiked(review.isLiked())
+                .build();
+    }
+
+    /**
+     * 접근하려는 리뷰에 대한 일관성, 권한 확인
+     * @param attractionId attractionId
+     * @param reviewId reviewId
+     * @param userId userId
+     */
+    private void validateReview(int attractionId, int reviewId, int userId) {
+        ReviewDTO existingReview = attractionDAO.getReviewByReviewId(reviewId);
+        if (existingReview == null) {
+            throw new ReviewNotFoundException("해당 id의 리뷰를 찾을 수 없습니다.");
+        }
+
+        if(existingReview.getAttractionId() != attractionId){
+            throw new ReviewNotMatchToAttractionException("해당 리뷰의 id와 여행지 id가 일치하지 않습니다.");
+        }
+
+        if(existingReview.getUserId() != userId){
+            throw new ReviewWriterNotMatchToUser("해당 리뷰에 대한 권한이 없습니다.");
+        }
+    }
+}
