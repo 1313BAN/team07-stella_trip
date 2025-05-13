@@ -25,14 +25,14 @@ public class AttractionExceptionHandler {
     public CommonResponse<ErrorBody> ReviewNotMatchToAttractionException(ReviewNotMatchToAttractionException e, HttpServletRequest request) {
         log.warn("ATTRACTION-002> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
         return new CommonResponse<>(new ErrorBody("ATTRACTION-002", "해당 리뷰의 id와 여행지 id가 일치하지 않습니다."),
-                HttpStatus.NOT_FOUND);
+                HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ReviewWriterNotMatchToUser.class)
     public CommonResponse<ErrorBody> ReviewWriterNotMatchToUser(ReviewWriterNotMatchToUser e, HttpServletRequest request) {
         log.warn("ATTRACTION-003> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
         return new CommonResponse<>(new ErrorBody("ATTRACTION-003", "해당 리뷰에 대한 권한이 없습니다."),
-                HttpStatus.NOT_FOUND);
+                HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(ReviewAlreadyLikedException.class)
@@ -48,6 +48,6 @@ public class AttractionExceptionHandler {
             ReviewNotLikedException e, HttpServletRequest request) {
         log.warn("ATTRACTION-005> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
         return new CommonResponse<>(new ErrorBody("ATTRACTION-005", "좋아요를 누르지 않은 리뷰입니다."),
-                HttpStatus.UNPROCESSABLE_ENTITY);
+                HttpStatus.BAD_REQUEST);
     }
 }
