@@ -1,8 +1,10 @@
 package com.ssafy.stella_trip.plan.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ssafy.stella_trip.common.dto.PageDTO;
 import com.ssafy.stella_trip.dao.plan.PlanDAO;
 import com.ssafy.stella_trip.dao.user.UserDAO;
+import com.ssafy.stella_trip.plan.dto.ConstellationDTO;
 import com.ssafy.stella_trip.plan.dto.PlanDTO;
 import com.ssafy.stella_trip.plan.dto.RouteDTO;
 import com.ssafy.stella_trip.plan.dto.TagDTO;
@@ -27,6 +29,7 @@ public class PlanService {
     private final PlanDAO planDAO;
     private final UserDAO userDAO;
     private final PlanLockUtil planLockUtil;
+    private final ConstellationService constellationService;
     private final int LOCK_TIMEOUT = 180; // 3분
 
     public PageDTO<PlanResponseDTO> searchPlanByCondition(
@@ -209,7 +212,12 @@ public class PlanService {
         // 일정 업데이트
         planDAO.updatePlanSchedule(planId, scheduleRequestDTO.getStartDate(), scheduleRequestDTO.getEndDate());
         planDAO.deleteRoutesExceedingDayIndex(planId);
-        // TODO: stella 업데이트
+        try {
+            constellationService.updateStella(planId);
+        } catch (JsonProcessingException e) {
+            throw new StellaErrorException("Stella 업데이트 중 오류가 발생했습니다.");
+        }
+
         return getPlanDetail(planId, user); // 업데이트된 계획을 가져오기 위해 다시 호출
     }
 
@@ -245,7 +253,12 @@ public class PlanService {
                 routeInsertRequestDTO.getVisitTime(),
                 routeInsertRequestDTO.getMemo()
         );
-        // TODO: stella 업데이트
+        try {
+            constellationService.updateStella(planId);
+        } catch (JsonProcessingException e) {
+            throw new StellaErrorException("Stella 업데이트 중 오류가 발생했습니다.");
+        }
+
         return getPlanDetail(planId, user); // 업데이트된 계획을 가져오기 위해 다시 호출
     }
 
@@ -293,15 +306,25 @@ public class PlanService {
         }
         planDAO.updateRoutes(updatingRoutes);
         planDAO.deleteRoutes(deletingRoutes);
-        // TODO: stella 업데이트
+        try {
+            constellationService.updateStella(planId);
+        } catch (JsonProcessingException e) {
+            throw new StellaErrorException("Stella 업데이트 중 오류가 발생했습니다.");
+        }
+
         planLockUtil.releasePlanLock(planId, user.getUserId()); // 락 해제
         return getPlanDetail(planId, user); // 업데이트된 계획을 가져오기 위해 다시 호출
     }
 
     @Transactional
     public PlanResponseDTO addPlan(PlanRequestDTO planRequestDTO, JwtUserInfo user) {
+        String stella = "";
+        try {
+            stella = constellationService.convertConstellationToJson(new ConstellationDTO());
+        } catch (JsonProcessingException e) {
+            throw new StellaErrorException("Stella 업데이트 중 오류가 발생했습니다.");
+        }
 
-        String stella = "0.0"; // TODO: stella 계산 로직 추가
         // 계획 추가
         PlanDTO planDTO = PlanDTO.builder()
                 .title(planRequestDTO.getTitle())

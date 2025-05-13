@@ -52,6 +52,8 @@ public interface PlanDAO {
             @Param("planId") int planId
     );
 
+    List<RouteDTO> getRoutesByPlanId(@Param("planId") int planId);
+
     RouteDTO getRouteByRouteId(@Param("routeId") int routeId);
 
     int updateStella(
