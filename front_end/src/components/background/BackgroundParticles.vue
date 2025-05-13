@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import type { BackgroundParticlesProps } from './types';
 
 interface Particle {
@@ -38,13 +38,23 @@ const createParticles = () => {
 onMounted(() => {
   createParticles();
 });
+
+watch(
+  () => [props.particleCount, props.maxDelay, props.baseAnimationDuration],
+  () => {
+    createParticles();
+  }
+);
+
+//TODO: 버튼 컴포넌트화
 </script>
 
 <template>
   <div
     v-for="particle in particles"
     :key="particle.id"
-    class="absolute h-1 w-1 animate-bounce rounded-full bg-purple-300/30"
+    class="absolute h-1 w-1 animate-bounce rounded-full"
+    :class="props.particleClass"
     :style="{
       left: `${particle.x}%`,
       top: `${particle.y}%`,

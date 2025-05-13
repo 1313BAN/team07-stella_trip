@@ -16,6 +16,8 @@ function goBack(): void {
     router.push('/');
   }
 }
+
+//TODO: 버튼 컴포넌트화
 </script>
 
 <template>
