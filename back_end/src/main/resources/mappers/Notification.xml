@@ -8,6 +8,7 @@
         <id property="notificationId" column="notification_id"/>
         <result property="userId" column="user_id"/>
         <result property="title" column="title"/>
+        <result property="content" column="content"/>
         <result property="createdAt" column="created_at"/>
         <result property="modifiedAt" column="modified_at"/>
     </resultMap>
