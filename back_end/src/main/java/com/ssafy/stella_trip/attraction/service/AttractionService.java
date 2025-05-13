@@ -189,8 +189,8 @@ public class AttractionService {
 
     /**
      * 여행지에 좋아요 제거하기
-     * @param attractionId
-     * @param userId
+     * @param attractionId attractionId
+     * @param userId userId
      * @return 좋아요 제거 성공 여부
      */
     @Transactional
