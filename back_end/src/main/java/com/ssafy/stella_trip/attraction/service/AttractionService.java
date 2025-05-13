@@ -102,6 +102,7 @@ public class AttractionService {
      * @param userId userId
      * @return 좋아요 추가 성공 여부
      */
+    @Transactional
     public ActionResponseDTO addLikeToAttractionReview(int attractionId, int reviewId, int userId) {
         ReviewDTO existingReview = attractionDAO.getReviewByReviewId(reviewId);
 
@@ -133,6 +134,7 @@ public class AttractionService {
      * @param userId userId
      * @return 좋아요 제거 성공 여부
      */
+    @Transactional
     public ActionResponseDTO removeLikeFromAttractionReview(int attractionId, int reviewId, int userId) {
         ReviewDTO existingReview = attractionDAO.getReviewByReviewId(reviewId);
 
