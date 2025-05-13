@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class NotificationExceptionHandler {
     @ExceptionHandler(NotificationNotFoundException.class)
     public CommonResponse<ErrorBody> notificationNotFoundException(NotificationNotFoundException e, HttpServletRequest request) {
-        log.warn("COMMON-001> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        log.warn("NOTICE-001> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
         return new CommonResponse<>(new ErrorBody("NOTICE-01", "해당"),
                 HttpStatus.NOT_FOUND);
     }
