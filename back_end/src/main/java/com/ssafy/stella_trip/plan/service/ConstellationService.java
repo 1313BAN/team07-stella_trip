@@ -63,7 +63,6 @@ public class ConstellationService {
         }
 
         double maxRange = Math.max(maxDx, maxDy);
-        int canvasSize = 500;
         ConstellationDTO constellationDTO = new ConstellationDTO();
 
         for (int i = 0; i < places.size(); i++) {
