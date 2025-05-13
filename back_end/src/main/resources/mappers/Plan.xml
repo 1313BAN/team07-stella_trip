@@ -3,6 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ssafy.stella_trip.dao.plan.PlanDAO">
+    <!-- 여행 계획 정보를 매핑하는 resultMap -->
     <resultMap id="PlanMap" type="com.ssafy.stella_trip.plan.dto.PlanDTO">
         <id column="plan_id" property="planId"/>
         <result column="title" property="title"/>
@@ -41,6 +42,7 @@
                     select="getRoutesByPlanId" column="plan_id"/>
     </resultMap>
 
+    <!-- 여행 경로 정보를 매핑하는 resultMap -->
     <resultMap id="RouteMap" type="com.ssafy.stella_trip.plan.dto.RouteDTO">
         <id column="route_id" property="routeId"/>
         <result column="plan_id" property="planId"/>
@@ -54,11 +56,13 @@
     </resultMap>
 
     <!-- plan 등록 관련 쿼리 -->
+    <!-- 새로운 여행 계획을 데이터베이스에 삽입 -->
     <insert id="insertPlan" useGeneratedKeys="true" keyProperty="planId">
         INSERT INTO plan (title, start_date, end_date, description, like_count, is_public, stella)
         VALUES (#{plan.title}, #{plan.startDate}, #{plan.endDate}, #{plan.description}, 0, #{plan.isPublic}, #{plan.stella});
     </insert>
 
+    <!-- 태그 목록을 데이터베이스에 삽입(이미 존재하면 무시) -->
     <insert id="insertTags">
         INSERT INTO tag (name)
         VALUES
@@ -68,6 +72,7 @@
         ON DUPLICATE KEY UPDATE name = name
     </insert>
 
+    <!-- 여행 계획과 태그를 연결 -->
     <insert id="linkTagsToPlan">
         INSERT INTO tag_plan (plan_id, tag_id)
         SELECT #{planId}, tag_id FROM tag
@@ -78,22 +83,26 @@
         ON DUPLICATE KEY UPDATE plan_id = plan_id
     </insert>
 
+    <!-- 특정 여행 계획의 모든 태그 연결을 삭제 -->
     <delete id="deletePlanTagByPlanId">
         DELETE FROM tag_plan
         WHERE plan_id = #{planId};
     </delete>
 
+    <!-- 여행 계획 작성자 정보를 추가 -->
     <insert id="insertPlanWriter">
         INSERT INTO plan_writer (plan_id, user_id)
         VALUES (#{planId}, #{userId});
     </insert>
 
+    <!-- 여행 계획에서 특정 작성자를 제거 -->
     <delete id="deletePlanWriter">
         DELETE FROM plan_writer
         WHERE plan_id = #{planId} AND user_id = #{userId};
     </delete>
 
     <!-- plan조회 -->
+    <!-- 여행 계획 ID로 상세 정보 조회 -->
     <select id="getPlanById" resultMap="PlanMap">
         SELECT
         p.*,
@@ -112,6 +121,7 @@
         WHERE p.plan_id = #{planId}
     </select>
 
+    <!-- 특정 여행 계획의 모든 경로 조회 -->
     <select id="getRoutesByPlanId" resultMap="RouteMap">
         SELECT
         r.route_id,
@@ -125,6 +135,7 @@
         WHERE r.plan_id = #{planId}
     </select>
 
+    <!-- 검색 조건에 맞는 여행 계획 목록 조회 -->
     <select id="getPlansByCondition" resultMap="PlanMap">
         SELECT
         p.plan_id,
@@ -179,6 +190,7 @@
         LIMIT #{size} OFFSET #{offset}
     </select>
 
+    <!-- 검색 조건에 맞는 여행 계획의 총 개수 조회 -->
     <select id="countPlansByCondition">
         SELECT COUNT(DISTINCT p.plan_id)
         FROM plan p
@@ -198,6 +210,7 @@
         </if>
     </select>
   
+    <!-- 경로 ID로 특정 경로 정보 조회 -->
     <select id="getRouteByRouteId" resultMap="RouteMap">
         SELECT
         r.route_id,
@@ -211,12 +224,14 @@
         WHERE r.route_id = #{routeId}
     </select>
 
+    <!-- 특정 여행 계획의 작성자 수 조회 -->
     <select id="getPlanWritersCount">
         SELECT COUNT(DISTINCT pw.user_id)
         FROM plan_writer pw
         WHERE pw.plan_id = #{planId}
     </select>
 
+    <!-- 사용자가 특정 여행 계획의 작성자인지 확인 -->
     <select id="checkPlanWriter">
         SELECT EXISTS (
             SELECT 1
@@ -226,28 +241,33 @@
     </select>
 
     <!-- 좋아요 관련 쿼리 -->
+    <!-- 여행 계획의 좋아요 수 증가 -->
     <update id="increaseLikeCount">
         UPDATE plan
         SET like_count = like_count + 1
         WHERE plan_id = #{planId};
     </update>
 
+    <!-- 여행 계획의 좋아요 수 감소 -->
     <update id="decreaseLikeCount">
         UPDATE plan
         SET like_count = GREATEST(like_count - 1, 0)
         WHERE plan_id = #{planId};
     </update>
 
+    <!-- 사용자가 여행 계획에 좋아요 추가 -->
     <insert id="likePlan">
         INSERT INTO liked_plan (plan_id, user_id)
         VALUES (#{planId}, #{userId});
     </insert>
 
+    <!-- 사용자가 여행 계획에 좋아요 취소 -->
     <update id="unlikePlan">
         DELETE FROM liked_plan
         WHERE plan_id = #{planId} AND user_id = #{userId};
     </update>
 
+    <!-- 사용자가 여행 계획에 좋아요를 했는지 확인 -->
     <select id="isPlanLikedByUser" resultType="boolean">
         SELECT EXISTS (
         SELECT 1
@@ -257,6 +277,7 @@
     </select>
 
     <!-- 여행 계획 수정 관련 쿼리 -->
+    <!-- 여행 계획의 기본 정보 수정 -->
     <update id="updateBasicPlanInfo">
         UPDATE plan
         SET title = #{title},
@@ -265,12 +286,14 @@
         WHERE plan_id = #{planId};
     </update>
 
+    <!-- 여행 계획의 일정(시작일, 종료일) 수정 -->
     <update id="updatePlanSchedule">
         UPDATE plan
         SET start_date = #{startDate}, end_date = #{endDate}
         WHERE plan_id = #{planId};
     </update>
 
+    <!-- 여행 일정 변경 후 초과된 날짜의 경로 삭제 -->
     <delete id="deleteRoutesExceedingDayIndex">
         DELETE FROM route
         WHERE plan_id = #{planId}
@@ -281,16 +304,19 @@
         );
     </delete>
 
+    <!-- 여행 계획 삭제 -->
     <delete id="deletePlan">
         DELETE FROM plan
         WHERE plan_id = #{planId};
     </delete>
 
+    <!-- 새로운 여행 경로 추가 -->
     <insert id="insertRoute">
         INSERT INTO route (plan_id, attraction_id, day_index, `order`, visit_time, memo)
         VALUES (#{planId}, #{attractionId}, #{dayIndex}, #{order}, #{visitTime}, #{memo});
     </insert>
 
+    <!-- 여러 경로의 날짜 및 순서 정보 일괄 수정 -->
     <update id="updateRoutes">
         <foreach collection="routes" item="route" separator=";">
             UPDATE route
@@ -301,6 +327,7 @@
         </foreach>
     </update>
 
+    <!-- 경로의 상세 정보(방문 시간, 메모) 수정 -->
     <update id="updateRouteInfo">
         UPDATE route
         SET
@@ -309,6 +336,7 @@
         WHERE route_id = #{routeId}
     </update>
 
+    <!-- 여러 경로 일괄 삭제 -->
     <delete id="deleteRoutes">
         DELETE FROM route
         WHERE route_id IN
@@ -317,6 +345,7 @@
         </foreach>
     </delete>
   
+    <!-- 특정 사용자가 작성한 여행 계획의 총 개수 조회 -->
     <select id="countUserPlansByUserId">
         select count(distinct p.plan_id)
         from plan p
@@ -324,6 +353,7 @@
         where pw.user_id = #{userId}
     </select>
 
+    <!-- 특정 사용자가 작성한 여행 계획 목록 조회 -->
     <select id="getUserPlansByUserId" resultMap="PlanMap">
         SELECT
         p.*,
@@ -339,6 +369,7 @@
         LIMIT #{size} OFFSET #{offset}
     </select>
 
+    <!-- 특정 사용자가 좋아요한 여행 계획 목록 조회 -->
     <select id="getLikedPlansByUserId" resultMap="PlanMap">
         SELECT
         p.*,
@@ -355,6 +386,7 @@
         LIMIT #{size} OFFSET #{offset}
     </select>
 
+    <!-- 특정 사용자가 좋아요한 여행 계획의 총 개수 조회 -->
     <select id="countLikedPlansByUserId">
         SELECT COUNT(DISTINCT p.plan_id)
         FROM plan p
