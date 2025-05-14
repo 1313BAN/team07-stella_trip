@@ -11,7 +11,7 @@ import java.util.List;
 public interface AttractionDAO {
     AttractionDTO getAttractionById(int attractionId);
 
-    AttractionWithReviewsDTO getAttractionWithReviewsById(
+    AttractionWithReviewsDTO getAttractionByContentId(
             @Param("userId") int userId,
             @Param("attractionId") int attractionId);
 

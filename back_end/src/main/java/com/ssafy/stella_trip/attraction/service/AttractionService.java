@@ -50,6 +50,14 @@ public class AttractionService {
         );
     }
 
+    public AttractionResponseDTO getAttractionById(Integer attractionId, JwtUserInfo user) {
+        int userId = user == null ? -1 : user.getUserId();
+        AttractionWithReviewsDTO attraction = attractionDAO.getAttractionByContentId(userId, attractionId);
+        if (attraction == null) {
+            throw new AttractionNotFoundException("해당 id의 여행지를 찾을 수 없습니다.");
+        }
+        return convertAttractionToResponseDTO(attraction);
+    }
 
     /**
      * 여행지의 리뷰 목록 페이징 조회
