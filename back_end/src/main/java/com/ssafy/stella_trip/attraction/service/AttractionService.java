@@ -1,5 +1,7 @@
 package com.ssafy.stella_trip.attraction.service;
 
+import com.ssafy.stella_trip.attraction.dto.AttractionDTO;
+import com.ssafy.stella_trip.attraction.dto.AttractionWithReviewsDTO;
 import com.ssafy.stella_trip.attraction.dto.ReviewDTO;
 import com.ssafy.stella_trip.attraction.dto.ReviewWithUserNameDTO;
 import com.ssafy.stella_trip.attraction.dto.request.ReviewRequestDTO;
