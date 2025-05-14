@@ -1,14 +1,17 @@
 package com.ssafy.stella_trip.attraction.service;
 
 import com.ssafy.stella_trip.attraction.dto.AttractionDTO;
+import com.ssafy.stella_trip.attraction.dto.AttractionWithReviewsDTO;
 import com.ssafy.stella_trip.attraction.dto.ReviewDTO;
 import com.ssafy.stella_trip.attraction.dto.ReviewWithUserNameDTO;
 import com.ssafy.stella_trip.attraction.dto.request.ReviewRequestDTO;
+import com.ssafy.stella_trip.attraction.dto.response.AttractionResponseDTO;
 import com.ssafy.stella_trip.attraction.dto.response.ReviewResponseDTO;
 import com.ssafy.stella_trip.attraction.exception.*;
 import com.ssafy.stella_trip.common.dto.PageDTO;
 import com.ssafy.stella_trip.common.util.PaginationUtils;
 import com.ssafy.stella_trip.dao.attraction.AttractionDAO;
+import com.ssafy.stella_trip.security.dto.JwtUserInfo;
 import com.ssafy.stella_trip.user.dto.response.ActionResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,42 @@ import org.springframework.transaction.annotation.Transactional;
 public class AttractionService {
 
     private final AttractionDAO attractionDAO;
+
+    public PageDTO<AttractionResponseDTO> getAttractionsByCondition(
+            Integer sidoCode,
+            Integer gugunCode,
+            Integer contentTypeId,
+            String keyword,
+            int page,
+            int size,
+            JwtUserInfo user
+    ) {
+        int userId = user == null ? -1: user.getUserId();
+        return PaginationUtils.getPagedResult(
+                page,
+                size,
+                () -> attractionDAO.getAttractionCountByConditions(sidoCode, gugunCode, contentTypeId, keyword),
+                (offset, pageSize) -> attractionDAO.getAttractionByConditions(
+                        userId,
+                        sidoCode,
+                        gugunCode,
+                        contentTypeId,
+                        keyword,
+                        offset,
+                        pageSize
+                ),
+                this::convertAttractionToResponseDTO
+        );
+    }
+
+    public AttractionResponseDTO getAttractionById(Integer attractionId, JwtUserInfo user) {
+        int userId = user == null ? -1 : user.getUserId();
+        AttractionWithReviewsDTO attraction = attractionDAO.getAttractionByContentId(userId, attractionId);
+        if (attraction == null) {
+            throw new AttractionNotFoundException("해당 id의 여행지를 찾을 수 없습니다.");
+        }
+        return convertAttractionToResponseDTO(attraction);
+    }
 
     /**
      * 여행지의 리뷰 목록 페이징 조회
@@ -253,5 +292,26 @@ public class AttractionService {
         if(existingReview.getUserId() != userId){
             throw new ReviewWriterNotMatchToUser("해당 리뷰에 대한 권한이 없습니다.");
         }
+    }
+
+    /**
+     * AttractionDTO를 AttractionResponseDTO로 변환
+     * @param attraction attractionDTO
+     * @return AttractionResponseDTO
+     */
+    private AttractionResponseDTO convertAttractionToResponseDTO(AttractionWithReviewsDTO attraction) {
+        return AttractionResponseDTO.builder()
+                .attractionId(attraction.getAttractionId())
+                .name(attraction.getTitle())
+                .image(attraction.getFirstImage1())
+                .address(attraction.getAddr1())
+                .contentType(attraction.getContentTypeId())
+                .like(attraction.getLikeCount())
+                .rating(attraction.getRating())
+                .latitude(attraction.getLatitude())
+                .longitude(attraction.getLongitude())
+                .review(attraction.getReviews())
+                .isLiked(attraction.isLiked())
+                .build();
     }
 }

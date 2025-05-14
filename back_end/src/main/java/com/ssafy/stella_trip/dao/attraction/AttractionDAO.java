@@ -9,9 +9,26 @@ import java.util.List;
 @Mapper
 public interface AttractionDAO {
     AttractionDTO getAttractionById(int attractionId);
-    List<AttractionDTO> getAttractionsBySidoCode(int sidoCode);
-    List<AttractionDTO> getAttractionsBySidoAndGugunCode(@Param("sidoCode") int sidoCode,
-                                                         @Param("gugunCode") int gugunCode);
+
+    AttractionWithReviewsDTO getAttractionByContentId(
+            @Param("userId") int userId,
+            @Param("attractionId") int attractionId);
+
+    List<AttractionWithReviewsDTO> getAttractionByConditions(
+            @Param("userId") int userId,
+            @Param("sidoCode") Integer sidoCode,
+            @Param("gugunCode") Integer gugunCode,
+            @Param("contentTypeId") Integer contentTypeId,
+            @Param("keyword") String keyword,
+            @Param("offset") int offset,
+            @Param("size") int size);
+
+    int getAttractionCountByConditions(
+            @Param("sidoCode") Integer sidoCode,
+            @Param("gugunCode") Integer gugunCode,
+            @Param("contentTypeId") Integer contentTypeId,
+            @Param("keyword") String keyword);
+
     List<AttractionDTO> getAttractionsByContentTypeId(int contentTypeId);
     int countLikedAttractionsByUserId(int userId);
     List<AttractionWithReviewsDTO> getLikedAttractionsWithReviews(@Param("userId") int userId, @Param("offset") int offset, @Param("size") int size);

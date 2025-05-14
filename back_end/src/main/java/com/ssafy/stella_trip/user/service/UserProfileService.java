@@ -292,6 +292,7 @@ public class UserProfileService {
                 .latitude(attraction.getLatitude())
                 .longitude(attraction.getLongitude())
                 .review(attraction.getReviews())
+                .isLiked(attraction.isLiked())
                 .build();
     }
 
