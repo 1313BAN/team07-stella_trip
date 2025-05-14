@@ -161,7 +161,7 @@
         LIMIT #{size} OFFSET #{offset}
     </select>
 
-    <select id="getAttractionCountByConditions">
+    <select id="getAttractionCountByConditions" resultType="int">
         SELECT COUNT(*)
         FROM attraction a
         <where>
