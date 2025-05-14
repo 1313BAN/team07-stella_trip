@@ -3,7 +3,6 @@ package com.ssafy.stella_trip.dao.attraction;
 import com.ssafy.stella_trip.attraction.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 
