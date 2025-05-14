@@ -36,6 +36,9 @@ export default typescriptEslint.config(
     },
     rules: {
       'vue/multi-word-component-names': 'off',
+      'vue/attribute-hyphenation': ['error', 'never'],
+      'vue/v-on-event-hyphenation': ['error', 'never'],
+      'vue/custom-event-name-casing': ['error', 'camelCase'],
 
       'prettier/prettier': 'error',
 
