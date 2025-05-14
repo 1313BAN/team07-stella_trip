@@ -1,17 +1,17 @@
 <template>
   <section class="relative min-h-screen">
-    <IntroSection
-      :is-loaded="isLoaded"
-      @start-free="onStartFree"
-      @learn-more="onLearnMore"
-      @scroll-to-next="scrollToNext"
+    <HeroSectionContent
+      :isLoaded="isLoaded"
+      @startFree="onStartFree"
+      @learnMore="onLearnMore"
+      @scrollToNext="scrollToNext"
     />
   </section>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import IntroSection from './IntroSection.vue';
+import HeroSectionContent from './HeroSectionContent.vue';
 
 const isLoaded = ref(false);
 
