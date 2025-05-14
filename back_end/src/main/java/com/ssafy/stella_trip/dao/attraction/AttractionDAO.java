@@ -17,10 +17,19 @@ public interface AttractionDAO {
 
     List<AttractionWithReviewsDTO> getAttractionByConditions(
             @Param("userId") int userId,
-            @Param("sidoCode") int sidoCode,
-            @Param("gugunCode") int gugunCode,
-            @Param("contentTypeId") int contentTypeId,
+            @Param("sidoCode") Integer sidoCode,
+            @Param("gugunCode") Integer gugunCode,
+            @Param("contentTypeId") Integer contentTypeId,
+            @Param("keyword") String keyword,
+            @Param("offset") int offset,
+            @Param("size") int size);
+
+    int getAttractionCountByConditions(
+            @Param("sidoCode") Integer sidoCode,
+            @Param("gugunCode") Integer gugunCode,
+            @Param("contentTypeId") Integer contentTypeId,
             @Param("keyword") String keyword);
+
     List<AttractionDTO> getAttractionsByContentTypeId(int contentTypeId);
     int countLikedAttractionsByUserId(int userId);
     List<AttractionWithReviewsDTO> getLikedAttractionsWithReviews(@Param("userId") int userId, @Param("offset") int offset, @Param("size") int size);

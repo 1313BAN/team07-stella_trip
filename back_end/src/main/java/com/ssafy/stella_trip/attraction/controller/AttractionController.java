@@ -1,6 +1,7 @@
 package com.ssafy.stella_trip.attraction.controller;
 
 import com.ssafy.stella_trip.attraction.dto.request.ReviewRequestDTO;
+import com.ssafy.stella_trip.attraction.dto.response.AttractionResponseDTO;
 import com.ssafy.stella_trip.attraction.dto.response.ReviewResponseDTO;
 import com.ssafy.stella_trip.attraction.service.AttractionService;
 import com.ssafy.stella_trip.common.dto.PageDTO;
@@ -20,6 +21,20 @@ import org.springframework.web.bind.annotation.*;
 public class AttractionController {
 
     private final AttractionService attractionService;
+
+    @GetMapping()
+    @PreAuthorize("permitAll()")
+    public CommonResponse<PageDTO<AttractionResponseDTO>> getAttractions(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "20") int size,
+            @RequestParam(value = "sidoCode", defaultValue = "") Integer sidoCode,
+            @RequestParam(value = "gugunCode", defaultValue = "") Integer gugunCode,
+            @RequestParam(value = "contentTypeId", defaultValue = "") Integer contentTypeId,
+            @RequestParam(value = "keyword", defaultValue = "") String keyword,
+            @AuthenticationPrincipal JwtUserInfo user
+    ) {
+        return new CommonResponse<>(attractionService.getAttractionsByCondition(sidoCode, gugunCode, contentTypeId, keyword, page, size, user), HttpStatus.OK);
+    }
 
     //리뷰 페이징 조회
     @GetMapping("/{attractionId}/reviews")

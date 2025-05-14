@@ -158,7 +158,26 @@
                 AND a.title LIKE CONCAT('%', #{keyword}, '%')
             </if>
         </where>
-        limit #{offset}, #{limit}
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="getAttractionCountByConditions">
+        SELECT COUNT(*)
+        FROM attraction a
+        <where>
+            <if test="sidoCode != null">
+                AND a.sido_code = #{sidoCode}
+                <if test="gugunCode != null">
+                    AND a.gugun_code = #{gugunCode}
+                </if>
+            </if>
+            <if test="contentTypeId != null">
+                AND a.content_type_id = #{contentTypeId}
+            </if>
+            <if test="keyword != null">
+                AND a.title LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
     </select>
 
     <select id="getAttractionsBySidoCode" resultMap="AttractionResultMap">
