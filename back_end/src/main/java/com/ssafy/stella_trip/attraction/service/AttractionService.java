@@ -1,5 +1,6 @@
 package com.ssafy.stella_trip.attraction.service;
 
+import com.ssafy.stella_trip.attraction.dto.AttractionDTO;
 import com.ssafy.stella_trip.attraction.dto.ReviewDTO;
 import com.ssafy.stella_trip.attraction.dto.ReviewWithUserNameDTO;
 import com.ssafy.stella_trip.attraction.dto.request.ReviewRequestDTO;
@@ -158,6 +159,61 @@ public class AttractionService {
 
         return new ActionResponseDTO(deleteResult > 0);
     }
+
+    /**
+     * 여행지에 좋아요 추가하기
+     * @param attractionId attractionId
+     * @param userId userId
+     * @return 좋아요 추가 성공 여부
+     */
+    @Transactional
+    public ActionResponseDTO addLikeToAttraction(int attractionId, int userId) {
+        AttractionDTO existingAttraction = attractionDAO.getAttractionById(attractionId);
+
+        if(existingAttraction == null) {
+            throw new AttractionNotFoundException("해당 id의 여행지를 찾을 수 없습니다.");
+        }
+
+        if (attractionDAO.findLikedAttraction(attractionId, userId) != null) {
+            throw new AttractionAlreadyLikedException("이미 좋아요를 누른 여행지입니다.");
+        }
+
+        int insertResult = attractionDAO.insertLikedAttraction(attractionId, userId);
+
+        if(insertResult > 0) {
+            attractionDAO.increaseAttractionLikeCount(attractionId);
+        }
+
+        return new ActionResponseDTO(insertResult > 0);
+    }
+
+    /**
+     * 여행지에 좋아요 제거하기
+     * @param attractionId attractionId
+     * @param userId userId
+     * @return 좋아요 제거 성공 여부
+     */
+    @Transactional
+    public ActionResponseDTO removeLikeFromAttraction(int attractionId, int userId) {
+        AttractionDTO existingAttraction = attractionDAO.getAttractionById(attractionId);
+
+        if(existingAttraction == null) {
+            throw new AttractionNotFoundException("해당 id의 여행지를 찾을 수 없습니다.");
+        }
+
+        if (attractionDAO.findLikedAttraction(attractionId, userId) == null) {
+            throw new AttractionNotLikedException("좋아요를 누르지 않은 여행지입니다.");
+        }
+
+        int deleteResult = attractionDAO.deleteLikedAttraction(attractionId, userId);
+
+        if(deleteResult > 0) {
+            attractionDAO.decreaseAttractionLikeCount(attractionId);
+        }
+
+        return new ActionResponseDTO(deleteResult > 0);
+    }
+
 
     /**
      * ReviewWithUserNameDTO 를 ReviewResponseDTO 로 변환

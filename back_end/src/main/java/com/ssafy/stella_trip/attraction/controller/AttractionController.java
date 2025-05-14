@@ -8,7 +8,6 @@ import com.ssafy.stella_trip.common.response.CommonResponse;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
 import com.ssafy.stella_trip.user.dto.response.ActionResponseDTO;
 import lombok.RequiredArgsConstructor;
-import org.apache.ibatis.annotations.Delete;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -82,5 +81,23 @@ public class AttractionController {
             @AuthenticationPrincipal JwtUserInfo user
     ){
         return new CommonResponse<>(attractionService.removeLikeFromAttractionReview(attractionId, reviewId, user.getUserId()), HttpStatus.OK);
+    }
+
+    //여행지 좋아요 추가
+    @PostMapping("/{attractionId}/like")
+    public CommonResponse<ActionResponseDTO> addLikeToAttraction(
+            @PathVariable int attractionId,
+            @AuthenticationPrincipal JwtUserInfo user
+    ){
+        return new CommonResponse<>(attractionService.addLikeToAttraction(attractionId, user.getUserId()), HttpStatus.OK);
+    }
+
+    //여행지 좋아요 삭제
+    @DeleteMapping("/{attractionId}/like")
+    public CommonResponse<ActionResponseDTO> removeLikeFromAttraction(
+            @PathVariable int attractionId,
+            @AuthenticationPrincipal JwtUserInfo user
+    ){
+        return new CommonResponse<>(attractionService.removeLikeFromAttraction(attractionId, user.getUserId()), HttpStatus.OK);
     }
 }

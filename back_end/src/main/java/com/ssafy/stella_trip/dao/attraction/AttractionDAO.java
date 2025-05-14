@@ -27,4 +27,10 @@ public interface AttractionDAO {
     int insertLikedReview(@Param("userId") int userId, @Param("attractionId") int attractionId ,@Param("reviewId") int reviewId);
     int deleteLikedReview(@Param("userId") int userId, @Param("attractionId") int attractionId ,@Param("reviewId") int reviewId);
     LikedReviewDTO findLikedReview(@Param("userId") int userId, @Param("reviewId") int reviewId);
+
+    int increaseAttractionLikeCount(int attractionId);
+    int decreaseAttractionLikeCount(int attractionId);
+    int insertLikedAttraction(@Param("attractionId") int attractionId, @Param("userId") int userId);
+    int deleteLikedAttraction(@Param("attractionId") int attractionId, @Param("userId") int userId);
+    LikedAttractionDTO findLikedAttraction(@Param("attractionId") int attractionId, @Param("userId") int userId);
 }
