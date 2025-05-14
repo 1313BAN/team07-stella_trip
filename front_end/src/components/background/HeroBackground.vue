@@ -17,16 +17,16 @@ const props = defineProps<BackgroundProps>();
     />
 
     <StarBackground
-      :star-count="props.starCount"
-      :max-size="props.maxSize"
-      :min-size="props.minSize"
+      :starCount="props.starCount"
+      :maxSize="props.maxSize"
+      :minSize="props.minSize"
     />
 
     <FloatingParticles
-      :particle-count="props.particleCount"
-      :base-animation-duration="props.baseAnimationDuration"
-      :max-delay="props.maxDelay"
-      :particle-class="props.particleClass"
+      :particleCount="props.particleCount"
+      :baseAnimationDuration="props.baseAnimationDuration"
+      :maxDelay="props.maxDelay"
+      :particleClass="props.particleClass"
     />
   </div>
 </template>

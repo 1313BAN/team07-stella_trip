@@ -1,4 +1,3 @@
-<!-- IntroSection.vue -->
 <template>
   <div
     class="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 text-center"
@@ -92,20 +91,20 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  'start-free': [];
-  'learn-more': [];
-  'scroll-to-next': [];
+  startFree: [];
+  learnMore: [];
+  scrollToNext: [];
 }>();
 
 const onStartFree = () => {
-  emit('start-free');
+  emit('startFree');
 };
 
 const onLearnMore = () => {
-  emit('learn-more');
+  emit('learnMore');
 };
 
 const scrollToNext = () => {
-  emit('scroll-to-next');
+  emit('scrollToNext');
 };
 </script>
