@@ -39,7 +39,6 @@ jobs:
         image: redis:alpine
         ports:
           - 6379:6379
-        options: --requirepass ${{ secrets.REDIS_PASSWORD }}
 
     steps:
       - name: Checkout source code
