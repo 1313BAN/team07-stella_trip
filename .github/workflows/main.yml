@@ -1,0 +1,62 @@
+name: Build test in Github Actions
+
+on:
+  pull_request:
+    branches: [ develop, main ] # PR 타겟 브랜치
+  workflow_dispatch:
+
+env:
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_URL: ${{ secrets.DB_URL }}
+  jwt_key: ${{ secrets.jwt_key }}
+  REDIS_HOST: ${{ secrets.REDIS_HOST }}
+  REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+  REDIS_PORT: ${{ secrets.REDIS_PORT }}
+
+jobs:
+  backend-build:
+    if: startsWith(github.head_ref, 'feat/be') || startsWith(github.head_ref, 'chore/be') || startsWith(github.head_ref, 'fix/be')
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_DATABASE: testdb
+          MYSQL_USER: ${{ secrets.DB_USER }}
+          MYSQL_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('back_end/pom.xml') }}
+          restore-keys: maven-${{ runner.os }}-
+
+      - name: Build backend (skip tests)
+        working-directory: ./back_end
+        run: mvn -B -q clean install -DskipTests=true --fail-at-end
