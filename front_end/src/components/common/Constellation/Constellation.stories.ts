@@ -72,7 +72,7 @@ const heartConnections: Connection[] = [
 ];
 
 const meta: Meta<ConstellationProps> = {
-  title: 'Components/common/ConstellationSvg',
+  title: 'Components/common/Constellation',
   component: Constellation,
   tags: ['autodocs'],
   argTypes: {
