@@ -59,4 +59,4 @@ jobs:
 
       - name: Build backend (skip tests)
         working-directory: ./back_end
-        run: mvn clean install -DskipTests=true
+        run: mvn -B -q clean install -DskipTests=true --fail-at-end
