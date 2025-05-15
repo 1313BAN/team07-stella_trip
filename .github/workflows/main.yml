@@ -16,7 +16,7 @@ env:
 
 jobs:
   backend-build:
-    if: startsWith(github.head_ref, 'feat/be')
+    if: startsWith(github.head_ref, 'feat/be') || startsWith(github.head_ref, 'chore/be') || startsWith(github.head_ref, 'fix/be')
     runs-on: ubuntu-latest
 
     services:
