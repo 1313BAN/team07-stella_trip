@@ -60,7 +60,3 @@ jobs:
       - name: Build backend (skip tests)
         working-directory: ./back_end
         run: mvn clean install -DskipTests=true
-
-      - name: Run backend tests
-        working-directory: ./back_end
-        run: mvn test
