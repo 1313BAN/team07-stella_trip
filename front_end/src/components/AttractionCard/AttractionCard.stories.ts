@@ -273,7 +273,7 @@ export const WithoutRating: Story = {
   },
 };
 
-export const GrattractionId: Story = {
+export const GridAttractions: Story = {
   render: () => ({
     components: { AttractionCard },
     setup() {
@@ -354,7 +354,7 @@ export const GrattractionId: Story = {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl">
         <AttractionCard
           v-for="attraction in attractions"
-          :key="attraction.id"
+          :key="attraction.attractionId"
           :attraction="attraction"
           @card-click="onCardClick"
           @like-click="onLikeClick"
