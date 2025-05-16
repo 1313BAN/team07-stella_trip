@@ -11,7 +11,7 @@ interface ButtonProps extends ButtonInterface {
 }
 
 const meta: Meta<ButtonProps> = {
-  title: 'Components/Button',
+  title: 'Components/common/Button',
   component: Button,
   tags: ['autodocs'],
   args: {
