@@ -11,7 +11,7 @@ interface ScrollIndicatorProps extends Props {
 }
 
 const meta: Meta<ScrollIndicatorProps> = {
-  title: 'Components/ScrollIndicator',
+  title: 'Components/common/ScrollIndicator',
   component: ScrollIndicator,
   tags: ['autodocs'],
   args: {
