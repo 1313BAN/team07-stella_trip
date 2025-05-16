@@ -3,7 +3,7 @@ import { fn } from '@storybook/test';
 import LikeButton from './LikeButton.vue';
 
 interface FavoriteButtonProps {
-  isFavorite: boolean;
+  isLiked: boolean;
   size?: 'sm' | 'md' | 'lg';
   transparent?: boolean;
   onClick: () => void;
@@ -17,7 +17,7 @@ const meta: Meta<FavoriteButtonProps> = {
     onClick: fn(),
   },
   argTypes: {
-    isFavorite: {
+    isLiked: {
       description: '즐겨찾기 상태',
       control: { type: 'boolean' },
     },
@@ -62,7 +62,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    isFavorite: false,
+    isLiked: false,
     size: 'md',
     transparent: false,
   },
@@ -77,7 +77,7 @@ export const Default: Story = {
 
 export const Favorite: Story = {
   args: {
-    isFavorite: true,
+    isLiked: true,
     size: 'md',
     transparent: false,
   },
@@ -92,7 +92,7 @@ export const Favorite: Story = {
 
 export const Small: Story = {
   args: {
-    isFavorite: false,
+    isLiked: false,
     size: 'sm',
     transparent: false,
   },
@@ -107,7 +107,7 @@ export const Small: Story = {
 
 export const Large: Story = {
   args: {
-    isFavorite: true,
+    isLiked: true,
     size: 'lg',
     transparent: false,
   },
@@ -122,7 +122,7 @@ export const Large: Story = {
 
 export const Transparent: Story = {
   args: {
-    isFavorite: false,
+    isLiked: false,
     size: 'md',
     transparent: true,
   },

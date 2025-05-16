@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Heart } from 'lucide-vue-next';
 
 interface Props {
-  isFavorite: boolean;
+  isLiked: boolean;
   size?: 'sm' | 'md' | 'lg';
   transparent?: boolean;
 }
@@ -48,13 +48,15 @@ const config = sizeConfig[props.size];
       'rounded-full border border-white/20 transition-all duration-200 hover:scale-110 hover:bg-transparent',
       props.transparent ? 'border-none bg-transparent' : 'bg-black/40 backdrop-blur-sm',
     ]"
+    :ariaLabel="isLiked ? '좋아요 취소하기' : '좋아요 하기'"
+    :ariaPressed="isLiked"
     @click="handleClick"
   >
     <Heart
       :class="[
         config.iconClass,
         'transition-colors duration-200',
-        isFavorite ? 'fill-red-500 text-red-500' : 'text-white/90',
+        isLiked ? 'fill-red-500 text-red-500' : 'text-white/90',
       ]"
     />
   </Button>

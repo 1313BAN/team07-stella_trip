@@ -76,7 +76,7 @@ const handleTagClick = () => {
         <div class="flex items-center gap-2 text-purple-200">
           <LikeButton
             transparent
-            :isFavorite="attraction.isLiked"
+            :isLiked="attraction.isLiked"
             size="sm"
             @click.stop="handlelikeClick"
           />
