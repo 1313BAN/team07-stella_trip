@@ -7,6 +7,10 @@ interface UseInViewOptions {
   triggerOnce?: boolean;
 }
 
+interface UseInViewReturn {
+  isInView: Ref<boolean>;
+}
+
 /**
  * 요소가 뷰포트에 들어왔는지 감지하는 훅
  *
@@ -21,7 +25,10 @@ interface UseInViewOptions {
  * - `isInView`: 요소가 뷰포트에 보이는지 여부
  *
  */
-const useInView = (targetRef: Ref<Element | null>, options: UseInViewOptions = {}) => {
+const useInView = (
+  targetRef: Ref<Element | null>,
+  options: UseInViewOptions = {}
+): UseInViewReturn => {
   const { threshold = 0.1, root = null, rootMargin = '0px', triggerOnce = true } = options;
 
   const isInView = ref(false);
