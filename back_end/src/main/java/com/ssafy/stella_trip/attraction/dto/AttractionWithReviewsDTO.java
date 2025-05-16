@@ -31,6 +31,7 @@ public class AttractionWithReviewsDTO {
     private String overview;
     private double rating;
     private int likeCount;
+    private boolean isLiked;
 
     private List<ReviewResponseDTO> reviews;
 }

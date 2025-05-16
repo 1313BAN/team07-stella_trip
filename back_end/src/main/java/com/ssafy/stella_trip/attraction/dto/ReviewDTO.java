@@ -1,14 +1,15 @@
 package com.ssafy.stella_trip.attraction.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReviewDTO {
@@ -19,6 +20,8 @@ public class ReviewDTO {
     private String title;
     private double rating;
     private int likeCount;
+    private LocalDate visitDate;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+    private boolean isLiked;
 }

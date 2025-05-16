@@ -6,13 +6,17 @@ export interface ButtonInterface {
   //TODO: 버튼 커스텀 속성
 }
 
-defineEmits<{
+const emit = defineEmits<{
   click: [event: MouseEvent];
 }>();
+
+const handleClick = (event: MouseEvent) => {
+  emit('click', event);
+};
 </script>
 
 <template>
-  <Button v-bind="$attrs" @click="$emit('click', $event)">
+  <Button v-bind="$attrs" @click="handleClick">
     <slot />
   </Button>
 </template>

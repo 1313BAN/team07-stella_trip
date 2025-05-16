@@ -45,6 +45,7 @@
         <result property="overview" column="overview"/>
         <result property="rating" column="rating"/>
         <result property="likeCount" column="like_count"/>
+        <result property="isLiked" column="is_liked"/>
 
         <collection property="reviews" ofType="com.ssafy.stella_trip.attraction.dto.response.ReviewResponseDTO">
             <id property="reviewId" column="review_id"/>
@@ -58,9 +59,125 @@
         </collection>
     </resultMap>
 
+    <!-- Review 결과 맵 정의 -->
+    <resultMap id="ReviewResultMap" type="ReviewDTO">
+        <id property="reviewId" column="review_id"/>
+        <result property="attractionId" column="attraction_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="content" column="content"/>
+        <result property="title" column="title"/>
+        <result property="rating" column="rating"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="visitDate" column="visit_date"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="modifiedAt" column="modified_at"/>
+    </resultMap>
+
+    <!-- ReviewWithUserName 결과 맵 정의 -->
+    <resultMap id="ReviewWithUserNameResultMap" type="ReviewWithUserNameDTO">
+        <id property="reviewId" column="review_id"/>
+        <result property="attractionId" column="attraction_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="userName" column="name"/>
+        <result property="content" column="content"/>
+        <result property="title" column="title"/>
+        <result property="rating" column="rating"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="visitDate" column="visit_date"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="modifiedAt" column="modified_at"/>
+        <result property="isLiked" column="is_liked"/>
+    </resultMap>
+
+
     <select id="getAttractionById" resultMap="AttractionResultMap">
         select * from attraction
         where attraction_id = #{attractionId}
+    </select>
+
+    <select id="getAttractionByContentId" resultMap="AttractionWithReviewsResultMap">
+        SELECT
+        a.*,
+        r.review_id,
+        r.user_id as review_user_id,
+        u.name as review_user_name,
+        r.title as review_title,
+        r.content as review_content,
+        r.rating as review_rating,
+        r.visit_date as review_visit_date,
+        r.created_at as review_created_at,
+        CASE
+        WHEN fa.user_id IS NOT NULL THEN 1
+        ELSE 0
+        END AS is_liked
+        FROM attraction a
+        LEFT JOIN liked_attraction fa ON a.attraction_id = fa.attraction_id AND fa.user_id = #{userId}
+        LEFT JOIN (
+        SELECT r1.*,
+        ROW_NUMBER() OVER (PARTITION BY r1.attraction_id ORDER BY r1.rating DESC, r1.created_at DESC) as row_num
+        FROM review r1
+        ) r ON a.attraction_id = r.attraction_id AND r.row_num &lt;= 2
+        LEFT JOIN user u ON r.user_id = u.user_id
+        WHERE a.attraction_id = #{attractionId}
+    </select>
+
+    <select id="getAttractionByConditions" resultMap="AttractionWithReviewsResultMap">
+        SELECT
+        a.*,
+        r.review_id,
+        r.user_id as review_user_id,
+        u.name as review_user_name,
+        r.title as review_title,
+        r.content as review_content,
+        r.rating as review_rating,
+        r.visit_date as review_visit_date,
+        r.created_at as review_created_at,
+        CASE
+        WHEN fa.user_id IS NOT NULL THEN 1
+        ELSE 0
+        END AS is_liked
+        FROM attraction a
+        LEFT JOIN liked_attraction fa ON a.attraction_id = fa.attraction_id AND fa.user_id = #{userId}
+        LEFT JOIN (
+        SELECT r1.*,
+        ROW_NUMBER() OVER (PARTITION BY r1.attraction_id ORDER BY r1.rating DESC, r1.created_at DESC) as row_num
+        FROM review r1
+        ) r ON a.attraction_id = r.attraction_id AND r.row_num &lt;= 2
+        LEFT JOIN user u ON r.user_id = u.user_id
+        <where>
+            <if test="sidoCode != null">
+                AND a.sido_code = #{sidoCode}
+                <if test="gugunCode != null">
+                    AND a.gugun_code = #{gugunCode}
+                </if>
+            </if>
+            <if test="contentTypeId != null">
+                AND a.content_type_id = #{contentTypeId}
+            </if>
+            <if test="keyword != null">
+                AND a.title LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="getAttractionCountByConditions" resultType="int">
+        SELECT COUNT(*)
+        FROM attraction a
+        <where>
+            <if test="sidoCode != null">
+                AND a.sido_code = #{sidoCode}
+                <if test="gugunCode != null">
+                    AND a.gugun_code = #{gugunCode}
+                </if>
+            </if>
+            <if test="contentTypeId != null">
+                AND a.content_type_id = #{contentTypeId}
+            </if>
+            <if test="keyword != null">
+                AND a.title LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
     </select>
 
     <select id="getAttractionsBySidoCode" resultMap="AttractionResultMap">
@@ -79,7 +196,7 @@
     </select>
 
     <!-- 총 좋아요한 관광지 수 조회 -->
-    <select id="countLikedAttractionsByUserId" resultType="int">
+    <select id="countLikedAttractionsByUserId">
         SELECT
         COUNT(DISTINCT a.attraction_id)
         FROM
@@ -100,10 +217,15 @@
         r.title as review_title,
         r.content as review_content,
         r.rating as review_rating,
-        r.visit_date as review_visited_date,
-        r.created_at as review_created_at
+        r.visit_date as review_visit_date,
+        r.created_at as review_created_at,
+        is_liked
         FROM (
-        SELECT DISTINCT a.*, fa.created_at as fa_created_at
+        SELECT DISTINCT a.*, fa.created_at as fa_created_at,
+        CASE
+        WHEN fa.user_id IS NOT NULL THEN 1
+        ELSE 0
+        END AS is_liked
         FROM attraction a
         JOIN liked_attraction fa ON a.attraction_id = fa.attraction_id
         WHERE fa.user_id = #{userId}
@@ -117,6 +239,139 @@
         ) r ON a.attraction_id = r.attraction_id AND r.row_num &lt;= 2
         LEFT JOIN user u ON r.user_id = u.user_id
         ORDER BY a.fa_created_at DESC, r.rating DESC
+    </select>
+
+    <!-- 리뷰 ID로 리뷰 조회 -->
+    <select id="getReviewByReviewId" resultMap="ReviewResultMap">
+        SELECT * FROM review
+        WHERE review_id = #{reviewId}
+    </select>
+
+    <!-- 관광지별 리뷰 개수 조회 -->
+    <select id="countReviewsByAttractionId">
+        SELECT COUNT(*) FROM review
+        WHERE attraction_id = #{attractionId}
+    </select>
+
+    <!-- 관광지별 리뷰 목록 페이징 조회 -->
+    <select id="getReviewsByAttractionId" resultMap="ReviewWithUserNameResultMap">
+        SELECT
+        r.*,
+        u.name,
+        CASE WHEN lr.user_id IS NOT NULL THEN TRUE ELSE FALSE END as is_liked
+        FROM review r
+        JOIN user u ON r.user_id = u.user_id
+        LEFT JOIN liked_review lr ON r.review_id = lr.review_id AND lr.user_id = #{userId}
+        WHERE r.attraction_id = #{attractionId}
+        ORDER BY r.created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- 리뷰 추가 -->
+    <insert id="insertReview">
+        INSERT INTO review (
+        attraction_id,
+        user_id,
+        content,
+        title,
+        rating,
+        visit_date
+        ) VALUES (
+        #{attractionId},
+        #{userId},
+        #{content},
+        #{title},
+        #{rating},
+        #{visitDate}
+        )
+    </insert>
+
+    <!-- 리뷰 수정 -->
+    <update id="updateReview">
+        UPDATE review
+        SET
+        title = #{title},
+        content = #{content},
+        rating = #{rating},
+        visit_date = #{visitDate}
+        WHERE review_id = #{reviewId}
+    </update>
+
+    <!-- 리뷰 삭제 -->
+    <delete id="deleteReviewByReviewId">
+        DELETE FROM review
+        WHERE review_id = #{reviewId}
+    </delete>
+
+    <!-- 좋아요한 리뷰 조회 -->
+    <select id="findLikedReview" resultType="LikedReviewDTO">
+        SELECT
+        user_id as userId,
+        attraction_id as attractionId,
+        review_id as reviewId
+        FROM liked_review
+        WHERE user_id = #{userId} AND review_id = #{reviewId}
+    </select>
+
+    <!-- 리뷰에 좋아요 추가 -->
+    <insert id="insertLikedReview">
+        INSERT INTO liked_review (user_id, attraction_id, review_id)
+        VALUES (#{userId}, #{attractionId}, #{reviewId})
+    </insert>
+
+    <!-- 리뷰 좋아요 제거 -->
+    <delete id="deleteLikedReview">
+        DELETE FROM liked_review
+        WHERE user_id = #{userId} AND review_id = #{reviewId}
+    </delete>
+
+    <!-- 리뷰 좋아요 개수 증가 -->
+    <update id="increaseReviewLikeCount">
+        UPDATE review
+        SET like_count = like_count + 1
+        WHERE review_id = #{reviewId}
+    </update>
+
+    <!-- 리뷰 좋아요 개수 감소 -->
+    <update id="decreaseReviewLikeCount">
+        UPDATE review
+        SET like_count = GREATEST(like_count - 1, 0)
+        WHERE review_id = #{reviewId}
+    </update>
+
+    <!-- 관광지 좋아요 수 증가 -->
+    <update id="increaseAttractionLikeCount">
+        UPDATE attraction
+        SET like_count = like_count + 1
+        WHERE attraction_id = #{attractionId}
+    </update>
+
+    <!-- 관광지 좋아요 수 감소 -->
+    <update id="decreaseAttractionLikeCount">
+        UPDATE attraction
+        SET like_count = GREATEST(like_count - 1, 0)
+        WHERE attraction_id = #{attractionId}
+    </update>
+
+    <!-- 관광지 좋아요 추가 -->
+    <insert id="insertLikedAttraction">
+        INSERT INTO liked_attraction (user_id, attraction_id)
+        VALUES (#{userId}, #{attractionId})
+    </insert>
+
+    <!-- 관광지 좋아요 제거 -->
+    <delete id="deleteLikedAttraction">
+        DELETE FROM liked_attraction
+        WHERE user_id = #{userId} AND attraction_id = #{attractionId}
+    </delete>
+
+    <!-- 좋아요한 관광지 확인 -->
+    <select id="findLikedAttraction" resultType="LikedAttractionDTO">
+        SELECT
+        user_id as userId,
+        attraction_id as attractionId
+        FROM liked_attraction
+        WHERE user_id = #{userId} AND attraction_id = #{attractionId}
     </select>
 
 </mapper>
