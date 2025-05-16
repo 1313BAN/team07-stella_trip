@@ -71,7 +71,7 @@ const handleTagClick = () => {
       </div>
 
       <!-- 컨텐츠 타입과 좋아요 수 -->
-      <div class="flex flex-col gap-2">
+      <div class="flex flex-col gap-1">
         <Tag :label="attraction.contentType" @click.stop="handleTagClick" />
         <div class="flex items-center gap-2 text-purple-200">
           <LikeButton
