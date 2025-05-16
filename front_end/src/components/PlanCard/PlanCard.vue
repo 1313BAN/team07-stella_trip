@@ -24,7 +24,6 @@ const backgroundStars = Array.from({ length: 30 }, () => ({
   x: Math.random() * 100,
   y: Math.random() * 100,
   r: Math.random() * 0.8 + 0.2,
-  delay: Math.random() * 5,
   brightness: Math.random() * 0.4 + 0.2,
   duration: Math.random() * 2 + 2,
 }));
