@@ -151,7 +151,7 @@ const exampleAttractions: Attraction[] = [
 ];
 interface RowCardListContainerProps {
   title: string;
-  moreLink?: string;
+  showMoreButton?: boolean;
 }
 
 const meta: Meta<RowCardListContainerProps> = {
@@ -163,9 +163,10 @@ const meta: Meta<RowCardListContainerProps> = {
       description: '카테고리 제목',
       control: { type: 'text' },
     },
-    moreLink: {
-      description: '더보기 링크 URL',
-      control: { type: 'text' },
+    showMoreButton: {
+      description: '더보기 버튼 표시 여부',
+      control: { type: 'boolean' },
+      defaultValue: true,
     },
   },
   parameters: {
@@ -212,7 +213,7 @@ export const WithPlanCards: Story = {
     template: `
       <RowCardListContainer
         :title="args.title"
-        :moreLink="args.moreLink"
+        :showMoreButton="args.showMoreButton"
         @moreClick="onMoreClick"
       >
         <PlanCard
@@ -228,7 +229,7 @@ export const WithPlanCards: Story = {
   }),
   args: {
     title: '인기 여행 계획',
-    moreLink: '/categories/popular',
+    showMoreButton: true,
   },
   parameters: {
     docs: {
@@ -253,7 +254,7 @@ export const WithAttractionCards: Story = {
     template: `
       <RowCardListContainer
         :title="args.title"
-        :moreLink="args.moreLink"
+        :showMoreButton="args.showMoreButton"
         @moreClick="onMoreClick"
       >
         <AttractionCard
@@ -270,7 +271,7 @@ export const WithAttractionCards: Story = {
   }),
   args: {
     title: '인기 관광지',
-    moreLink: '/attractions/popular',
+    showMoreButton: true,
   },
   parameters: {
     docs: {
@@ -294,7 +295,7 @@ export const EmptyContainer: Story = {
     template: `
       <RowCardListContainer
         :title="args.title"
-        :moreLink="args.moreLink"
+        :showMoreButton="args.showMoreButton"
         @moreClick="onMoreClick"
       >
         <div class="flex items-center justify-center w-full h-32 text-purple-300">
@@ -305,7 +306,7 @@ export const EmptyContainer: Story = {
   }),
   args: {
     title: '빈 카테고리',
-    moreLink: undefined,
+    showMoreButton: false,
   },
   parameters: {
     docs: {
@@ -329,7 +330,7 @@ export const CustomContent: Story = {
     template: `
       <RowCardListContainer
         :title="args.title"
-        :moreLink="args.moreLink"
+        :showMoreButton="args.showMoreButton"
         @moreClick="onMoreClick"
       >
         <div 
@@ -344,7 +345,7 @@ export const CustomContent: Story = {
   }),
   args: {
     title: '커스텀 콘텐츠',
-    moreLink: '/custom',
+    showMoreButton: true,
   },
   parameters: {
     docs: {

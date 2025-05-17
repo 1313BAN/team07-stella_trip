@@ -3,10 +3,10 @@ import { ChevronRight } from 'lucide-vue-next';
 
 interface Props {
   title: string;
-  moreLink?: string;
+  showMoreButton?: boolean;
 }
 
-defineProps<Props>();
+withDefaults(defineProps<Props>(), { showMoreButton: true });
 
 const emit = defineEmits<{
   moreClick: [];
@@ -21,12 +21,17 @@ const handleMoreClick = () => {
   <div>
     <!-- 카테고리 헤더 -->
     <div class="flex items-center justify-between px-4">
-      <div class="flex items-center gap-1">
+      <div
+        class="flex cursor-pointer items-center gap-1"
+        role="button"
+        tabindex="0"
+        @click="handleMoreClick"
+      >
         <h3 class="text-2xl font-bold text-white">{{ title }}</h3>
         <ChevronRight class="h-5 w-5 text-purple-400" />
       </div>
       <button
-        v-if="moreLink"
+        v-if="showMoreButton"
         class="text-sm text-purple-400 hover:text-purple-300"
         @click="handleMoreClick"
       >
