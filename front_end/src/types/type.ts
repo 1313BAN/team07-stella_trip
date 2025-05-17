@@ -12,7 +12,7 @@ export type Attraction = {
 };
 
 export type Plan = {
-  planId: string;
+  planId: number;
   title: string;
   description: string;
   startDate: string;
