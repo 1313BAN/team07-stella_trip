@@ -12,6 +12,14 @@ const routes: Array<RouteRecordRaw> = [
     },
   },
   {
+    path: ROUTES.MAIN.path,
+    name: ROUTES.MAIN.name,
+    component: () => import('@/views/Main.vue'),
+    meta: {
+      title: ROUTES.MAIN.title,
+    },
+  },
+  {
     path: ROUTES.NOT_FOUND.path,
     name: ROUTES.NOT_FOUND.name,
     component: () => import('@/views/NotFound.vue'),
