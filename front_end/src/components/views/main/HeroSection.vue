@@ -8,6 +8,13 @@ import {
 } from '@/components/ui/carousel';
 import StellaCard from '@/components/StellaCard/StellaCard.vue';
 
+// 슬라이드 데이터 정의
+const slides = [
+  { id: 1, component: StellaCard },
+  { id: 2, component: StellaCard },
+  { id: 3, component: StellaCard },
+];
+
 // 이벤트 발생을 위한 emit 정의
 const emit = defineEmits<{
   createPlan: [];
@@ -77,7 +84,8 @@ const startAutoRotate = () => {
   autoRotateInterval = window.setInterval(() => {
     if (carouselApi.value) {
       isTransitioning.value = true;
-      const nextIndex = (currentSlide.value + 1) % 3;
+      const totalSlides = slides.length;
+      const nextIndex = (currentSlide.value + 1) % totalSlides;
       carouselApi.value.scrollTo(nextIndex);
     }
   }, 5000);
@@ -147,12 +155,12 @@ const carouselOptions = {
             <Carousel :opts="carouselOptions" class="h-auto w-full" @initApi="setApi">
               <CarouselContent class="min-h-[620px]">
                 <CarouselItem
-                  v-for="i in 3"
-                  :key="i"
+                  v-for="(slide, index) in slides"
+                  :key="slide.id"
                   class="flex h-auto min-h-[600px] items-center justify-center transition-opacity duration-500"
                   :class="{
-                    'opacity-100': currentSlide === i - 1,
-                    'opacity-0': currentSlide !== i - 1,
+                    'opacity-100': currentSlide === index,
+                    'opacity-0': currentSlide !== index,
                   }"
                 >
                   <div class="flex w-full items-center justify-center py-2.5">
@@ -166,11 +174,11 @@ const carouselOptions = {
           <!-- 슬라이드 인디케이터 -->
           <div class="mt-6 flex justify-center gap-2">
             <button
-              v-for="i in 3"
-              :key="i - 1"
+              v-for="(slide, index) in slides"
+              :key="slide.id"
               class="h-2 w-2 rounded-full transition-all"
-              :class="i - 1 === currentSlide ? 'bg-white' : 'bg-white/50'"
-              @click="goToSlide(i - 1)"
+              :class="index === currentSlide ? 'bg-white' : 'bg-white/50'"
+              @click="goToSlide(index)"
             ></button>
           </div>
         </div>
