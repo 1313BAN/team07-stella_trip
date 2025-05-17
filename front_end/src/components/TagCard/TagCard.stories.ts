@@ -237,7 +237,9 @@ export const Grid: Story = {
         { label: '역사탐방', count: 432 },
       ];
 
-      return { tags };
+      const handleTagClick = fn();
+
+      return { tags, handleTagClick };
     },
     template: `
       <div class="grid grid-cols-2 gap-4">
