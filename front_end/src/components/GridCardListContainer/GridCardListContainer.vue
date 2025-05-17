@@ -13,7 +13,8 @@ defineProps<Props>();
     <!-- Flex 컨테이너 -->
     <div class="flex w-full flex-wrap gap-4 pt-4">
       <slot></slot>
-      <div class="invisible max-w-72 min-w-56 flex-1 p-4"></div>
+      <div class="invisible min-w-72 flex-1 p-4"></div>
+      <div class="invisible min-w-72 flex-1 p-4"></div>
     </div>
   </div>
 </template>

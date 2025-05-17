@@ -56,6 +56,8 @@ const sampleTags = [
   { id: '6', label: '자연', count: 986 },
   { id: '7', label: '휴양여행', count: 872 },
   { id: '8', label: '커플여행', count: 754 },
+  { id: '9', label: '휴양여행', count: 872 },
+  { id: '10', label: '커플여행', count: 754 },
 ];
 
 export const Default: Story = {
