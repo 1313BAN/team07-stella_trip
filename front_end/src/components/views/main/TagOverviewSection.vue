@@ -1,6 +1,14 @@
 <template>
   <section class="relative min-h-screen">
     <div class="container mx-auto">
+      <GridCardListContainer title="인기 여행 태그">
+        <TagCard
+          v-for="tag in sampleTags"
+          :key="tag.id"
+          :label="tag.label"
+          :labelCount="tag.count"
+        ></TagCard>
+      </GridCardListContainer>
       <RowCardListContainer
         title="힐링"
         moreLink="/categories/healing"
@@ -71,7 +79,20 @@ import { ref } from 'vue';
 import RowCardListContainer from '@/components/common/RowCardListContainer/RowCardListContainer.vue';
 import PlanCard from '@/components/PlanCard/PlanCard.vue';
 import AttractionCard from '@/components/AttractionCard/AttractionCard.vue';
+import GridCardListContainer from '@/components/GridCardListContainer/GridCardListContainer.vue';
+import TagCard from '@/components/TagCard/TagCard.vue';
 import type { Plan, Attraction } from '@/types/type';
+
+const sampleTags = [
+  { id: '1', label: '힐링', count: 2543 },
+  { id: '2', label: '액티비티', count: 1872 },
+  { id: '3', label: '미식여행', count: 1654 },
+  { id: '4', label: '가족여행', count: 1432 },
+  { id: '5', label: '도시여행', count: 1221 },
+  { id: '6', label: '자연', count: 986 },
+  { id: '7', label: '휴양여행', count: 872 },
+  { id: '8', label: '커플여행', count: 754 },
+];
 
 // 힐링 여행 계획 더미 데이터
 const healingPlans = ref<Plan[]>([
