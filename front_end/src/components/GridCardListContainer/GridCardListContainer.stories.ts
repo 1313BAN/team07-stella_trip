@@ -1,14 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import GridCardContainer from './GridCardContainer.vue';
+import GridCardListContainer from './GridCardListContainer.vue';
 import TagCard from '../TagCard/TagCard.vue';
 
-interface GridCardContainerProps {
+interface GridCardListContainerProps {
   title: string;
 }
 
-const meta: Meta<GridCardContainerProps> = {
-  title: 'Components/GridCardContainer',
-  component: GridCardContainer,
+const meta: Meta<GridCardListContainerProps> = {
+  title: 'Components/GridCardListContainer',
+  component: GridCardListContainer,
   tags: ['autodocs'],
   argTypes: {
     title: {
@@ -60,7 +60,7 @@ const sampleTags = [
 
 export const Default: Story = {
   render: args => ({
-    components: { GridCardContainer, TagCard },
+    components: { GridCardListContainer, TagCard },
     setup() {
       const tags = sampleTags;
       const handleTagClick = (label: string) => {
@@ -70,7 +70,7 @@ export const Default: Story = {
       return { args, tags, handleTagClick };
     },
     template: `
-      <GridCardContainer :title="args.title">
+      <GridCardListContainer :title="args.title">
         <TagCard
           v-for="tag in tags"
           :key="tag.id"
@@ -78,7 +78,7 @@ export const Default: Story = {
           :labelCount="tag.count"
           @click="() => handleTagClick(tag.label)"
         />
-      </GridCardContainer>
+      </GridCardListContainer>
     `,
   }),
   args: {
@@ -95,7 +95,7 @@ export const Default: Story = {
 
 export const FewTags: Story = {
   render: args => ({
-    components: { GridCardContainer, TagCard },
+    components: { GridCardListContainer, TagCard },
     setup() {
       const tags = sampleTags.slice(0, 3);
       const handleTagClick = (label: string) => {
@@ -105,7 +105,7 @@ export const FewTags: Story = {
       return { args, tags, handleTagClick };
     },
     template: `
-      <GridCardContainer :title="args.title">
+      <GridCardListContainer :title="args.title">
         <TagCard
           v-for="tag in tags"
           :key="tag.id"
@@ -113,7 +113,7 @@ export const FewTags: Story = {
           :labelCount="tag.count"
           @click="() => handleTagClick(tag.label)"
         />
-      </GridCardContainer>
+      </GridCardListContainer>
     `,
   }),
   args: {
@@ -130,7 +130,7 @@ export const FewTags: Story = {
 
 export const DifferentTitle: Story = {
   render: args => ({
-    components: { GridCardContainer, TagCard },
+    components: { GridCardListContainer, TagCard },
     setup() {
       const tags = sampleTags;
       const handleTagClick = (label: string) => {
@@ -140,7 +140,7 @@ export const DifferentTitle: Story = {
       return { args, tags, handleTagClick };
     },
     template: `
-      <GridCardContainer :title="args.title">
+      <GridCardListContainer :title="args.title">
         <TagCard
           v-for="tag in tags"
           :key="tag.id"
@@ -148,7 +148,7 @@ export const DifferentTitle: Story = {
           :labelCount="tag.count"
           @click="() => handleTagClick(tag.label)"
         />
-      </GridCardContainer>
+      </GridCardListContainer>
     `,
   }),
   args: {
@@ -165,12 +165,12 @@ export const DifferentTitle: Story = {
 
 export const CustomContent: Story = {
   render: args => ({
-    components: { GridCardContainer },
+    components: { GridCardListContainer },
     setup() {
       return { args };
     },
     template: `
-      <GridCardContainer :title="args.title">
+      <GridCardListContainer :title="args.title">
         <div 
           v-for="i in 8" 
           :key="i" 
@@ -178,7 +178,7 @@ export const CustomContent: Story = {
         >
           커스텀 콘텐츠 {{i}}
         </div>
-      </GridCardContainer>
+      </GridCardListContainer>
     `,
   }),
   args: {
