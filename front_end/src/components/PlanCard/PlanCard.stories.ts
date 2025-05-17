@@ -89,7 +89,7 @@ const jejuConstellation: ConstellationData = {
 
 // 기본 여행 계획 데이터
 const defaultPlan: Plan = {
-  planId: 'plan1',
+  planId: 1,
   title: '제주 힐링 여행',
   description: '제주도의 아름다운 자연과 함께하는 힐링 여행',
   startDate: '2025-05-15',
@@ -158,7 +158,7 @@ const seoulConstellation: ConstellationData = {
 export const PopularRoute: Story = {
   args: {
     plan: {
-      planId: 'plan2',
+      planId: 10,
       title: '서울 문화 탐방',
       description: '서울의 전통과 현대가 어우러진 문화 체험 여행',
       startDate: '2025-06-01',
@@ -205,7 +205,7 @@ const busanConstellation: ConstellationData = {
 export const WeekendTrip: Story = {
   args: {
     plan: {
-      planId: 'plan3',
+      planId: 10,
       title: '부산 바다 여행',
       description: '부산의 시원한 바다와 함께하는 웰컴 투 부산!',
       startDate: '2025-06-14',
@@ -233,7 +233,7 @@ export const WeekendTrip: Story = {
 export const ExtensiveTags: Story = {
   args: {
     plan: {
-      planId: 'plan4',
+      planId: 10,
       title: '경주 역사 기행',
       description: '천년고도 경주에서 만나는 우리나라의 찬란한 역사',
       startDate: '2025-07-01',
@@ -257,7 +257,7 @@ export const ExtensiveTags: Story = {
 export const FoodTrip: Story = {
   args: {
     plan: {
-      planId: 'plan5',
+      planId: 10,
       title: '전주 미식 여행',
       description: '전주의 맛있는 음식들을 찾아 떠나는 미식 여행',
       startDate: '2025-07-15',
@@ -307,7 +307,7 @@ const gangwonConstellation: ConstellationData = {
 export const LongTrip: Story = {
   args: {
     plan: {
-      planId: 'plan6',
+      planId: 10,
       title: '강원도 자연 만끽',
       description: '강원도의 아름다운 자연 속에서 힐링하는 여행',
       startDate: '2025-08-01',
@@ -356,7 +356,7 @@ const coupleConstellation: ConstellationData = {
 export const CoupleTrip: Story = {
   args: {
     plan: {
-      planId: 'plan7',
+      planId: 10,
       title: '낭만 커플 여행',
       description: '연인과 함께하는 로맨틱한 여행 코스',
       startDate: '2025-09-01',
@@ -383,7 +383,7 @@ export const CoupleTrip: Story = {
 export const DayTrip: Story = {
   args: {
     plan: {
-      planId: 'plan8',
+      planId: 10,
       title: '대구 근교 당일치기',
       description: '대구 주변의 아름다운 명소들을 둘러보는 당일 여행',
       startDate: '2025-09-15',
@@ -412,7 +412,7 @@ export const Grid: Story = {
       const plans: Plan[] = [
         defaultPlan,
         {
-          planId: 'plan9',
+          planId: 10,
           title: '인천 섬 탐험',
           description: '인천의 아름다운 섬들을 탐험하는 여행',
           startDate: '2025-10-01',
@@ -424,7 +424,7 @@ export const Grid: Story = {
           constellation: seoulConstellation,
         },
         {
-          planId: 'plan10',
+          planId: 100,
           title: '충청도 온천 투어',
           description: '충청도의 다양한 온천에서 힐링하는 여행',
           startDate: '2025-10-15',
@@ -436,7 +436,7 @@ export const Grid: Story = {
           constellation: gangwonConstellation,
         },
         {
-          planId: 'plan11',
+          planId: 101,
           title: '남해 드라이브',
           description: '남해의 아름다운 해안선을 따라 드라이브하는 여행',
           startDate: '2025-11-01',
@@ -451,7 +451,7 @@ export const Grid: Story = {
           constellation: busanConstellation,
         },
         {
-          planId: 'plan12',
+          planId: 102,
           title: '여수 밤바다 감상',
           description: '여수의 아름다운 밤바다를 감상하는 여행',
           startDate: '2025-11-15',
