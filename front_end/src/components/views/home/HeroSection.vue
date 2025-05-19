@@ -12,11 +12,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import HeroSectionContent from './HeroSectionContent.vue';
+import { useRouter } from 'vue-router';
+const router = useRouter();
 
 const isLoaded = ref(false);
 
 const onStartFree = () => {
-  console.log('무료 시작하기 클릭');
+  router.push('/main');
 };
 
 const onLearnMore = () => {

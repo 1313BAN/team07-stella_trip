@@ -1,4 +1,4 @@
-import type { AuthToken, User } from '../../types';
+import type { AuthToken, User } from '@/types/type';
 
 export type LoginRequest = {
   email: string;

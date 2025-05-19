@@ -2,6 +2,7 @@ package com.ssafy.stella_trip.dao.plan;
 
 import com.ssafy.stella_trip.plan.dto.PlanDTO;
 import com.ssafy.stella_trip.plan.dto.RouteDTO;
+import com.ssafy.stella_trip.plan.dto.TagDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -110,4 +111,6 @@ public interface PlanDAO {
     List<PlanDTO> getUserPlansByUserId(@Param("userId") int userId, @Param("offset") int offset, @Param("size") int size);
   
     List<PlanDTO> getLikedPlansByUserId(@Param("userId") int userId, @Param("offset") int offset, @Param("size") int size);
+
+    List<TagDTO> getTagsOrderedByCount(int size);
 }

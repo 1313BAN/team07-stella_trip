@@ -37,7 +37,7 @@ const handleTagClick = () => {
 
 <template>
   <div
-    class="group w-full max-w-72 cursor-pointer overflow-hidden rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-purple-400/50 hover:bg-white/20 hover:shadow-xl hover:shadow-purple-500/25 focus:scale-105 focus:border-purple-400/50 focus:bg-white/20 focus:ring-2 focus:ring-purple-400/50 focus:outline-none"
+    class="group w-full max-w-72 min-w-56 cursor-pointer overflow-hidden rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-purple-400/50 hover:bg-white/20 hover:shadow-xl hover:shadow-purple-500/25 focus:scale-105 focus:border-purple-400/50 focus:bg-white/20 focus:ring-2 focus:ring-purple-400/50 focus:outline-none"
     tabindex="0"
     role="button"
     @click="handleCardClick"
@@ -71,7 +71,7 @@ const handleTagClick = () => {
       </div>
 
       <!-- 컨텐츠 타입과 좋아요 수 -->
-      <div class="flex flex-col gap-2">
+      <div class="flex flex-col gap-1">
         <Tag :label="attraction.contentType" @click.stop="handleTagClick" />
         <div class="flex items-center gap-2 text-purple-200">
           <LikeButton

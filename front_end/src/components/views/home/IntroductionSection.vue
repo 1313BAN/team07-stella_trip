@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import StellaCard from '@/components/StellaCard/StellaCard.vue';
 import useInView from '@/composables/useInView';
 import { useStaggeredAnimation } from '@/composables/useStaggeredAnimation';
 import { ref } from 'vue';
@@ -37,26 +38,18 @@ const { getItemClass: getConstellationItemClass, getItemStyle: getConstellationI
     easing: 'ease-out',
   });
 
-// 별자리 이미지 데이터
+// 별자리 이미지 데이터 - 3개로 줄이고 양옆 배치
 const constellations = [
   {
     id: 1,
-    rotation: -15,
-    scale: 0.8,
+    rotation: -3,
+    scale: 0.75,
     opacity: 0.3,
     zIndex: 1,
-    position: { x: -20, y: 10 },
+    position: { x: -120, y: 0 },
   },
   {
     id: 2,
-    rotation: 20,
-    scale: 0.9,
-    opacity: 0.4,
-    zIndex: 2,
-    position: { x: 25, y: -15 },
-  },
-  {
-    id: 3,
     rotation: 0,
     scale: 1,
     opacity: 1,
@@ -65,24 +58,16 @@ const constellations = [
     isMain: true,
   },
   {
-    id: 4,
-    rotation: -25,
-    scale: 0.85,
-    opacity: 0.35,
-    zIndex: 1,
-    position: { x: -30, y: -20 },
-  },
-  {
-    id: 5,
-    rotation: 10,
+    id: 3,
+    rotation: 3,
     scale: 0.75,
-    opacity: 0.25,
-    zIndex: 0,
-    position: { x: 35, y: 25 },
+    opacity: 0.3,
+    zIndex: 1,
+    position: { x: 120, y: 0 },
   },
 ];
 
-//TODO: 버튼 컴포넌트화, 임시 별자리 변경
+//TODO: 버튼 컴포넌트화
 </script>
 
 <template>
@@ -175,107 +160,7 @@ const constellations = [
                   : 'brightness(0.8) contrast(0.9)',
               }"
             >
-              <!-- 임시 SVG 별자리 -->
-              <svg width="300" height="300" viewBox="0 0 300 300" class="text-purple-300">
-                <!-- 별들 -->
-                <circle cx="50" cy="50" r="3" fill="currentColor" class="animate-pulse" />
-                <circle
-                  cx="150"
-                  cy="30"
-                  r="4"
-                  fill="currentColor"
-                  class="animate-pulse"
-                  style="animation-delay: 0.5s"
-                />
-                <circle
-                  cx="250"
-                  cy="70"
-                  r="3"
-                  fill="currentColor"
-                  class="animate-pulse"
-                  style="animation-delay: 1s"
-                />
-                <circle
-                  cx="80"
-                  cy="150"
-                  r="5"
-                  fill="currentColor"
-                  class="animate-pulse"
-                  style="animation-delay: 1.5s"
-                />
-                <circle
-                  cx="200"
-                  cy="180"
-                  r="3"
-                  fill="currentColor"
-                  class="animate-pulse"
-                  style="animation-delay: 2s"
-                />
-                <circle
-                  cx="120"
-                  cy="250"
-                  r="4"
-                  fill="currentColor"
-                  class="animate-pulse"
-                  style="animation-delay: 2.5s"
-                />
-
-                <!-- 연결선 -->
-                <line
-                  x1="50"
-                  y1="50"
-                  x2="150"
-                  y2="30"
-                  stroke="currentColor"
-                  stroke-width="1"
-                  opacity="0.6"
-                />
-                <line
-                  x1="150"
-                  y1="30"
-                  x2="250"
-                  y2="70"
-                  stroke="currentColor"
-                  stroke-width="1"
-                  opacity="0.6"
-                />
-                <line
-                  x1="250"
-                  y1="70"
-                  x2="200"
-                  y2="180"
-                  stroke="currentColor"
-                  stroke-width="1"
-                  opacity="0.6"
-                />
-                <line
-                  x1="80"
-                  y1="150"
-                  x2="200"
-                  y2="180"
-                  stroke="currentColor"
-                  stroke-width="1"
-                  opacity="0.6"
-                />
-                <line
-                  x1="80"
-                  y1="150"
-                  x2="120"
-                  y2="250"
-                  stroke="currentColor"
-                  stroke-width="1"
-                  opacity="0.6"
-                />
-                <line
-                  x1="50"
-                  y1="50"
-                  x2="80"
-                  y2="150"
-                  stroke="currentColor"
-                  stroke-width="1"
-                  opacity="0.6"
-                />
-              </svg>
+              <StellaCard />
             </div>
 
             <!-- 중앙 글로우 효과 -->

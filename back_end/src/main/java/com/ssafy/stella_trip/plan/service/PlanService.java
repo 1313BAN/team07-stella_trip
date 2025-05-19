@@ -2,6 +2,7 @@ package com.ssafy.stella_trip.plan.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ssafy.stella_trip.common.dto.PageDTO;
+import com.ssafy.stella_trip.common.util.PaginationUtils;
 import com.ssafy.stella_trip.dao.plan.PlanDAO;
 import com.ssafy.stella_trip.dao.user.UserDAO;
 import com.ssafy.stella_trip.plan.dto.ConstellationDTO;
@@ -491,5 +492,21 @@ public class PlanService {
                 .sorted()
                 .forEach(date -> routeResponseDTOMap.get(date).sort(Comparator.comparingInt(RouteResponseDTO::getOrder)));
         return routeResponseDTOMap;
+    }
+
+    private TagResponseDTO convertTagToResponse(TagDTO tagDTO) {
+        return TagResponseDTO.builder()
+                .tagId(tagDTO.getTagId())
+                .name(tagDTO.getName())
+                .count(tagDTO.getCount())
+                .build();
+    }
+
+    public List<TagResponseDTO> getPopularTags(int size) {
+        if(size < 1) {
+            size = 10;
+        }
+
+        return planDAO.getTagsOrderedByCount(size).stream().map((tagDTO) -> convertTagToResponse(tagDTO)).toList();
     }
 }
