@@ -13,6 +13,7 @@
         <div class="h-5 w-20 animate-pulse rounded-full bg-slate-500/50"></div>
         <div class="h-5 w-24 animate-pulse rounded-md bg-slate-500/40"></div>
       </div>
+      <div class="h-6 w-full animate-pulse rounded-md bg-slate-500/40"></div>
     </div>
   </div>
 </template>
