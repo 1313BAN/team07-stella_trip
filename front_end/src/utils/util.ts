@@ -1,3 +1,6 @@
+import { AttractionContentType } from '@/constants/constant';
+import type { AttractionContentTypeCode } from '@/types/type';
+
 interface StarsData {
   full: number;
   half: number;
@@ -63,3 +66,15 @@ export const calculatePeriod = (startDate: string, endDate: string): string => {
 
   return `${nights}박 ${days}일`;
 };
+
+/**
+ * 숫자 코드를 받아 해당하는 명소 타입 이름을 반환
+ * @param code - 명소 타입 코드
+ * @returns 명소 타입 이름 또는 '기타'
+ */
+export function getAttractionTypeName(code: number): string {
+  if (code in AttractionContentType) {
+    return AttractionContentType[code as AttractionContentTypeCode];
+  }
+  return '기타';
+}
