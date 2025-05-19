@@ -56,7 +56,11 @@ const handleTagClick = () => {
       <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
       <!-- 평점 -->
-      <StarRating v-if="showRating" :rating="attraction.rating" class="absolute bottom-3 left-3" />
+      <StarRating
+        v-if="showRating"
+        :rating="attraction.rating"
+        class="absolute bottom-3 left-3 z-10"
+      />
     </div>
 
     <!-- 콘텐츠 섹션 -->
