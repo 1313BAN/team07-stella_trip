@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,15 +9,22 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Map, Compass, User, LogIn, LogOut, UserPlus, Menu } from 'lucide-vue-next';
+import { useAuthStore } from '@/stores/auth';
+
+import Modal from '@/components/Modal/Modal.vue';
+import LoginForm from '@/components/Modal/content/LoginForm.vue';
 
 // Props for controlling auth state from parent
 interface Props {
-  isLoggedIn?: boolean;
   activeRoute?: string; // Add this prop for Storybook
 }
 
+interface ModalState {
+  isOpen: boolean;
+  state: 'login' | 'register';
+}
+
 const props = withDefaults(defineProps<Props>(), {
-  isLoggedIn: false,
   activeRoute: '/',
 });
 
@@ -30,6 +37,16 @@ try {
   // Silent fallback for Storybook environments
   router = undefined;
 }
+
+const modalState = reactive<ModalState>({
+  isOpen: false,
+  state: '',
+});
+
+const isLoggedIn = computed(() => {
+  const authStore = useAuthStore();
+  return authStore.isAuthenticated;
+});
 
 // Navigation items - separate regular and auth items
 const menuItems = computed(() => {
@@ -49,13 +66,19 @@ const currentRoute = computed(() => {
   return props.activeRoute;
 });
 
-// Emit logout event when logout is clicked
-const emit = defineEmits<{
-  logout: [];
-}>();
-
 const handleLogout = () => {
-  emit('logout');
+  const authStore = useAuthStore();
+  authStore.clearAuth();
+};
+
+const handleModalClose = () => {
+  modalState.isOpen = false;
+  modalState.state = '';
+};
+
+const handleModalOpen = value => {
+  modalState.isOpen = true;
+  modalState.state = value;
 };
 </script>
 
@@ -65,9 +88,10 @@ const handleLogout = () => {
   >
     <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
       <!-- Logo -->
-      <div class="text-2xl font-bold tracking-wider text-white">
-        <span class="text-purple-400">Stella</span>
-        Trip
+      <div
+        class="flex h-full items-center justify-center bg-gradient-to-r from-white via-purple-200 to-purple-300 bg-clip-text text-center text-3xl leading-tight font-black tracking-tight text-transparent md:text-3xl"
+      >
+        <span class="block">Stella Trip</span>
       </div>
 
       <!-- All Navigation Items - Right Aligned -->
@@ -85,9 +109,6 @@ const handleLogout = () => {
           >
             <!-- <component :is="item.icon" class="h-5 w-5" /> -->
             <span>{{ item.name }}</span>
-            <span
-              class="absolute bottom-0 left-0 h-0.5 w-0 bg-purple-400 transition-all duration-300 group-hover:w-full"
-            ></span>
           </a>
         </template>
         <!-- User Account Dropdown -->
@@ -96,19 +117,17 @@ const handleLogout = () => {
             <Button
               variant="ghost"
               size="icon"
-              class="rounded-full text-gray-300 hover:bg-purple-800/20 hover:text-purple-200"
+              class="rounded-full text-gray-300 hover:bg-purple-500/20 hover:text-purple-200"
             >
               <User class="h-5 w-5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            class="w-48 border-white/20 bg-black/95 backdrop-blur-md [&_[data-slot=dropdown-menu-item]]:hover:bg-purple-800/20 [&_[data-slot=dropdown-menu-item]]:focus:bg-purple-800/20 [&_[data-slot=dropdown-menu-item]]:focus:text-purple-200"
+            class="w-48 border-white/20 bg-black/90 backdrop-blur-md [&_[data-slot=dropdown-menu-item]]:hover:bg-purple-500/20 [&_[data-slot=dropdown-menu-item]]:focus:bg-purple-500/20 [&_[data-slot=dropdown-menu-item]]:focus:text-purple-200"
           >
-            <div class="pointer-events-none bg-gray-800/40 px-2 py-1 text-xs text-gray-400">
-              계정
-            </div>
-            <template v-if="props.isLoggedIn">
+            <div class="pointer-events-none px-2 py-1 text-xs text-gray-400">계정</div>
+            <template v-if="isLoggedIn">
               <DropdownMenuItem asChild>
                 <a
                   href="/mypage"
@@ -148,13 +167,13 @@ const handleLogout = () => {
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <a
-                  href="/login"
                   class="flex w-full items-center gap-3 px-3 py-3 text-sm font-medium tracking-widest uppercase"
                   :class="[
                     currentRoute === '/login'
                       ? 'text-purple-400'
                       : 'text-gray-300 hover:text-purple-200',
                   ]"
+                  @click="handleModalOpen('login')"
                 >
                   <LogIn class="h-5 w-5" />
                   <span>로그인</span>
@@ -170,14 +189,14 @@ const handleLogout = () => {
           <Button
             variant="ghost"
             size="icon"
-            class="rounded-full text-white hover:bg-purple-800/20 hover:text-purple-200"
+            class="rounded-full text-white hover:bg-purple-500/20 hover:text-purple-200"
           >
             <Menu class="h-6 w-6" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          class="w-56 border-white/20 bg-black/95 backdrop-blur-md [&_[data-slot=dropdown-menu-item]]:hover:bg-purple-800/20 [&_[data-slot=dropdown-menu-item]]:focus:bg-purple-800/20 [&_[data-slot=dropdown-menu-item]]:focus:text-purple-200"
+          class="w-56 border-white/20 bg-black/90 backdrop-blur-md [&_[data-slot=dropdown-menu-item]]:hover:bg-purple-500/20 [&_[data-slot=dropdown-menu-item]]:focus:bg-purple-500/20 [&_[data-slot=dropdown-menu-item]]:focus:text-purple-200"
         >
           <!-- Menu Items -->
           <template v-for="item in menuItems" :key="item.name">
@@ -198,7 +217,7 @@ const handleLogout = () => {
           </template>
           <!-- Auth Items -->
           <div class="pointer-events-none bg-gray-800/40 px-2 py-1 text-xs text-gray-400">계정</div>
-          <template v-if="props.isLoggedIn">
+          <template v-if="isLoggedIn">
             <DropdownMenuItem asChild>
               <a
                 href="/mypage"
@@ -238,13 +257,13 @@ const handleLogout = () => {
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <a
-                href="/login"
                 class="flex w-full items-center gap-3 px-3 py-3 text-sm font-medium tracking-widest uppercase"
                 :class="[
                   currentRoute === '/login'
                     ? 'text-purple-400'
                     : 'text-gray-300 hover:text-purple-200',
                 ]"
+                @click.prevent="handleModalOpen('login')"
               >
                 <LogIn class="h-5 w-5" />
                 <span>로그인</span>
@@ -255,4 +274,9 @@ const handleLogout = () => {
       </DropdownMenu>
     </div>
   </header>
+  <Modal :modelValue="modalState.isOpen" maxWidth="36rem" @close="handleModalClose">
+    <div>
+      <LoginForm v-if="modalState.state === 'login'" @close="handleModalClose" />
+    </div>
+  </Modal>
 </template>

@@ -49,14 +49,14 @@ const isOpen = computed({
 
 // 모달 닫기
 const closeModal = () => {
-  isOpen.value = false;
+  emit('close');
 };
 </script>
 
 <template>
   <Dialog v-model:open="isOpen" class="stellatrip-modal">
     <DialogContent
-      class="dialog-content relative overflow-hidden rounded-2xl border border-purple-400/30 bg-indigo-950 p-6 backdrop-blur-md"
+      class="dialog-content overflow-hidden rounded-2xl border border-purple-400/30 bg-indigo-950 p-6 backdrop-blur-md"
     >
       <!-- 닫기 버튼 -->
       <button
