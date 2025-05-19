@@ -10,7 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class TagResponseDTO {
-    @JsonProperty("tag_id")
     private int tagId;
     private String name;
+    private int count;
 }

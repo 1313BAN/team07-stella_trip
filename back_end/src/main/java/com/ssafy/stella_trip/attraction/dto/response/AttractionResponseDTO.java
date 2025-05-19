@@ -13,14 +13,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AttractionResponseDTO {
-    @JsonProperty("attraction_id")
     private int attractionId;
     private String name;
     private String image;
     private String address;
-    @JsonProperty("content_type")
     private int contentType;
-    private int like;
+    private int likeCount;
     private double rating;
     private double latitude;
     private double longitude;
