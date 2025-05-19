@@ -4,8 +4,8 @@
       <GridCardListContainer title="인기 여행 태그">
         <TagCard
           v-for="tag in popularTags"
-          :key="tag.id"
-          :label="tag.label"
+          :key="tag.tagId"
+          :label="tag.name"
           :labelCount="tag.count"
         ></TagCard>
       </GridCardListContainer>
@@ -50,7 +50,7 @@ import PlanCard from '@/components/PlanCard/PlanCard.vue';
 import AttractionCard from '@/components/AttractionCard/AttractionCard.vue';
 import GridCardListContainer from '@/components/GridCardListContainer/GridCardListContainer.vue';
 import TagCard from '@/components/TagCard/TagCard.vue';
-import { getPlans, getPopularTags, type Plan } from '@/services/api/domains/plan';
+import { getPlans, getPopularTags, type Plan, type Tag } from '@/services/api/domains/plan';
 import { getAttractions, type Attraction } from '@/services/api/domains/attraction';
 
 // 데이터를 담을 ref 생성
@@ -88,7 +88,7 @@ const handlePlanLikeClick = (plan: Plan) => {
   console.log('여행 계획 좋아요 클릭:', plan.title);
 };
 
-const handlePlanTagClick = (tag: string) => {
+const handlePlanTagClick = (tag: Tag) => {
   console.log('여행 계획 태그 클릭:', tag);
 };
 
