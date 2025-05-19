@@ -14,6 +14,6 @@ export const PLAN = {
 
 export const ATTRACTION = {
   ATTRACTIONS: 'v1/attractions',
-  DETAIL: (attractionId: number) => `v1/plans/${attractionId}`,
-  LIKE: (attractionId: number) => `v1/plans/${attractionId}/like`,
-};
+  DETAIL: (attractionId: number) => `v1/attractions/${attractionId}`,
+  LIKE: (attractionId: number) => `v1/attractions/${attractionId}/like`,
+} as const;
