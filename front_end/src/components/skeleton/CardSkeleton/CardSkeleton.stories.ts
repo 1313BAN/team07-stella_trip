@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3';
 import CardSkeleton from './CardSkeleton.vue';
 
 const meta: Meta<typeof CardSkeleton> = {
-  title: 'Components/common/CardSkeleton',
+  title: 'Components/skeleton/CardSkeleton',
   component: CardSkeleton,
   tags: ['autodocs'],
   parameters: {

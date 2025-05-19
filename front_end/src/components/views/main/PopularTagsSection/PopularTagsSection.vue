@@ -5,8 +5,8 @@
 </template>
 
 <script setup lang="ts">
-import GridCardListContainer from '@/components/GridCardListContainer/GridCardListContainer.vue';
-import TagCard from '@/components/TagCard/TagCard.vue';
+import GridCardListContainer from '@/components/common/GridCardListContainer/GridCardListContainer.vue';
+import TagCard from '@/components/card/TagCard/TagCard.vue';
 import { getPopularTags, type Tag } from '@/services/api/domains/plan';
 
 const tags: Tag[] = await getPopularTags();

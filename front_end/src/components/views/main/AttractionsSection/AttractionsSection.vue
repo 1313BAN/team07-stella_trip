@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import RowCardListContainer from '@/components/common/RowCardListContainer/RowCardListContainer.vue';
-import AttractionCard from '@/components/AttractionCard/AttractionCard.vue';
+import AttractionCard from '@/components/card/AttractionCard/AttractionCard.vue';
 import { getAttractions, type Attraction } from '@/services/api/domains/attraction';
 import type { AttractionsParams } from '@/services/api/domains/attraction';
 

@@ -12,7 +12,7 @@ interface AttractionCardProps {
 }
 
 const meta: Meta<AttractionCardProps> = {
-  title: 'Components/AttractionCard',
+  title: 'Components/card/AttractionCard',
   component: AttractionCard,
   tags: ['autodocs'],
   args: {

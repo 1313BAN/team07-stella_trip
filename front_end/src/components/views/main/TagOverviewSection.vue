@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import AsyncContainer from '@/components/common/AsyncContainer/AsyncContainer.vue';
+import AsyncContainer from '@/components/AsyncContainer/AsyncContainer.vue';
 
 import { type Attraction } from '@/services/api/domains/attraction';
 import { PopularTagsError, PopularTagsSection, PopularTagsSkeleton } from './PopularTagsSection';

@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import RowCardListContainer from '@/components/common/RowCardListContainer/RowCardListContainer.vue';
-import CardSkeleton from '@/components/common/CardSkeleton/CardSkeleton.vue';
+import CardSkeleton from '@/components/skeleton/CardSkeleton/CardSkeleton.vue';
 
 interface Props {
   title: string;

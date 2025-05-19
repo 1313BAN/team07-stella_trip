@@ -8,6 +8,4 @@
   </div>
 </template>
 
-<script setup lang="ts">
-// props 없음
-</script>
+<script setup lang="ts"></script>

@@ -5,6 +5,6 @@
 </template>
 
 <script setup lang="ts">
-import GridCardListContainer from '@/components/GridCardListContainer/GridCardListContainer.vue';
-import TagCardSkeleton from '@/components/common/TagCardSkeleton/TagCardSkeleton.vue';
+import GridCardListContainer from '@/components/common/GridCardListContainer/GridCardListContainer.vue';
+import TagCardSkeleton from '@/components/skeleton/TagCardSkeleton/TagCardSkeleton.vue';
 </script>

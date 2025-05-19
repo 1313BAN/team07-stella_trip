@@ -1,9 +1,8 @@
-// TagCardSkeleton.stories.ts
 import type { Meta, StoryObj } from '@storybook/vue3';
 import TagCardSkeleton from './TagCardSkeleton.vue';
 
 const meta: Meta<typeof TagCardSkeleton> = {
-  title: 'Components/common/TagCardSkeleton',
+  title: 'Components/skeleton/TagCardSkeleton',
   component: TagCardSkeleton,
   tags: ['autodocs'],
   parameters: {

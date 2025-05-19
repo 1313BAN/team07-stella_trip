@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 import GridCardListContainer from './GridCardListContainer.vue';
-import TagCard from '../TagCard/TagCard.vue';
+import TagCard from '@/components/card/TagCard/TagCard.vue';
 
 interface GridCardListContainerProps {
   title: string;
 }
 
 const meta: Meta<GridCardListContainerProps> = {
-  title: 'Components/GridCardListContainer',
+  title: 'Components/common/GridCardListContainer',
   component: GridCardListContainer,
   tags: ['autodocs'],
   argTypes: {

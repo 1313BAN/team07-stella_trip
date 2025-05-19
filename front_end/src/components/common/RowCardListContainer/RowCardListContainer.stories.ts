@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 import { fn } from '@storybook/test';
 import RowCardListContainer from './RowCardListContainer.vue';
-import PlanCard from '@/components/PlanCard/PlanCard.vue';
-import AttractionCard from '@/components/AttractionCard/AttractionCard.vue';
+import PlanCard from '@/components/card/PlanCard/PlanCard.vue';
+import AttractionCard from '@/components/card/AttractionCard/AttractionCard.vue';
 import type { Plan } from '@/services/api/domains/plan';
 import type { Attraction } from '@/services/api/domains/attraction';
 
@@ -121,7 +121,7 @@ interface RowCardListContainerProps {
 }
 
 const meta: Meta<RowCardListContainerProps> = {
-  title: 'Components/RowCardListContainer',
+  title: 'Components/common/RowCardListContainer',
   component: RowCardListContainer,
   tags: ['autodocs'],
   argTypes: {
