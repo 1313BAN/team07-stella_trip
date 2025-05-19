@@ -53,12 +53,11 @@ import TagCard from '@/components/TagCard/TagCard.vue';
 import { getPlans, getPopularTags, type Plan, type Tag } from '@/services/api/domains/plan';
 import { getAttractions, type Attraction } from '@/services/api/domains/attraction';
 
-// 데이터를 담을 ref 생성
 const healingPlans = ref<Plan[]>([]);
 const popularAttractions = ref<Attraction[]>([]);
 const popularTags = ref<Tag[]>([]);
 
-// 부모 컴포넌트에서 <Suspense>로 처리할 비동기 함수
+//TODO: 이후 Suspence 와 ErrorBoundary로 관리 예정
 const setupData = async () => {
   const [plansResponse, attractionsResponse, tagsResponse] = await Promise.all([
     getPlans({
