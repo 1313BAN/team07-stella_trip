@@ -22,13 +22,19 @@ onErrorCaptured((err, instance, info) => {
 </script>
 
 <template>
-  <component :is="errorComponent" v-if="error" :error="error" :resetError="resetError" />
+  <component
+    :is="errorComponent"
+    v-if="error"
+    :error="error"
+    :resetError="resetError"
+    v-bind="$attrs"
+  />
   <Suspense v-else>
     <template #default>
       <slot />
     </template>
     <template #fallback>
-      <component :is="loadingComponent" />
+      <component :is="loadingComponent" v-bind="$attrs" />
     </template>
   </Suspense>
 </template>
