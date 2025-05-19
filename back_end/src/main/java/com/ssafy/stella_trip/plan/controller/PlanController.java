@@ -3,10 +3,7 @@ package com.ssafy.stella_trip.plan.controller;
 import com.ssafy.stella_trip.common.dto.PageDTO;
 import com.ssafy.stella_trip.common.response.CommonResponse;
 import com.ssafy.stella_trip.plan.dto.request.*;
-import com.ssafy.stella_trip.plan.dto.response.LockSuccessResponseDTO;
-import com.ssafy.stella_trip.plan.dto.response.LockStatusResponseDTO;
-import com.ssafy.stella_trip.plan.dto.response.PlanResponseDTO;
-import com.ssafy.stella_trip.plan.dto.response.RouteResponseDTO;
+import com.ssafy.stella_trip.plan.dto.response.*;
 import com.ssafy.stella_trip.plan.service.PlanService;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/plans")
@@ -304,5 +303,17 @@ public class PlanController {
             @AuthenticationPrincipal JwtUserInfo user
     ) {
         return new CommonResponse<>(planService.updateRoute(planId, routeId, routeUpdateRequestDTO, user), HttpStatus.OK);
+    }
+
+    @GetMapping("/tags")
+    @Operation(
+            summary = "여행 계획 태그 목록 조회",
+            description = "조건: 페이지, 사이즈, 검색어, 정렬 방식(id순/인기순)"
+    )
+    @PreAuthorize("permitAll()")
+    public CommonResponse<List<TagResponseDTO>> getTags(
+            @RequestParam(value = "size", defaultValue = "20") int size
+    ) {
+        return new CommonResponse<>(planService.getPopularTags(size), HttpStatus.OK);
     }
 }
