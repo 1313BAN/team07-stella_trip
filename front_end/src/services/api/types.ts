@@ -10,13 +10,13 @@ export type ApiErrorBody = {
 
 export type ApiErrorResponse = ApiResponse<ApiErrorBody>;
 
-export type User = {
-  id: string;
-  email: string;
-  username: string;
-};
-
-export type AuthToken = {
-  accessToken: string;
-  refreshToken: string;
+export type PagenationResponse<T> = {
+  content: T[];
+  hasNext: boolean;
+  totalPages: number;
+  totalElements: number;
+  page: number;
+  size: number;
+  first: boolean;
+  last: boolean;
 };

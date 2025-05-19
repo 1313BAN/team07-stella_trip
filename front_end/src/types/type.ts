@@ -1,32 +1,12 @@
-export type Attraction = {
-  attractionId: number;
-  name: string;
-  image: string;
-  address: string;
-  contentType: string;
-  rating: number;
-  latitude: number;
-  longitude: number;
-  isLiked: boolean;
-  likeCount: number;
+export type User = {
+  id: string;
+  email: string;
+  username: string;
 };
 
-export type Plan = {
-  planId: number;
-  title: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  tags: string[];
-  planWriters: Writer[];
-  likeCount: number;
-  isLiked: boolean;
-  constellation: ConstellationData;
-};
-
-export type Writer = {
-  userId: number;
-  name: string;
+export type AuthToken = {
+  accessToken: string;
+  refreshToken: string;
 };
 
 export type Star = {
