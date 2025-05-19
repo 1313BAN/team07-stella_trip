@@ -55,14 +55,14 @@ const meta: Meta<ModalProps> = {
     },
   },
   args: {
-    modelValue: false,
-    title: '',
-    description: '',
+    modelValue: true, // docs 모드에서 기본적으로 모달 표시
+    title: 'Docs 모드 모달',
+    description: '문서 모드에서 볼 수 있는 모달입니다.',
     maxWidth: '28rem',
     closeOnOutsideClick: true,
     showCloseButton: true,
     hideOverlay: false,
-    overlayOpacity: '0.6', // Changed from 'bg-black/60'
+    overlayOpacity: '0.6',
   },
   parameters: {
     backgrounds: {
@@ -170,7 +170,7 @@ export const 푸터가있는모달: Story = {
             <p>여행 계획을 저장하시겠습니까?</p>
           </div>
           <template #footer>
-            <Button @click="closeModal" class="border border-purple-500/30 bg-transparent text-white hover:bg-purple-500/20">취소</Button>
+            <Button @click="closeModal" class="bg-indigo-600 hover:bg-indigo-700">취소</Button>
             <Button @click="closeModal" class="bg-indigo-600 hover:bg-indigo-700">저장</Button>
           </template>
         </Modal>
@@ -255,8 +255,8 @@ export const 푸터가있는별배경모달: Story = {
             </ul>
           </div>
           <template #footer>
-            <Button @click="closeModal" variant="outline">취소</Button>
             <Button @click="saveAction" variant="default">저장하기</Button>
+            <Button @click="closeModal" variant="outline" class="text-white">취소</Button>
           </template>
         </Modal>
       </div>
@@ -286,7 +286,7 @@ export const 큰크기별배경모달: Story = {
           description="여행 별자리와 경로 정보를 확인해보세요"
           maxWidth="48rem"
         >
-          <div class="space-y-6 relative z-10">
+          <div class="bg-indigo-800 relative z-10">
             <h3 class="text-lg font-medium text-white">북두칠성 별자리 여행</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
@@ -476,115 +476,39 @@ export const 인터랙티브별배경모달: Story = {
 };
 
 // 완성된 여행 계획 미리보기 모달
-export const 완성된여행계획모달: Story = {
+// Docs 모드를 위한 자동 열림 모달
+export const Docs모드용모달: Story = {
   render: () => ({
     components: { Modal, Button },
     setup() {
-      const isOpen = ref(false);
+      const isOpen = ref(true); // 기본적으로 열려있음
+
+      function closeModal() {
+        isOpen.value = false;
+      }
 
       function openModal() {
         isOpen.value = true;
       }
 
-      return { isOpen, openModal };
+      return { isOpen, openModal, closeModal };
     },
     template: `
-      <div class="p-8 flex justify-center">
-        <Button @click="openModal" class="bg-indigo-600 hover:bg-indigo-700">여행 계획 보기</Button>
+      <div class="p-8 flex flex-col gap-4 items-center">
+        <p class="text-white text-center">이 모달은 Docs 모드를 위해 기본적으로 열려있습니다.</p>
+        <Button v-if="!isOpen" @click="openModal" class="bg-purple-600 hover:bg-purple-700">모달 다시 열기</Button>
         <Modal 
           v-model="isOpen"
-          title="우리는 북두칠성을 따라"
-          description="2024년 6월 10일 ~ 2024년 6월 17일"
-          maxWidth="42rem"
+          title="Docs 모드 모달"
+          description="스토리북 문서 모드에서도 정상적으로 볼 수 있는 모달입니다."
+          maxWidth="32rem"
         >
-          <div class="relative z-10">
-            <!-- 여행 계획 요약 -->
-            <div class="bg-gradient-to-r from-purple-900/30 to-indigo-900/30 rounded-lg p-4 mb-4">
-              <div class="flex flex-wrap gap-2 mb-2">
-                <span class="px-2 py-0.5 bg-purple-500/20 rounded-full text-xs text-purple-200">문화 체험</span>
-                <span class="px-2 py-0.5 bg-purple-500/20 rounded-full text-xs text-purple-200">자연 경관</span>
-                <span class="px-2 py-0.5 bg-purple-500/20 rounded-full text-xs text-purple-200">역사 탐방</span>
-              </div>
-              <p class="text-gray-300 text-sm">이 여행은 북두칠성 별자리의 각 별을 모티브로 만들어진 7개 도시 여행 코스입니다. 자연과 문화, 역사를 모두 체험할 수 있는 균형 잡힌 일정으로 구성되어 있습니다.</p>
-            </div>
-            
-            <!-- 일차별 여행 계획 -->
-            <div class="space-y-3">
-              <div class="relative pl-6 pb-5 border-l-2 border-purple-500/30">
-                <div class="absolute -left-1.5 top-0">
-                  <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
-                </div>
-                <div class="bg-white/10 rounded-lg p-3">
-                  <h4 class="font-semibold text-white">Day 1 - 서울</h4>
-                  <p class="text-sm text-gray-300 mt-1">북두칠성의 첫 번째 별: 도시의 시작점</p>
-                  <div class="mt-2 grid grid-cols-2 gap-2">
-                    <div class="bg-black/20 p-2 rounded text-xs">
-                      <span class="block text-purple-300 font-medium">오전</span>
-                      경복궁 관람
-                    </div>
-                    <div class="bg-black/20 p-2 rounded text-xs">
-                      <span class="block text-purple-300 font-medium">오후</span>
-                      북촌 한옥마을 산책
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="relative pl-6 pb-5 border-l-2 border-purple-500/30">
-                <div class="absolute -left-1.5 top-0">
-                  <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
-                </div>
-                <div class="bg-white/10 rounded-lg p-3">
-                  <h4 class="font-semibold text-white">Day 2 - 강원도</h4>
-                  <p class="text-sm text-gray-300 mt-1">북두칠성의 두 번째 별: 산과 바다의 조화</p>
-                  <div class="mt-2 grid grid-cols-2 gap-2">
-                    <div class="bg-black/20 p-2 rounded text-xs">
-                      <span class="block text-purple-300 font-medium">오전</span>
-                      설악산 케이블카
-                    </div>
-                    <div class="bg-black/20 p-2 rounded text-xs">
-                      <span class="block text-purple-300 font-medium">오후</span>
-                      속초 해변 & 시장 탐방
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="relative pl-6 border-l-2 border-purple-500/30">
-                <div class="absolute -left-1.5 top-0">
-                  <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
-                </div>
-                <div class="bg-white/10 rounded-lg p-3">
-                  <h4 class="font-semibold text-white">Day 3 - 경주</h4>
-                  <p class="text-sm text-gray-300 mt-1">북두칠성의 세 번째 별: 역사의 숨결</p>
-                  <div class="mt-2 grid grid-cols-2 gap-2">
-                    <div class="bg-black/20 p-2 rounded text-xs">
-                      <span class="block text-purple-300 font-medium">오전</span>
-                      불국사 & 석굴암
-                    </div>
-                    <div class="bg-black/20 p-2 rounded text-xs">
-                      <span class="block text-purple-300 font-medium">오후</span>
-                      첨성대 & 안압지 야경
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div class="text-center mt-4">
-              <span class="inline-block text-gray-400 text-xs">... 더 많은 일정 ...</span>
-            </div>
+          <div class="space-y-4 relative z-10">
+            <p>이 모달은 스토리북 문서 모드에서도 정상적으로 볼 수 있도록 설계되었습니다.</p>
+            <p>닫기 버튼 또는 외부 클릭으로 모달을 닫을 수 있습니다.</p>
           </div>
-          
           <template #footer>
-            <div class="flex justify-end gap-2">
-              <Button class="border border-purple-500/30 bg-transparent text-white hover:bg-purple-500/20">
-                수정하기
-              </Button>
-              <Button class="bg-indigo-600 hover:bg-indigo-700">
-                공유하기
-              </Button>
-            </div>
+            <Button @click="closeModal" class="bg-purple-600 hover:bg-purple-700">닫기</Button>
           </template>
         </Modal>
       </div>
