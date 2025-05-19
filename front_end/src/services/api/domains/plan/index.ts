@@ -19,8 +19,8 @@ export const getPlans = async (params?: PlansParams): Promise<PagenationResponse
  * 인기 많은 여행 계획 태그 리스트 조회
  * @returns 여행 계획 태그 리스트
  */
-export const getPopularTags = async (): Promise<Tag[]> => {
-  const response = await api.get<ApiResponse<Tag[]>>(PLAN.TAGS);
+export const getPopularTags = async (size?: number): Promise<Tag[]> => {
+  const response = await api.get<ApiResponse<Tag[]>>(PLAN.TAGS, { params: { size } });
 
   return response.data.body;
 };
