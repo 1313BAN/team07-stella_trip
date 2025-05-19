@@ -25,4 +25,4 @@ export const getPopularTags = async (): Promise<Tag[]> => {
   return response.data.body;
 };
 
-export type * from './types';
+export * from './types';

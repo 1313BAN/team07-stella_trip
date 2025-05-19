@@ -20,4 +20,4 @@ export const getAttractions = async (
   return response.data.body;
 };
 
-export type * from './types';
+export * from './types';
