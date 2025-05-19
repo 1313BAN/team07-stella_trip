@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class TagDTO {
     private int tagId;
     private String name;
+    private int count;
 }

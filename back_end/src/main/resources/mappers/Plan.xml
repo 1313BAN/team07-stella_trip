@@ -35,6 +35,7 @@
         <collection property="tags" ofType="com.ssafy.stella_trip.plan.dto.TagDTO">
             <id column="tag_id" property="tagId"/>
             <result column="tag_name" property="name"/>
+            <result column="tag_count" property="count"/>
         </collection>
 
         <!-- Lazy loading: routes -->
@@ -399,5 +400,19 @@
         FROM plan p
         JOIN liked_plan fp ON p.plan_id = fp.plan_id
         WHERE fp.user_id = #{userId}
+    </select>
+
+    <resultMap id="TagMap" type="com.ssafy.stella_trip.plan.dto.TagDTO">
+        <id column="tag_id" property="tagId"/>
+        <result column="name" property="name"/>
+        <result column="tag_count" property="count"/>
+    </resultMap>
+
+    <select id="getTagsOrderdByCount" resultMap="TagMap">
+        SELECT
+        *
+        from tag
+        order by tag_count desc
+        limit #{size}
     </select>
 </mapper>
