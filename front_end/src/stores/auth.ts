@@ -1,4 +1,4 @@
-import type { AuthToken, User } from '@/services/api';
+import type { AuthToken, User } from '@/types/type';
 import { defineStore } from 'pinia';
 
 interface AuthState {

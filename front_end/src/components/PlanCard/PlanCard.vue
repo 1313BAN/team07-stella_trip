@@ -1,23 +1,49 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Calendar } from 'lucide-vue-next';
 import LikeButton from '@/components/common/LikeButton/LikeButton.vue';
 import Constellation from '@/components/common/Constellation/Constellation.vue';
-import Tag from '@/components/common/Tag/Tag.vue';
+import TagComp from '@/components/common/Tag/Tag.vue';
 import { calculatePeriod, formatLikeCount } from '@/utils/util';
-import type { Plan } from '@/types/type';
+import type { Plan, Tag } from '@/services/api/domains/plan/types';
 
 interface Props {
   plan: Plan;
 }
 
 const props = defineProps<Props>();
+
+// 기본 별자리 정의
+const defaultConstellation = {
+  stars: [
+    { x: 30, y: 20, r: 2, brightness: 1, delay: 0 },
+    { x: 50, y: 30, r: 1.5, brightness: 0.9, delay: 0.3 },
+    { x: 70, y: 20, r: 2, brightness: 0.8, delay: 0.6 },
+    { x: 50, y: 50, r: 2.5, brightness: 1, delay: 0.9 },
+    { x: 30, y: 80, r: 1.5, brightness: 0.7, delay: 1.2 },
+    { x: 50, y: 70, r: 2, brightness: 0.85, delay: 1.5 },
+    { x: 70, y: 80, r: 1.5, brightness: 0.75, delay: 1.8 },
+  ],
+  connections: [
+    { from: 0, to: 1 },
+    { from: 1, to: 2 },
+    { from: 1, to: 3 },
+    { from: 3, to: 4 },
+    { from: 3, to: 5 },
+    { from: 3, to: 6 },
+    { from: 4, to: 5 },
+    { from: 5, to: 6 },
+  ],
+};
+
+// computed 속성을 사용하여 constellation이 없을 경우 기본값 제공
+const constellation = computed(() => props.plan.stella || defaultConstellation);
 const isHovered = ref(false);
 
 const emit = defineEmits<{
   cardClick: [plan: Plan];
   likeClick: [plan: Plan];
-  tagClick: [tag: string];
+  tagClick: [tag: Tag];
 }>();
 
 const backgroundStars = Array.from({ length: 30 }, () => ({
@@ -62,8 +88,8 @@ const handleTagClick = (index: number) => {
       <!-- 별자리 SVG -->
       <div class="absolute inset-0 transition-transform duration-500 group-hover:scale-105">
         <Constellation
-          :stars="plan.constellation.stars"
-          :connections="plan.constellation.connections"
+          :stars="constellation.stars"
+          :connections="constellation.connections"
           :backgroundStars="backgroundStars"
           :isHovered="isHovered"
         />
@@ -88,12 +114,12 @@ const handleTagClick = (index: number) => {
       <!-- 태그들과 좋아요 수 -->
       <div class="flex flex-col gap-1">
         <div class="flex flex-wrap gap-2">
-          <Tag
+          <TagComp
             v-for="tag in plan.tags.slice(0, 3)"
-            :key="tag"
-            :label="tag"
+            :key="tag.tagId"
+            :label="tag.name"
             @tagClick="handleTagClick"
-          ></Tag>
+          ></TagComp>
         </div>
         <div class="flex items-center gap-2 text-purple-200">
           <LikeButton transparent :isLiked="plan.isLiked" size="sm" @click.stop="handleLikeClick" />
