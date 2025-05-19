@@ -5,8 +5,9 @@ import GlobalFallback from '@/components/global/GlobalFallback.vue';
 
 const hasError = ref(false);
 
-onErrorCaptured(() => {
+onErrorCaptured(e => {
   hasError.value = true;
+  console.log(e);
 
   return false;
 });
