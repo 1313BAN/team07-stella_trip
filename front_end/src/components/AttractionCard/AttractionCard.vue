@@ -5,7 +5,7 @@ import StarRating from '@/components/common/StarRating/StarRating.vue';
 import Tag from '@/components/common/Tag/Tag.vue';
 import ImageWithFallback from '@/components/common/ImageWithFallback/ImageWithFallback.vue';
 import { formatLikeCount } from '@/utils/util';
-import type { Attraction } from '@/types/type';
+import type { Attraction } from '@/services/api/domains/attraction';
 
 interface Props {
   attraction: Attraction;
@@ -19,7 +19,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   cardClick: [attraction: Attraction];
   likeClick: [attraction: Attraction];
-  tagClick: [contentType: string];
+  tagClick: [contentType: number];
 }>();
 
 const handleCardClick = () => {
@@ -33,6 +33,8 @@ const handlelikeClick = () => {
 const handleTagClick = () => {
   emit('tagClick', props.attraction.contentType);
 };
+
+//TODO: attraction.contentType.toString() 변환 함수 구현
 </script>
 
 <template>
@@ -72,7 +74,7 @@ const handleTagClick = () => {
 
       <!-- 컨텐츠 타입과 좋아요 수 -->
       <div class="flex flex-col gap-1">
-        <Tag :label="attraction.contentType" @click.stop="handleTagClick" />
+        <Tag :label="attraction.contentType.toString()" @click.stop="handleTagClick" />
         <div class="flex items-center gap-2 text-purple-200">
           <LikeButton
             transparent
