@@ -287,7 +287,7 @@ public class UserProfileService {
                 .image(attraction.getFirstImage1())
                 .address(attraction.getAddr1())
                 .contentType(attraction.getContentTypeId())
-                .like(attraction.getLikeCount())
+                .likeCount(attraction.getLikeCount())
                 .rating(attraction.getRating())
                 .latitude(attraction.getLatitude())
                 .longitude(attraction.getLongitude())
