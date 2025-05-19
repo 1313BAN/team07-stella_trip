@@ -507,6 +507,6 @@ public class PlanService {
             size = 10;
         }
 
-        return planDAO.getTagsOrderdByCount(size).stream().map((tagDTO) -> convertTagToResponse(tagDTO)).toList();
+        return planDAO.getTagsOrderedByCount(size).stream().map((tagDTO) -> convertTagToResponse(tagDTO)).toList();
     }
 }

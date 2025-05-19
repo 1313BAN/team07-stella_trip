@@ -408,7 +408,7 @@
         <result column="tag_count" property="count"/>
     </resultMap>
 
-    <select id="getTagsOrderdByCount" resultMap="TagMap">
+    <select id="getTagsOrderedByCount" resultMap="TagMap">
         SELECT
         *
         from tag

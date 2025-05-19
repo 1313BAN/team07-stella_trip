@@ -112,5 +112,5 @@ public interface PlanDAO {
   
     List<PlanDTO> getLikedPlansByUserId(@Param("userId") int userId, @Param("offset") int offset, @Param("size") int size);
 
-    List<TagDTO> getTagsOrderdByCount(int size);
+    List<TagDTO> getTagsOrderedByCount(int size);
 }
