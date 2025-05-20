@@ -8,7 +8,7 @@ const props = defineProps<BackgroundProps>();
 </script>
 
 <template>
-  <div class="fixed inset-0">
+  <div class="fixed inset-0 -z-1">
     <GradientBackground
       :from="props.from"
       :via="props.via"
