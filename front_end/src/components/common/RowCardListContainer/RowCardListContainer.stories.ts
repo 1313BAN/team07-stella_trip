@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 import { fn } from '@storybook/test';
 import RowCardListContainer from './RowCardListContainer.vue';
-import PlanCard from '@/components/PlanCard/PlanCard.vue';
-import AttractionCard from '@/components/AttractionCard/AttractionCard.vue';
-import type { Plan, Attraction } from '@/types/type';
+import PlanCard from '@/components/card/PlanCard/PlanCard.vue';
+import AttractionCard from '@/components/card/AttractionCard/AttractionCard.vue';
+import type { Plan } from '@/services/api/domains/plan';
+import type { Attraction } from '@/services/api/domains/attraction';
 
 const examplePlans: Plan[] = [
   {
@@ -12,26 +13,12 @@ const examplePlans: Plan[] = [
     description: '제주도에서 휴식과 힐링을 찾는 3박 4일 여행',
     startDate: '2025-06-01',
     endDate: '2025-06-04',
-    tags: ['제주', '힐링', '휴양'],
+    tags: [],
     planWriters: [{ userId: 1, name: '김여행' }],
     likeCount: 345,
     isLiked: false,
-    constellation: {
-      stars: [
-        { x: 30, y: 30, r: 0.8, brightness: 0.7 },
-        { x: 50, y: 20, r: 0.6, brightness: 0.5 },
-        { x: 70, y: 40, r: 0.9, brightness: 0.8 },
-        { x: 40, y: 60, r: 0.7, brightness: 0.6 },
-        { x: 20, y: 50, r: 0.5, brightness: 0.4 },
-      ],
-      connections: [
-        { from: 0, to: 1 },
-        { from: 1, to: 2 },
-        { from: 2, to: 3 },
-        { from: 3, to: 4 },
-        { from: 4, to: 0 },
-      ],
-    },
+    stella: null,
+    isPublic: false,
   },
   {
     planId: 2,
@@ -39,24 +26,12 @@ const examplePlans: Plan[] = [
     description: '서울의 역사와 문화를 탐방하는 2박 3일 여행',
     startDate: '2025-05-01',
     endDate: '2025-05-03',
-    tags: ['서울', '문화', '박물관'],
+    tags: [],
     planWriters: [{ userId: 2, name: '역사탐험가' }],
     likeCount: 234,
     isLiked: true,
-    constellation: {
-      stars: [
-        { x: 30, y: 30, r: 0.8, brightness: 0.7 },
-        { x: 70, y: 30, r: 0.6, brightness: 0.5 },
-        { x: 70, y: 70, r: 0.9, brightness: 0.8 },
-        { x: 30, y: 70, r: 0.7, brightness: 0.6 },
-      ],
-      connections: [
-        { from: 0, to: 1 },
-        { from: 1, to: 2 },
-        { from: 2, to: 3 },
-        { from: 3, to: 0 },
-      ],
-    },
+    stella: null,
+    isPublic: false,
   },
   {
     planId: 3,
@@ -64,26 +39,12 @@ const examplePlans: Plan[] = [
     description: '부산의 해안선을 따라가는 4박 5일 여행',
     startDate: '2025-07-10',
     endDate: '2025-07-14',
-    tags: ['부산', '바다', '해변'],
+    tags: [],
     planWriters: [{ userId: 3, name: '해변러버' }],
     likeCount: 189,
     isLiked: false,
-    constellation: {
-      stars: [
-        { x: 20, y: 20, r: 0.8, brightness: 0.7 },
-        { x: 40, y: 40, r: 0.6, brightness: 0.5 },
-        { x: 60, y: 20, r: 0.9, brightness: 0.8 },
-        { x: 80, y: 40, r: 0.7, brightness: 0.6 },
-        { x: 60, y: 60, r: 0.5, brightness: 0.4 },
-      ],
-      connections: [
-        { from: 0, to: 1 },
-        { from: 1, to: 2 },
-        { from: 2, to: 3 },
-        { from: 3, to: 4 },
-        { from: 4, to: 1 },
-      ],
-    },
+    stella: null,
+    isPublic: false,
   },
 ];
 
@@ -92,61 +53,66 @@ const exampleAttractions: Attraction[] = [
     attractionId: 1,
     name: '서울 남산타워',
     address: '서울특별시 용산구 남산공원길 105',
-    contentType: '관광명소',
+    contentType: 10,
     image: 'https://example.com/image1.jpg',
     rating: 4.7,
     likeCount: 345,
     isLiked: false,
     latitude: 0,
+    review: [],
     longitude: 0,
   },
   {
     attractionId: 2,
     name: '경복궁',
     address: '서울특별시 종로구 사직로 161',
-    contentType: '역사유적',
+    contentType: 10,
     image: 'https://example.com/image2.jpg',
     rating: 4.8,
     likeCount: 298,
     isLiked: true,
     latitude: 0,
     longitude: 0,
+    review: [],
   },
   {
     attractionId: 3,
     name: '해운대 해수욕장',
     address: '부산광역시 해운대구 해운대해변로 264',
-    contentType: '자연명소',
+    contentType: 10,
     image: 'https://example.com/image3.jpg',
     rating: 4.6,
     likeCount: 421,
     isLiked: false,
     latitude: 0,
     longitude: 0,
+    review: [],
   },
   {
     attractionId: 4,
     name: '제주 성산일출봉',
     address: '제주특별자치도 서귀포시 성산읍 일출로 284-12',
-    contentType: '자연명소',
+    contentType: 10,
     image: 'https://example.com/image4.jpg',
     rating: 4.9,
     likeCount: 567,
     isLiked: true,
     latitude: 0,
     longitude: 0,
+    review: [],
   },
   {
     attractionId: 5,
     name: '홍대 거리',
     address: '서울특별시 마포구 와우산로 29',
-    contentType: '문화거리',
+    contentType: 11,
     image: 'https://example.com/image5.jpg',
     rating: 4.5,
     likeCount: 231,
     isLiked: false,
     latitude: 0,
     longitude: 0,
+    review: [],
   },
 ];
 interface RowCardListContainerProps {
@@ -155,7 +121,7 @@ interface RowCardListContainerProps {
 }
 
 const meta: Meta<RowCardListContainerProps> = {
-  title: 'Components/RowCardListContainer',
+  title: 'Components/common/RowCardListContainer',
   component: RowCardListContainer,
   tags: ['autodocs'],
   argTypes: {

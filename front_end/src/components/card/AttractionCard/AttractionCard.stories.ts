@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 import { fn } from '@storybook/test';
 import AttractionCard from './AttractionCard.vue';
-import type { Attraction } from '@/types/type';
+import type { Attraction } from '@/services/api/domains/attraction';
 
 interface AttractionCardProps {
   attraction: Attraction;
@@ -12,7 +12,7 @@ interface AttractionCardProps {
 }
 
 const meta: Meta<AttractionCardProps> = {
-  title: 'Components/AttractionCard',
+  title: 'Components/card/AttractionCard',
   component: AttractionCard,
   tags: ['autodocs'],
   args: {
@@ -64,11 +64,12 @@ const defaultAttraction: Attraction = {
   image: 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=400&h=250&fit=crop',
   rating: 4.8,
 
-  contentType: '관광지',
+  contentType: 1,
   isLiked: false,
   likeCount: 756,
   latitude: 0,
   longitude: 0,
+  review: [],
 };
 
 export const Default: Story = {
@@ -138,11 +139,12 @@ export const PerfectRating: Story = {
       image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=250&fit=crop',
       rating: 5.0,
 
-      contentType: '자연',
+      contentType: 12,
       isLiked: false,
       likeCount: 2180,
       latitude: 0,
       longitude: 0,
+      review: [],
     },
   },
   render: args => ({
@@ -177,11 +179,12 @@ export const FestivalType: Story = {
       image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=250&fit=crop',
       rating: 4.3,
 
-      contentType: '축제',
+      contentType: 12,
       isLiked: false,
       likeCount: 432,
       latitude: 0,
       longitude: 0,
+      review: [],
     },
   },
   render: args => ({
@@ -215,11 +218,12 @@ export const LowRating: Story = {
       address: '제주특별자치도 어딘가',
       image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=250&fit=crop',
       rating: 2.8,
-      contentType: '관광지',
+      contentType: 13,
       isLiked: false,
       likeCount: 23,
       latitude: 0,
       longitude: 0,
+      review: [],
     },
   },
   render: args => ({
@@ -286,11 +290,12 @@ export const GridAttractions: Story = {
           image:
             'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=250&fit=crop',
           rating: 4.2,
-          contentType: '자연',
+          contentType: 11,
           isLiked: false,
           likeCount: 342,
           latitude: 0,
           longitude: 0,
+          review: [],
         },
         {
           attractionId: 6,
@@ -298,11 +303,12 @@ export const GridAttractions: Story = {
           address: '제주특별자치도 서귀포시 안덕면',
           image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=250&fit=crop',
           rating: 4.6,
-          contentType: '관광지',
+          contentType: 11,
           isLiked: true,
           likeCount: 876,
           latitude: 0,
           longitude: 0,
+          review: [],
         },
         {
           attractionId: 7,
@@ -311,11 +317,12 @@ export const GridAttractions: Story = {
           image:
             'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=400&h=250&fit=crop',
           rating: 3.9,
-          contentType: '테마파크',
+          contentType: 11,
           isLiked: false,
           likeCount: 234,
           latitude: 0,
           longitude: 0,
+          review: [],
         },
         {
           attractionId: 8,
@@ -323,11 +330,12 @@ export const GridAttractions: Story = {
           address: '제주특별자치도 서귀포시',
           image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=250&fit=crop',
           rating: 4.4,
-          contentType: '문화',
+          contentType: 11,
           isLiked: false,
           likeCount: 567,
           latitude: 0,
           longitude: 0,
+          review: [],
         },
         {
           attractionId: 9,
@@ -335,11 +343,12 @@ export const GridAttractions: Story = {
           address: '제주특별자치도 전 지역',
           image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=250&fit=crop',
           rating: 4.7,
-          contentType: '맛집',
+          contentType: 11,
           isLiked: true,
           likeCount: 1234,
           latitude: 0,
           longitude: 0,
+          review: [],
         },
       ];
 

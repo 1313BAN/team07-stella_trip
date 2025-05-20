@@ -6,7 +6,7 @@ import {
   CarouselItem,
   type CarouselApi,
 } from '@/components/ui/carousel';
-import StellaCard from '@/components/StellaCard/StellaCard.vue';
+import StellaCard from '@/components/card/StellaCard/StellaCard.vue';
 
 // 슬라이드 데이터 정의
 const slides = [

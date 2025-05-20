@@ -8,7 +8,7 @@ interface TagCardProps {
 }
 
 const meta: Meta<TagCardProps> = {
-  title: 'Components/TagCard',
+  title: 'Components/card/TagCard',
   component: TagCard,
   tags: ['autodocs'],
   argTypes: {

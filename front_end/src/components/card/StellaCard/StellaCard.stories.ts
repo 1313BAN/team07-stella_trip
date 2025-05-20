@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3';
 import StellaCard from './StellaCard.vue';
 
 const meta: Meta<typeof StellaCard> = {
-  title: 'Components/StellaCard',
+  title: 'Components/card/StellaCard',
   component: StellaCard,
   tags: ['autodocs'],
   parameters: {
