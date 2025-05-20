@@ -2,6 +2,7 @@ package com.ssafy.stella_trip.user.controller;
 
 import com.ssafy.stella_trip.common.response.CommonResponse;
 import com.ssafy.stella_trip.user.dto.request.LoginRequestDTO;
+import com.ssafy.stella_trip.user.dto.request.LogoutRequestDTO;
 import com.ssafy.stella_trip.user.dto.request.SignupRequestDTO;
 import com.ssafy.stella_trip.user.dto.request.TokenRefreshRequestDTO;
 import com.ssafy.stella_trip.user.dto.response.ActionResponseDTO;
@@ -75,7 +76,7 @@ public class UserController {
         return new CommonResponse<TokenRefreshResponseDTO>(userService.refreshToken(refreshToken), HttpStatus.CREATED);
     }
 
-    @GetMapping("/logout")
+    @PostMapping("/logout")
     @Operation(
             summary = "로그아웃 처리 API",
             description = ""
@@ -83,15 +84,9 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "정상적으로 로그아웃됨. 메인 페이지로 redirection")
     })
-    public CommonResponse<?> logout(HttpServletResponse response) {
-        // access 토큰 쿠키 삭제
-        Cookie jwtCookie = new Cookie("Authorization", null);
-        jwtCookie.setMaxAge(0);
-        jwtCookie.setPath("/");
-        jwtCookie.setHttpOnly(true);
-        jwtCookie.setSecure(true);
-        response.addCookie(jwtCookie);
-        return CommonResponse.builder().status(HttpStatus.OK).build(); // 실제로는 아무 동작 안 함
+    public CommonResponse<ActionResponseDTO> logout(@RequestBody LogoutRequestDTO logoutRequestDTO) {
+
+        return new CommonResponse<>(userService.logout(logoutRequestDTO), HttpStatus.OK);
     }
 
     @PostMapping("/signout")
