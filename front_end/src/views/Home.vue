@@ -1,6 +1,6 @@
 <template>
   <header>
-    <NavigationBar v-bind="args" @logout="onLogout" />
+    <NavigationBar />
   </header>
   <HeroBackground />
   <main>
