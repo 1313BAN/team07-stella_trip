@@ -56,8 +56,6 @@ const onSubmit = form.handleSubmit(async values => {
       );
       emit('close');
     });
-  } catch (error) {
-    // 로그인 오류 처리
   } finally {
     isLoading.value = false;
   }
