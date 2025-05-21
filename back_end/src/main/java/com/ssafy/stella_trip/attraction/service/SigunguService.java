@@ -40,9 +40,10 @@ public class SigunguService {
             SidoResponseDTO sidoResponseDTO = sidoMap.get(sigunguDTO.getSidoCode());
             sidoResponseDTO.getGugunList().add(new GugunResponseDTO(sigunguDTO.getSidoCode(), sigunguDTO.getGugunCode(), sigunguDTO.getGugunName()));
         });
-        redisTemplate.opsForValue().set("sigungu", sigunguList);
+        SigunguResponseDTO sigunguResponseDTO = new SigunguResponseDTO(new ArrayList<>(sidoMap.values()));
+        redisTemplate.opsForValue().set("sigungu", sigunguResponseDTO);
 
-        return new SigunguResponseDTO(new ArrayList<>(sidoMap.values()));
+        return sigunguResponseDTO;
     }
 
 }
