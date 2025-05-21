@@ -32,3 +32,17 @@ export type Review = {
   visitedDate: string;
   createdAt: string;
 };
+
+export type AttractionDetail = {
+  attractionId: number;
+  name: string;
+  image: string;
+  address: string;
+  contentType: number;
+  likeCount: number;
+  rating: number;
+  latitude: number;
+  longitude: number;
+  isLiked: boolean;
+  review: Review[];
+};
