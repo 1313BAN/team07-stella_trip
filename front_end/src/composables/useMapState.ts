@@ -44,19 +44,13 @@ const markersObjects = ref<KakaoMarker[]>([]);
 
 // 마커 초기화 함수
 const clearMarkers = () => {
-  if (!mapRef.value) return;
-
   // 중앙 마커 숨기기
-  mapRef.value.hideMarker();
+  mapRef.value?.hideMarker();
 
   // Kakao Maps API를 사용하여 추가한 마커 제거
-  try {
-    if (window.kakao?.maps && mapRef.value.map && markersObjects.value.length > 0) {
-      markersObjects.value.forEach(marker => marker.setMap(null));
-      markersObjects.value = [];
-    }
-  } catch (error) {
-    console.error('마커 제거 중 오류:', error);
+  if (window.kakao?.maps && mapRef.value?.map && markersObjects.value.length > 0) {
+    markersObjects.value.forEach(marker => marker.setMap(null));
+    markersObjects.value = [];
   }
 
   // 마커 정보 배열 초기화
@@ -88,8 +82,6 @@ const selectPlan = (plan: Plan) => {
 
 // 여행 계획 상세 정보 처리 핸들러
 const selectPlanDetail = (planDetail: PlanDetail) => {
-  if (!planDetail) return;
-
   // 마커 초기화
   clearMarkers();
 
@@ -162,7 +154,6 @@ const showAllMarkers = () => {
 
   // 각 위치에 마커 생성 및 표시
   markers.value.forEach(markerInfo => {
-    // 좌표 유효성 확인
     if (!markerInfo.lat || !markerInfo.lng) return;
 
     const position = new window.kakao.maps.LatLng(markerInfo.lat, markerInfo.lng);
