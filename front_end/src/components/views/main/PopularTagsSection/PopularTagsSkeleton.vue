@@ -1,5 +1,5 @@
 <template>
-  <GridCardListContainer title="인기 여행 태그">
+  <GridCardListContainer title="인기 여행 태그" minItemWidth="18rem">
     <TagCardSkeleton v-for="i in 8" :key="i" />
   </GridCardListContainer>
 </template>

@@ -10,23 +10,15 @@
       :error="error"
       :resetError="resetError"
       :showRetry="true"
-      :title="errorTitle || title + ' 오류'"
-      :description="errorDescription || title + ' 정보를 불러오는 중 문제가 발생했습니다'"
+      :title="title"
+      :description="description || title + ' 정보를 불러오는 중 문제가 발생했습니다'"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import ErrorContent from '@/components/common/ErrorContent/ErrorContent.vue';
+import ErrorContent, { type ErrorProps } from '@/components/common/ErrorContent/ErrorContent.vue';
 import { ChevronRight } from 'lucide-vue-next';
-
-interface ErrorProps {
-  error: Error | null;
-  resetError: () => void;
-  title: string;
-  errorTitle?: string;
-  errorDescription?: string;
-}
 
 defineProps<ErrorProps>();
 </script>

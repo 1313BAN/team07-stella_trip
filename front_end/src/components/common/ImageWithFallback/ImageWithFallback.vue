@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { ImageIcon } from 'lucide-vue-next';
 import { cn } from '@/lib/shadcn/utils';
 
@@ -11,6 +11,14 @@ const props = defineProps<{
 
 const imageLoaded = ref(false);
 const imageError = ref(false);
+
+watch(
+  () => props.src,
+  () => {
+    imageLoaded.value = false;
+    imageError.value = false;
+  }
+);
 
 const handleLoad = () => {
   imageLoaded.value = true;

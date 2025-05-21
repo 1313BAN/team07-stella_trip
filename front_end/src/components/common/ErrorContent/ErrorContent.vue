@@ -8,7 +8,9 @@
       </div>
       <div class="flex-1 space-y-2">
         <h3 v-if="title" class="text-lg font-semibold text-white">{{ title }}</h3>
-        <p class="text-gray-200">{{ description || '문제가 발생했습니다' }}</p>
+        <p class="text-gray-200">
+          {{ description || (error ? error.message : '문제가 발생했습니다') }}
+        </p>
         <button
           v-if="showRetry"
           class="mt-3 inline-flex items-center gap-1.5 rounded bg-purple-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-purple-700"
@@ -25,7 +27,7 @@
 <script setup lang="ts">
 import { AlertCircle, RotateCcw } from 'lucide-vue-next';
 
-interface ErrorProps {
+export interface ErrorProps {
   error: Error | null;
   resetError: () => void;
   title?: string;
