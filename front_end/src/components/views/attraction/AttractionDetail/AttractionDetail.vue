@@ -122,8 +122,8 @@
             <div class="mt-2 flex justify-end">
               <button
                 class="flex items-center gap-1 rounded-full p-1.5 text-sm text-gray-300 transition-colors hover:bg-white/10"
-                :aria-label="attractionData?.isLiked ? '좋아요 취소하기' : '좋아요 추가하기'"
-                :aria-pressed="attractionData?.isLiked ? 'true' : 'false'"
+                :aria-label="review.isLiked ? '좋아요 취소하기' : '좋아요 추가하기'"
+                :aria-pressed="review.isLiked ? 'true' : 'false'"
                 @click="toggleReviewLike(review)"
               >
                 <ThumbsUp
