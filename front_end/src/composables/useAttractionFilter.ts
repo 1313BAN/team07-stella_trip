@@ -11,8 +11,8 @@ export function useAttractionFilter() {
     contentTypes: number[];
   }) => {
     console.log('필터 적용:', newFilters);
-    // 여기서 필터링된 데이터를 가져오는 API 호출 등을 수행할 수 있습니다.
-    // 예: fetchFilteredAttractions(newFilters);
+    // TODO: API 연동 시 실제 구현으로 교체
+    // fetchFilteredAttractions(newFilters);
   };
 
   const closeFilterPanel = () => {
