@@ -30,6 +30,8 @@
         />
         <button
           class="absolute top-2 right-2 rounded-full bg-white/20 p-1.5 text-white shadow-sm transition-all duration-300 hover:bg-white/30"
+          :aria-label="attractionData?.isLiked ? '좋아요 취소하기' : '좋아요 추가하기'"
+          :aria-pressed="attractionData?.isLiked ? 'true' : 'false'"
           @click="toggleLike"
         >
           <Heart v-if="attractionData?.isLiked" class="h-5 w-5 fill-purple-400 text-purple-400" />
@@ -120,6 +122,8 @@
             <div class="mt-2 flex justify-end">
               <button
                 class="flex items-center gap-1 rounded-full p-1.5 text-sm text-gray-300 transition-colors hover:bg-white/10"
+                :aria-label="attractionData?.isLiked ? '좋아요 취소하기' : '좋아요 추가하기'"
+                :aria-pressed="attractionData?.isLiked ? 'true' : 'false'"
                 @click="toggleReviewLike(review)"
               >
                 <ThumbsUp
