@@ -4,6 +4,9 @@ export function useScroll(scrollThreshold = 30) {
   const isScrollingDown = ref(false);
   const scrollY = ref(0);
   const lastScrollTop = ref(0);
+  const hasRegisteredListener = ref(false);
+  let target: HTMLElement | null = null;
+  let handler: ((e: Event) => void) | null = null;
 
   const handleScroll = (event: Event, onScrollChange?: () => void) => {
     const target = event.target as HTMLElement;
@@ -29,9 +32,36 @@ export function useScroll(scrollThreshold = 30) {
     lastScrollTop.value = currentScrollTop;
   };
 
+  const register = (element: HTMLElement, callback?: () => void) => {
+    if (hasRegisteredListener.value) {
+      unregister();
+    }
+
+    target = element;
+    handler = (e: Event) => handleScroll(e, callback);
+    target.addEventListener('scroll', handler);
+    hasRegisteredListener.value = true;
+  };
+
+  const unregister = () => {
+    if (hasRegisteredListener.value && target && handler) {
+      target.removeEventListener('scroll', handler);
+      hasRegisteredListener.value = false;
+      target = null;
+      handler = null;
+    }
+  };
+
+  const cleanup = () => {
+    unregister();
+  };
+
   return {
     isScrollingDown,
     scrollY,
     handleScroll,
+    register,
+    unregister,
+    cleanup,
   };
 }
