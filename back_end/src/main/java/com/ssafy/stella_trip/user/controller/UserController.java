@@ -75,7 +75,7 @@ public class UserController {
         return new CommonResponse<TokenRefreshResponseDTO>(userService.refreshToken(refreshToken), HttpStatus.CREATED);
     }
 
-    @GetMapping("/logout")
+    @PostMapping("/logout")
     @Operation(
             summary = "로그아웃 처리 API",
             description = ""
