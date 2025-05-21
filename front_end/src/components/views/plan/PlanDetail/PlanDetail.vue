@@ -156,18 +156,10 @@ const resetRoute = () => {
 
 // 비동기 초기화 데이터 로드
 const initializeData = async () => {
-  // planId가 유효한지 확인
-  const planId = Number(props.planId);
-
-  if (isNaN(planId)) {
-    throw new Error('유효하지 않은 계획 ID');
-  }
-
-  // 계획 상세 정보 로드
-  const data = await getPlanDetail(planId);
+  const data = await getPlanDetail(props.planId);
   planDetail.value = data;
 
-  // 이제 selectPlanDetail 호출 - 맵 관련 작업 수행
+  // selectPlanDetail 호출
   if (data) {
     selectPlanDetail(data);
   }
@@ -179,6 +171,14 @@ onUnmounted(() => {
   clearPolylines();
 });
 
-// AsyncContainer와 Suspense와 함께 사용하기 위해 setup에서 직접 호출
 await initializeData();
+
+watch(
+  () => props.planId,
+  async (newId, oldId) => {
+    if (newId !== oldId) {
+      await initializeData();
+    }
+  }
+);
 </script>
