@@ -1,7 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { type Ref, shallowRef } from 'vue';
 
-export function useMapMarker(mapInstance: Ref<any>) {
+interface UseMapMarkerReturn {
+  marker: Ref<any>;
+  updateMarker: (lat: number, lng: number, show?: boolean) => void;
+  showMarker: (lat: number, lng: number) => void;
+  hideMarker: () => void;
+  getMarker: () => any;
+}
+
+export function useMapMarker(mapInstance: Ref<any>): UseMapMarkerReturn {
   const marker = shallowRef<any>(null);
 
   // 마커 생성 함수
@@ -35,16 +43,11 @@ export function useMapMarker(mapInstance: Ref<any>) {
   };
 
   // 마커 표시 함수
-  const showMarker = (lat: number, lng: number) => {
-    if (!mapInstance.value) return;
+  const showMarker = (lat: number, lng: number): void => {
+    updateMarker(lat, lng, true);
 
-    const position = new window.kakao.maps.LatLng(lat, lng);
-
-    if (marker.value) {
+    if (marker.value && marker.value.getMap() !== mapInstance.value) {
       marker.value.setMap(mapInstance.value);
-      marker.value.setPosition(position);
-    } else {
-      marker.value = createMarker(position);
     }
   };
 
