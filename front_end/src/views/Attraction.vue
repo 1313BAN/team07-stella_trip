@@ -94,13 +94,10 @@ import {
   AttractionDetail,
   AttractionDetailError,
   AttractionDetailSkeleton,
-} from '@/components/views/attraction/AttractonDetail';
+} from '@/components/views/attraction/AttractionDetail';
 import CommonSkeleton from '@/components/skeleton/CommonSkeleton/CommonSkeleton.vue';
 import type { Attraction } from '@/services/api/domains/attraction';
-
-// Shadcn Resizable 컴포넌트 추가
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-
 import { useMapState } from '@/composables/useMapState';
 import { useScroll } from '@/composables/useScroll';
 import { useAttractionFilter } from '@/composables/useAttractionFilter';
@@ -118,7 +115,7 @@ const handleMapResize = () => {
 };
 
 // 선택된 여행지 상태 관리
-const selectedAttractionRef = ref<Attraction | null>(selectedAttraction.value);
+const selectedAttractionRef = ref<Attraction | null>(selectedAttraction.value ?? null);
 
 // 관광지 카드 클릭 핸들러
 const handleAttractionCardClick = (attraction: Attraction) => {
