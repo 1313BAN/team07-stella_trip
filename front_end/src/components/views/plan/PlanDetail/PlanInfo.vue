@@ -14,7 +14,7 @@
           variant="ghost"
           size="sm"
           class="flex items-center gap-1.5 text-purple-200 hover:bg-purple-900/30"
-          @click="$emit('toggleLike')"
+          @click="handleClick"
         >
           <Heart v-if="isLiked" class="h-4 w-4 fill-purple-400 text-purple-400" />
           <Heart v-else class="h-4 w-4 text-gray-300" />
@@ -65,7 +65,11 @@ defineProps<{
   isLiked?: boolean;
 }>();
 
-defineEmits<{
-  (e: 'toggleLike'): void;
+const emit = defineEmits<{
+  toggleLike: [planId: number];
 }>();
+
+const handleClick = (planId: number) => {
+  emit('toggleLike', planId);
+};
 </script>
