@@ -55,7 +55,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Tag from '@/components/common/Tag/Tag.vue';
 
-defineProps<{
+const props = defineProps<{
   title?: string;
   dateRange: string;
   description?: string;
@@ -69,7 +69,7 @@ const emit = defineEmits<{
   toggleLike: [planId: number];
 }>();
 
-const handleClick = (planId: number) => {
-  emit('toggleLike', planId);
+const handleClick = () => {
+  emit('toggleLike', props.planId);
 };
 </script>
