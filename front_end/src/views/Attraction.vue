@@ -2,65 +2,47 @@
   <HeroBackground />
   <div class="h-screen">
     <NavigationBar />
-    <section class="relative flex flex-col lg:flex-row">
-      <!-- 왼쪽 섹션 (필터 + 그리드) -->
-      <div class="relative w-full lg:w-1/3">
-        <div
-          class="absolute top-0 left-0 z-10 h-fit w-full p-2 transition-transform duration-300"
-          :class="{ '-translate-y-full': isScrollingDown && scrollY > 100 }"
-        >
-          <AttractionFilter
-            ref="filterComponentRef"
-            :isScrollingDown="isScrollingDown"
-            :scrollY="scrollY"
-            @filter="handleFilterChange"
-          />
-        </div>
-        <!-- 그리드 영역 (스크롤 가능) -->
-        <div
-          ref="scrollContainerRef"
-          class="h-[calc(100vh-4rem)] overflow-x-hidden overflow-y-auto px-2 pt-12"
-          @scroll="e => handleScroll(e, closeFilterPanel)"
-        >
-          <AsyncContainer
-            :loadingComponent="FilteredAttractionsSkeleton"
-            :errorComponent="AttractionsError"
+    <section class="relative h-[calc(100vh-4rem)]">
+      <ResizablePanelGroup direction="horizontal" class="h-full">
+        <!-- 왼쪽 섹션 (필터 + 그리드) -->
+        <ResizablePanel :defaultSize="33" :minSize="20" :maxSize="60" class="relative">
+          <div
+            class="absolute top-0 left-0 z-10 h-fit w-full p-2 transition-transform duration-300"
+            :class="{ '-translate-y-full': isScrollingDown && scrollY > 100 }"
           >
-            <FilteredAttractions
-              :parentScrollContainer="scrollContainerRef"
-              :apiParams="{ page: 1, size: 100 }"
-              @cardClick="handleAttractionCardClick"
-              @likeClick="handleAttractionLikeClick"
-              @tagClick="handleAttractionTagClick"
-              @moreClick="() => handleMoreClick(12)"
+            <AttractionFilter
+              ref="filterComponentRef"
+              :isScrollingDown="isScrollingDown"
+              :scrollY="scrollY"
+              @filter="handleFilterChange"
             />
-          </AsyncContainer>
-        </div>
-      </div>
+          </div>
+          <!-- 그리드 영역 (스크롤 가능) -->
+          <div
+            ref="scrollContainerRef"
+            class="h-full overflow-x-hidden overflow-y-auto px-2 pt-12"
+            @scroll="e => handleScroll(e, closeFilterPanel)"
+          >
+            <AsyncContainer
+              :loadingComponent="FilteredAttractionsSkeleton"
+              :errorComponent="AttractionsError"
+            >
+              <FilteredAttractions
+                :parentScrollContainer="scrollContainerRef"
+                :apiParams="{ page: 1, size: 100 }"
+                @cardClick="handleAttractionCardClick"
+                @likeClick="handleAttractionLikeClick"
+                @tagClick="handleAttractionTagClick"
+                @moreClick="() => handleMoreClick(12)"
+              />
+            </AsyncContainer>
+          </div>
+        </ResizablePanel>
 
-      <!-- 여행지 상세 정보 영역 -->
-      <div
-        v-if="selectedAttractionRef"
-        class="fixed top-16 left-1/3 z-20 w-1/5 rounded-md shadow-lg backdrop-blur-sm transition-all duration-300"
-        style="height: calc(100vh - 4rem)"
-      >
-        <AsyncContainer
-          :loadingComponent="AttractionDetailSkeleton"
-          :errorComponent="AttractionDetailError"
-          :attractionName="selectedAttractionRef.name"
-        >
-          <AttractionDetail
-            :attractionId="selectedAttractionRef.attractionId"
-            :attractionName="selectedAttractionRef.name"
-            :attraction="selectedAttractionRef"
-            @close="closeReview"
-          />
-        </AsyncContainer>
-      </div>
+        <ResizableHandle withHandle />
 
-      <!-- 오른쪽: 지도 (2/3) -->
-      <div class="w-full lg:mt-0 lg:w-2/3">
-        <div class="relative h-full">
+        <!-- 오른쪽: 지도 -->
+        <ResizablePanel :defaultSize="67" class="relative" @resizeend="handleMapResize">
           <AsyncContainer :loadingComponent="CommonSkeleton" :errorComponent="MapError">
             <MapContainer
               ref="mapRef"
@@ -69,8 +51,28 @@
               :showCenterMarker="true"
             />
           </AsyncContainer>
-        </div>
-      </div>
+
+          <!-- 여행지 상세 정보 영역 (오버레이로 표시) -->
+          <div
+            v-if="selectedAttractionRef"
+            class="absolute top-0 left-0 z-20 w-1/2 max-w-md rounded-md shadow-lg backdrop-blur-sm transition-all duration-300"
+            style="height: calc(100% - 2rem); margin: 1rem"
+          >
+            <AsyncContainer
+              :loadingComponent="AttractionDetailSkeleton"
+              :errorComponent="AttractionDetailError"
+              :attractionName="selectedAttractionRef.name"
+            >
+              <AttractionDetail
+                :attractionId="selectedAttractionRef.attractionId"
+                :attractionName="selectedAttractionRef.name"
+                :attraction="selectedAttractionRef"
+                @close="closeReview"
+              />
+            </AsyncContainer>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </section>
   </div>
 </template>
@@ -96,6 +98,9 @@ import {
 import CommonSkeleton from '@/components/skeleton/CommonSkeleton/CommonSkeleton.vue';
 import type { Attraction } from '@/services/api/domains/attraction';
 
+// Shadcn Resizable 컴포넌트 추가
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+
 import { useMapState } from '@/composables/useMapState';
 import { useScroll } from '@/composables/useScroll';
 import { useAttractionFilter } from '@/composables/useAttractionFilter';
@@ -104,6 +109,13 @@ const scrollContainerRef = ref<HTMLElement | null>(null);
 const { mapRef, mapLevel, mapCenter, selectedAttraction, selectAttraction } = useMapState();
 const { filterComponentRef, handleFilterChange, closeFilterPanel } = useAttractionFilter();
 const { isScrollingDown, scrollY, handleScroll } = useScroll();
+
+// 지도 리사이즈 핸들러
+const handleMapResize = () => {
+  if (mapRef.value) {
+    mapRef.value.refreshMap();
+  }
+};
 
 // 선택된 여행지 상태 관리
 const selectedAttractionRef = ref<Attraction | null>(selectedAttraction.value);
