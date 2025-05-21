@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col divide-y divide-white/10">
     <!-- 별자리 표시 섹션 -->
-    <StellaHeader :stella="planDetail?.stella" :backgroundStars="generateBackgroundStars()" />
+    <StellaHeader :stella="planDetail?.stella" :backgroundStars="backgroundStars" />
 
     <!-- 기본 정보 섹션 -->
     <PlanInfo
@@ -99,15 +99,13 @@ const toggleLike = () => {
 };
 
 // 배경 별 생성
-const generateBackgroundStars = () => {
-  return Array.from({ length: 30 }, () => ({
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    r: Math.random() * 0.8 + 0.2,
-    brightness: Math.random() * 0.4 + 0.2,
-    duration: Math.random() * 2 + 2,
-  }));
-};
+const backgroundStars = Array.from({ length: 30 }, () => ({
+  x: Math.random() * 100,
+  y: Math.random() * 100,
+  r: Math.random() * 0.8 + 0.2,
+  brightness: Math.random() * 0.4 + 0.2,
+  duration: Math.random() * 2 + 2,
+}));
 
 // 일별 경로 지도에 표시
 const showRouteOnMap = (date: string, attractions: RouteAttraction[]) => {
