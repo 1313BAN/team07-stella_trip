@@ -24,6 +24,8 @@ interface UseMapStateReturn {
   mapLevel: ReturnType<typeof ref<number>>;
   mapCenter: ComputedRef<{ lat: number; lng: number }>;
   markers: ReturnType<typeof ref<MarkerInfo[]>>;
+  showRoute: (dateAttractions: MarkerInfo[]) => boolean;
+  clearPolylines: () => void;
   selectAttraction: (attraction: Attraction) => void;
   selectPlan: (plan: Plan) => void;
   selectPlanDetail: (planDetail: PlanDetail) => void;
@@ -218,6 +220,52 @@ const mapCenter = computed(() => {
   return defaultCenter;
 });
 
+// 폴리라인 객체 관리를 위한 변수 추가
+const polylines = ref<any[]>([]);
+
+// 폴리라인 초기화 함수
+const clearPolylines = () => {
+  if (polylines.value.length > 0) {
+    polylines.value.forEach(line => line.setMap(null));
+    polylines.value = [];
+  }
+};
+
+// 경로 표시 함수 추가
+const showRoute = (dateAttractions: MarkerInfo[]) => {
+  if (!mapRef.value?.map || !window.kakao?.maps) return false;
+
+  // 기존 폴리라인 제거
+  clearPolylines();
+
+  // 해당 날짜의 마커들을 순서별로 정렬
+  const sortedAttractions = [...dateAttractions].sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  if (sortedAttractions.length < 2) return false; // 경로를 그릴 포인트가 부족
+
+  // 경로 좌표 배열 생성
+  const linePath = sortedAttractions.map(
+    attraction => new window.kakao.maps.LatLng(attraction.lat, attraction.lng)
+  );
+
+  // 폴리라인 생성
+  const polyline = new window.kakao.maps.Polyline({
+    path: linePath,
+    strokeWeight: 4, // 선 두께
+    strokeColor: '#5F3DC4', // 보라색 계열 (커스텀 가능)
+    strokeOpacity: 0.7, // 투명도
+    strokeStyle: 'solid', // 선 스타일
+  });
+
+  // 지도에 표시
+  polyline.setMap(mapRef.value.map);
+
+  // 폴리라인 객체 저장
+  polylines.value.push(polyline);
+
+  return true;
+};
+
 // 지도 참조 변경 감지 - 마커를 다시 그리고 bounds 설정
 watch(
   () => mapRef.value?.map,
@@ -255,6 +303,8 @@ export function useMapState(): UseMapStateReturn {
     mapLevel,
     mapCenter,
     markers,
+    showRoute,
+    clearPolylines,
     selectAttraction,
     selectPlan,
     selectPlanDetail,
