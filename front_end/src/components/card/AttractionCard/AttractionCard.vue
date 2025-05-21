@@ -33,8 +33,6 @@ const handlelikeClick = () => {
 const handleTagClick = () => {
   emit('tagClick', props.attraction.contentType);
 };
-
-//TODO: attraction.contentType.toString() 변환 함수 구현
 </script>
 
 <template>
