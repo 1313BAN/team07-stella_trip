@@ -3,7 +3,7 @@ import type { AttractionContentType } from '@/constants/constant';
 export type User = {
   id: string;
   email: string;
-  username: string;
+  name: string;
 };
 
 export type AuthToken = {

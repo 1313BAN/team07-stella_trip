@@ -10,9 +10,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Map, Compass, User, LogIn, LogOut, UserPlus, Menu } from 'lucide-vue-next';
 import { useAuthStore } from '@/stores/auth';
+import { Toaster } from '@/components/ui/sonner';
+import { logout } from '@/services/api/domains/auth/index';
+import { toast } from 'vue-sonner';
 
 import Modal from '@/components/Modal/Modal.vue';
 import LoginForm from '@/components/Modal/content/LoginForm.vue';
+import SignupForm from '@/components/Modal/content/SignupForm.vue';
 
 // Props for controlling auth state from parent
 interface Props {
@@ -21,7 +25,7 @@ interface Props {
 
 interface ModalState {
   isOpen: boolean;
-  state: 'login' | 'register';
+  state: 'login' | 'register' | '';
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -68,7 +72,15 @@ const currentRoute = computed(() => {
 
 const handleLogout = () => {
   const authStore = useAuthStore();
-  authStore.clearAuth();
+  logout({ refreshToken: authStore.getRefreshToken == null ? '' : authStore.getRefreshToken })
+    .then(() => {
+      authStore.clearAuth();
+      toast('로그아웃 되었습니다.');
+    })
+    .catch(() => {
+      // Handle error during logout
+      toast('로그아웃중 오류가 발생했습니다.');
+    });
 };
 
 const handleModalClose = () => {
@@ -76,7 +88,7 @@ const handleModalClose = () => {
   modalState.state = '';
 };
 
-const handleModalOpen = value => {
+const handleModalOpen = (value: '' | 'login' | 'register') => {
   modalState.isOpen = true;
   modalState.state = value;
 };
@@ -153,13 +165,8 @@ const handleModalOpen = value => {
             <template v-else>
               <DropdownMenuItem asChild>
                 <a
-                  href="/register"
-                  class="flex w-full items-center gap-3 px-3 py-3 text-sm font-medium tracking-widest uppercase"
-                  :class="[
-                    currentRoute === '/register'
-                      ? 'text-purple-400'
-                      : 'text-gray-300 hover:text-purple-200',
-                  ]"
+                  class="flex w-full items-center gap-3 px-3 py-3 text-sm font-medium tracking-widest text-gray-300 uppercase hover:text-purple-200"
+                  @click="handleModalOpen('register')"
                 >
                   <UserPlus class="h-5 w-5" />
                   <span>회원가입</span>
@@ -167,12 +174,7 @@ const handleModalOpen = value => {
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <a
-                  class="flex w-full items-center gap-3 px-3 py-3 text-sm font-medium tracking-widest uppercase"
-                  :class="[
-                    currentRoute === '/login'
-                      ? 'text-purple-400'
-                      : 'text-gray-300 hover:text-purple-200',
-                  ]"
+                  class="flex w-full items-center gap-3 px-3 py-3 text-sm font-medium tracking-widest text-gray-300 uppercase hover:text-purple-200"
                   @click="handleModalOpen('login')"
                 >
                   <LogIn class="h-5 w-5" />
@@ -276,7 +278,21 @@ const handleModalOpen = value => {
   </header>
   <Modal :modelValue="modalState.isOpen" maxWidth="36rem" @close="handleModalClose">
     <div>
-      <LoginForm v-if="modalState.state === 'login'" @close="handleModalClose" />
+      <LoginForm
+        v-if="modalState.state === 'login'"
+        @close="handleModalClose"
+        @toSignup="handleModalOpen('register')"
+      />
+      <SignupForm
+        v-if="modalState.state === 'register'"
+        @close="handleModalClose"
+        @toLogin="handleModalOpen('login')"
+      />
     </div>
   </Modal>
+  <Toaster
+    :toastOptions="{
+      style: { background: 'black', color: 'white' },
+    }"
+  />
 </template>

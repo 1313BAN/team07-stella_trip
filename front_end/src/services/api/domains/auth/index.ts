@@ -8,6 +8,7 @@ import type {
   LogoutResponse,
   SignoutResponse,
   SignupResponse,
+  LogoutRequest,
 } from './types';
 
 /**
@@ -24,8 +25,8 @@ export const login = async (data: LoginRequest): Promise<LoginResponse> => {
  * 사용자 로그아웃
  * @returns 로그아웃 성공 여부
  */
-export const logout = async (): Promise<LogoutResponse> => {
-  const response = await api.post<ApiResponse<LogoutResponse>>(AUTH.LOGOUT);
+export const logout = async (data: LogoutRequest): Promise<LogoutResponse> => {
+  const response = await api.post<ApiResponse<LogoutResponse>>(AUTH.LOGOUT, data);
   return response.data.body;
 };
 
