@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onUnmounted } from 'vue';
+import { ref, onUnmounted, watch } from 'vue';
 import { X } from 'lucide-vue-next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -74,7 +74,7 @@ const emit = defineEmits<{
 }>();
 
 // 상태 관리 - 단일 참조 방식으로 변경
-const { selectPlanDetail, showRoute, clearPolylines } = useMapState();
+const { selectPlanDetail, showRoute, clearPolylines, clearMarkers } = useMapState();
 const planDetail = ref<PlanDetail | null>(null);
 const selectedDate = ref<string | null>(null);
 
@@ -167,6 +167,7 @@ const initializeData = async () => {
 
 onUnmounted(() => {
   clearPolylines();
+  clearMarkers();
 });
 
 await initializeData();

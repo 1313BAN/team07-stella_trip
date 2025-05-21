@@ -273,12 +273,7 @@ watch(
           bounds.extend(new window.kakao.maps.LatLng(marker.lat, marker.lng));
         });
 
-        // 약간의 지연을 주어 지도가 완전히 초기화된 후 bounds 설정
-        setTimeout(() => {
-          if (mapRef.value?.map) {
-            mapRef.value.map.setBounds(bounds);
-          }
-        }, 100);
+        mapRef.value?.map.setBounds(bounds);
       }
     }
   }
