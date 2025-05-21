@@ -98,7 +98,6 @@ const { isScrollingDown, scrollY, handleScroll } = useScroll();
 // 지도 리사이즈 핸들러
 const handleMapResize = () => {
   if (mapRef.value?.refreshMap) {
-    console.log('지도 리사이즈 감지, refreshMap 호출');
     mapRef.value.refreshMap();
   }
 };
@@ -106,9 +105,7 @@ const handleMapResize = () => {
 // 여행 계획 카드 클릭 핸들러
 const handlePlanCardClick = (plan: Plan) => {
   // 기본 정보 설정 (지도 표시용)
-  if (typeof selectPlan === 'function') {
-    selectPlan(plan);
-  }
+  selectPlan(plan);
 
   // 선택한 계획의 상세 페이지로 이동
   router.push({

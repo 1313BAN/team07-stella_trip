@@ -1,4 +1,5 @@
 import { ref } from 'vue';
+import PlanFilter from '@/components/views/plan/PlanFilter.vue';
 
 type SortOption = 'RECENT' | 'POPULAR';
 
@@ -10,7 +11,7 @@ interface FilterParams {
 }
 
 export function usePlanFilter() {
-  const filterComponentRef = ref(null);
+  const filterComponentRef = ref<InstanceType<typeof PlanFilter> | null>(null);
   const currentFilters = ref<FilterParams>({
     sort: 'RECENT',
   });
@@ -21,8 +22,8 @@ export function usePlanFilter() {
   };
 
   const closeFilterPanel = () => {
-    if (filterComponentRef.value && 'closeFilterPanel' in filterComponentRef.value) {
-      (filterComponentRef.value as any).closeFilterPanel();
+    if (filterComponentRef.value) {
+      filterComponentRef.value.closeFilterPanel();
     }
   };
 
