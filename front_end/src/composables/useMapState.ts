@@ -1,19 +1,13 @@
-import { ref, computed, watch, type ComputedRef, type Ref } from 'vue';
+import { ref, computed, watch, type ComputedRef } from 'vue';
 import type { Attraction } from '@/services/api/domains/attraction';
 import type { Plan, PlanDetail } from '@/services/api/domains/plan';
-import type {
-  MarkerInfo,
-  MarkerInstance,
-  InfoWindowInstance,
-  PolylineInstance,
-} from '@/types/kakao';
+import type { MarkerInfo, MarkerInstance, PolylineInstance } from '@/types/kakao';
 import type MapContainer from '@/components/map/MapContainer.vue';
 import {
-  createKakaoMarker,
-  createInfoWindow,
   createPolyline,
-  calculateBounds,
   checkKakaoMapsAPI,
+  SingleMarkerManager,
+  MultiMarkerManager,
 } from '@/utils/mapUtils';
 
 interface UseMapStateReturn {
@@ -27,7 +21,7 @@ interface UseMapStateReturn {
   selectedPlan: ReturnType<typeof ref<Plan | null>>;
 
   // 마커 관련
-  singleMarker: Readonly<Ref<MarkerInstance | null>>;
+  singleMarker: ComputedRef<MarkerInstance | null>;
   markers: ReturnType<typeof ref<MarkerInfo[]>>;
 
   // 단일 마커 관리
@@ -57,11 +51,22 @@ const defaultCenter = { lat: 37.5665, lng: 126.978 };
 const mapLevel = ref(7);
 const markers = ref<MarkerInfo[]>([]);
 
-// 카카오맵 객체들
-const singleMarker = ref<MarkerInstance | null>(null);
-const markersObjects = ref<MarkerInstance[]>([]);
-const infoWindows = ref<InfoWindowInstance[]>([]);
+// 마커 관리자들
+let singleMarkerManager: SingleMarkerManager | null = null;
+let multiMarkerManager: MultiMarkerManager | null = null;
 const polylines = ref<PolylineInstance[]>([]);
+
+// 매니저들 초기화
+const initializeManagers = () => {
+  if (mapRef.value?.map) {
+    if (!singleMarkerManager) {
+      singleMarkerManager = new SingleMarkerManager(mapRef.value.map);
+    }
+    if (!multiMarkerManager) {
+      multiMarkerManager = new MultiMarkerManager(mapRef.value.map);
+    }
+  }
+};
 
 /**
  * 단일 마커 표시
@@ -71,23 +76,20 @@ const showSingleMarker = (lat: number, lng: number): void => {
     throw new Error('지도가 초기화되지 않았거나 카카오맵 API를 사용할 수 없습니다.');
   }
 
-  hideSingleMarker();
+  initializeManagers();
 
-  try {
-    singleMarker.value = createKakaoMarker({ lat, lng }, mapRef.value.map);
-  } catch (error) {
-    throw new Error(`단일 마커 생성 실패: ${error}`);
-  }
+  // 다중 마커는 숨기고 단일 마커만 표시
+  multiMarkerManager?.clearAll();
+  mapRef.value?.hideMarker();
+
+  singleMarkerManager?.showMarker(lat, lng);
 };
 
 /**
  * 단일 마커 숨김
  */
 const hideSingleMarker = (): void => {
-  if (singleMarker.value) {
-    singleMarker.value.setMap(null);
-    singleMarker.value = null;
-  }
+  singleMarkerManager?.hideMarker();
 };
 
 /**
@@ -98,14 +100,8 @@ const updateSingleMarker = (lat: number, lng: number, show: boolean = true): voi
     throw new Error('지도가 초기화되지 않았습니다.');
   }
 
-  if (singleMarker.value) {
-    singleMarker.value.setPosition(new window.kakao.maps.LatLng(lat, lng));
-    return;
-  }
-
-  if (show) {
-    showSingleMarker(lat, lng);
-  }
+  initializeManagers();
+  singleMarkerManager?.updateMarker(lat, lng, show);
 };
 
 /**
@@ -113,15 +109,8 @@ const updateSingleMarker = (lat: number, lng: number, show: boolean = true): voi
  */
 const clearMarkers = (): void => {
   mapRef.value?.hideMarker();
-  hideSingleMarker();
-
-  if (checkKakaoMapsAPI() && markersObjects.value.length > 0) {
-    markersObjects.value.forEach(marker => marker.setMap(null));
-    markersObjects.value = [];
-  }
-
-  infoWindows.value.forEach(infoWindow => infoWindow.close());
-  infoWindows.value = [];
+  singleMarkerManager?.hideMarker();
+  multiMarkerManager?.clearAll();
   markers.value = [];
 };
 
@@ -134,7 +123,7 @@ const clearPolylines = (): void => {
 };
 
 /**
- * 관광지 선택 처리
+ * 관광지 선택 처리 - 단일 마커 사용
  */
 const selectAttraction = (attraction: Attraction): void => {
   if (!attraction) {
@@ -148,14 +137,7 @@ const selectAttraction = (attraction: Attraction): void => {
   if (attraction.latitude !== undefined && attraction.longitude !== undefined && mapRef.value) {
     mapRef.value.panTo(attraction.latitude, attraction.longitude);
     mapRef.value.setLevel(3);
-
-    if (typeof mapRef.value.showMarker === 'function') {
-      try {
-        mapRef.value.showMarker(attraction.latitude, attraction.longitude);
-      } catch {
-        (mapRef.value.showMarker as () => void)();
-      }
-    }
+    showSingleMarker(attraction.latitude, attraction.longitude);
   }
 };
 
@@ -172,7 +154,7 @@ const selectPlan = (plan: Plan): void => {
 };
 
 /**
- * 여행 계획 상세 정보 처리 및 마커 표시
+ * 여행 계획 상세 정보 처리 및 다중 마커 표시
  */
 const selectPlanDetail = (planDetail: PlanDetail): void => {
   if (!planDetail) {
@@ -180,6 +162,7 @@ const selectPlanDetail = (planDetail: PlanDetail): void => {
   }
 
   clearMarkers();
+  initializeManagers();
 
   const allAttractions: MarkerInfo[] = [];
 
@@ -204,12 +187,11 @@ const selectPlanDetail = (planDetail: PlanDetail): void => {
 
   markers.value = allAttractions;
 
-  if (markers.value.length > 0 && mapRef.value) {
-    showAllMarkers();
+  if (markers.value.length > 0 && multiMarkerManager) {
+    multiMarkerManager.addMarkers(markers.value);
+    multiMarkerManager.fitMapBounds();
 
-    const bounds = calculateBounds(markers.value);
-    if (bounds && mapRef.value.map) {
-      mapRef.value.map.setBounds(bounds);
+    if (mapRef.value?.map) {
       mapLevel.value = mapRef.value.map.getLevel();
     }
   }
@@ -223,57 +205,17 @@ const showAllMarkers = (): boolean => {
     return false;
   }
 
+  initializeManagers();
+
+  // 단일 마커는 숨기고 다중 마커만 표시
   mapRef.value.hideMarker();
-  hideSingleMarker();
-  clearMarkersAndInfoWindows();
+  singleMarkerManager?.hideMarker();
 
-  markers.value.forEach(markerInfo => {
-    if (!markerInfo.lat || !markerInfo.lng) return;
-
-    try {
-      createMarkerWithInfoWindow(markerInfo);
-    } catch (error) {
-      throw new Error(`마커 생성 실패: ${error}`);
-    }
-  });
+  multiMarkerManager?.clearAll();
+  multiMarkerManager?.addMarkers(markers.value);
+  multiMarkerManager?.fitMapBounds();
 
   return true;
-};
-
-/**
- * 마커 및 정보창 제거 (내부 헬퍼)
- */
-const clearMarkersAndInfoWindows = (): void => {
-  markersObjects.value.forEach(marker => marker.setMap(null));
-  infoWindows.value.forEach(infoWindow => infoWindow.close());
-  markersObjects.value = [];
-  infoWindows.value = [];
-};
-
-/**
- * 단일 마커와 정보창 생성 (내부 헬퍼)
- */
-const createMarkerWithInfoWindow = (markerInfo: MarkerInfo): void => {
-  if (!mapRef.value?.map) {
-    throw new Error('지도가 초기화되지 않았습니다.');
-  }
-
-  const marker = createKakaoMarker({ lat: markerInfo.lat, lng: markerInfo.lng }, mapRef.value.map, {
-    image: new window.kakao.maps.MarkerImage(
-      'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',
-      new window.kakao.maps.Size(24, 35)
-    ),
-  });
-
-  const infoWindow = createInfoWindow(markerInfo);
-
-  window.kakao.maps.event.addListener(marker, 'click', () => {
-    infoWindows.value.forEach(iw => iw.close());
-    infoWindow.open(mapRef.value!.map, marker);
-  });
-
-  markersObjects.value.push(marker);
-  infoWindows.value.push(infoWindow);
 };
 
 /**
@@ -318,16 +260,25 @@ const mapCenter = computed((): { lat: number; lng: number } => {
   return defaultCenter;
 });
 
+/**
+ * 현재 단일 마커 인스턴스 반환
+ */
+const singleMarker = computed(() => {
+  return singleMarkerManager?.getMarker() || null;
+});
+
 // 지도 참조 변경 감지
 watch(
   () => mapRef.value?.map,
   newMap => {
-    if (newMap && markers.value.length > 0) {
-      showAllMarkers();
+    if (newMap) {
+      // 매니저들 재초기화
+      singleMarkerManager = new SingleMarkerManager(newMap);
+      multiMarkerManager = new MultiMarkerManager(newMap);
 
-      const bounds = calculateBounds(markers.value);
-      if (bounds) {
-        newMap.setBounds(bounds);
+      // 기존 마커들이 있다면 다시 표시
+      if (markers.value.length > 0) {
+        showAllMarkers();
       }
     }
   }
@@ -335,7 +286,8 @@ watch(
 
 /**
  * 지도 전역 상태 관리 컴포저블
- * 단일 마커, 다중 마커, 폴리라인 관리 및 비즈니스 로직 처리
+ * SingleMarkerManager: 개별 관광지 선택
+ * MultiMarkerManager: 여행 계획 다중 마커 관리
  */
 export function useMapState(): UseMapStateReturn {
   return {

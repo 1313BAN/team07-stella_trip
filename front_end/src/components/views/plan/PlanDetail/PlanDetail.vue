@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col divide-y divide-white/10">
     <!-- 별자리 표시 섹션 -->
-    <StellaHeader :stella="planDetail?.stella" :backgroundStars="backgroundStars" />
+    <StellaHeader :stella="planDetail!.stella" :backgroundStars="backgroundStars" />
 
     <!-- 기본 정보 섹션 -->
     <PlanInfo
@@ -62,10 +62,11 @@ import DailySchedule from './DailySchedule.vue';
 import EmptySchedule from './EmptySchedule.vue';
 import { getPlanDetail, type PlanDetail, type RouteAttraction } from '@/services/api/domains/plan';
 import { useMapState } from '@/composables/useMapState';
+import type { MarkerInfo } from '@/types/kakao';
 
 // Props
 const props = defineProps<{
-  planId: string;
+  planId: number;
 }>();
 
 // Emits
@@ -73,8 +74,8 @@ const emit = defineEmits<{
   (e: 'toggleLike', planId: number): void;
 }>();
 
-// 상태 관리 - 단일 참조 방식으로 변경
 const { selectPlanDetail, showRoute, clearPolylines, clearMarkers } = useMapState();
+
 const planDetail = ref<PlanDetail | null>(null);
 const selectedDate = ref<string | null>(null);
 
@@ -107,34 +108,38 @@ const backgroundStars = Array.from({ length: 30 }, () => ({
   duration: Math.random() * 2 + 2,
 }));
 
-// 일별 경로 지도에 표시
-const showRouteOnMap = (date: string, attractions: RouteAttraction[]) => {
-  selectedDate.value = date;
-
-  // 경로 정보를 생성하여 지도에 표시
-  if (planDetail.value) {
-    // 해당 날짜의 경로만 포함하는 임시 PlanDetail 객체 생성
-    const dailyPlanDetail = {
-      ...planDetail.value,
-      details: {
-        [date]: attractions,
-      },
-    };
-
-    // 마커 표시
-    selectPlanDetail(dailyPlanDetail);
-
-    // 경로선 표시
-    // MarkerInfo 형식으로 변환
-    const markerInfos = attractions.map(attr => ({
+// RouteAttraction을 MarkerInfo로 변환
+const convertToMarkerInfos = (attractions: RouteAttraction[], date: string): MarkerInfo[] => {
+  return attractions
+    .map(attr => ({
       lat: parseFloat(String(attr.latitude)),
       lng: parseFloat(String(attr.longitude)),
       name: attr.name,
       order: attr.order,
       date: date,
-    }));
+    }))
+    .filter(info => !isNaN(info.lat) && !isNaN(info.lng));
+};
 
-    // 경로 그리기
+// 일별 경로 지도에 표시
+const showRouteOnMap = (date: string, attractions: RouteAttraction[]) => {
+  selectedDate.value = date;
+
+  if (!planDetail.value) return;
+
+  const dailyPlanDetail: PlanDetail = {
+    ...planDetail.value,
+    details: {
+      [date]: attractions,
+    },
+  };
+
+  // 다중 마커 표시
+  selectPlanDetail(dailyPlanDetail);
+
+  // 폴리라인 표시
+  const markerInfos = convertToMarkerInfos(attractions, date);
+  if (markerInfos.length >= 2) {
     showRoute(markerInfos);
   }
 };
@@ -143,10 +148,8 @@ const showRouteOnMap = (date: string, attractions: RouteAttraction[]) => {
 const resetRoute = () => {
   selectedDate.value = null;
 
-  // 기존 경로선 제거
   clearPolylines();
 
-  // 전체 경로를 다시 표시
   if (planDetail.value) {
     selectPlanDetail(planDetail.value);
   }
@@ -157,7 +160,6 @@ const initializeData = async () => {
   const data = await getPlanDetail(props.planId);
   planDetail.value = data;
 
-  // selectPlanDetail 호출
   if (data) {
     selectPlanDetail(data);
   }
