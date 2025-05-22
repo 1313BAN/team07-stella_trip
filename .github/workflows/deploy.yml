@@ -52,12 +52,13 @@ jobs:
             docker rm app || true
 
             docker run -d --name app \
+              --network app-network \
               -e SPRING_PROFILES_ACTIVE=prod \
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
               -e DB_URL=${{ secrets.DB_URL }} \
               -e DB_USER=${{ secrets.DB_USER }} \
               -e jwt_key=${{ secrets.JWT_KEY }} \
               -e REDIS_HOST=${{ secrets.REDIS_HOST }} \
-              -e REDIS_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }} \
               -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
               -p 8080:8080 $IMAGE_NAME:latest_stellatrip
