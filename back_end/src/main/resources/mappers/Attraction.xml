@@ -151,8 +151,11 @@
                     AND a.gugun_code = #{gugunCode}
                 </if>
             </if>
-            <if test="contentTypeId != null">
-                AND a.content_type_id = #{contentTypeId}
+            <if test="contentTypeIds != null and !contentTypeIds.isEmpty()">
+                AND a.content_type_id IN
+                <foreach collection="contentTypeIds" item="contentTypeId" open="(" close=")" separator=",">
+                    #{contentTypeId}
+                </foreach>
             </if>
             <if test="keyword != null">
                 AND a.title LIKE CONCAT('%', #{keyword}, '%')
@@ -171,8 +174,11 @@
                     AND a.gugun_code = #{gugunCode}
                 </if>
             </if>
-            <if test="contentTypeId != null">
-                AND a.content_type_id = #{contentTypeId}
+            <if test="contentTypeIds != null and !contentTypeIds.isEmpty()">
+                AND a.content_type_id IN
+                <foreach collection="contentTypeIds" item="contentTypeId" open="(" close=")" separator=",">
+                    #{contentTypeId}
+                </foreach>
             </if>
             <if test="keyword != null">
                 AND a.title LIKE CONCAT('%', #{keyword}, '%')

@@ -18,7 +18,7 @@ public interface AttractionDAO {
             @Param("userId") int userId,
             @Param("sidoCode") Integer sidoCode,
             @Param("gugunCode") Integer gugunCode,
-            @Param("contentTypeId") Integer contentTypeId,
+            @Param("contentTypeIds") List<Integer> contentTypeIds,
             @Param("keyword") String keyword,
             @Param("offset") int offset,
             @Param("size") int size);
@@ -26,7 +26,7 @@ public interface AttractionDAO {
     int getAttractionCountByConditions(
             @Param("sidoCode") Integer sidoCode,
             @Param("gugunCode") Integer gugunCode,
-            @Param("contentTypeId") Integer contentTypeId,
+            @Param("contentTypeIds") List<Integer> contentTypeIds,
             @Param("keyword") String keyword);
 
     List<AttractionDTO> getAttractionsByContentTypeId(int contentTypeId);
