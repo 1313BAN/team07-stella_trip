@@ -27,5 +27,6 @@ public class PlanResponseDTO {
     private boolean isPublic;
     private List<WriterResponseDTO> planWriters;
     private List<TagResponseDTO> tags;
+    @JsonProperty("isLiked")
     private boolean liked;
 }
