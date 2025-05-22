@@ -21,7 +21,7 @@ export const setupInterceptors = (api: AxiosInstance): void => {
       const token = authStore.getAccessToken;
 
       if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+        config.headers.Authorization = `${token}`;
       }
 
       return config;

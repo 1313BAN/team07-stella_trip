@@ -5,6 +5,10 @@ export type LoginRequest = {
   password: string;
 };
 
+export type LogoutRequest = {
+  refreshToken: string;
+};
+
 export type LoginResponse = User & AuthToken;
 
 export type SignupRequest = {
