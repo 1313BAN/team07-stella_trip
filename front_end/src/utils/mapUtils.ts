@@ -1,4 +1,3 @@
-// utils/mapUtils.ts - 순수 유틸리티 함수들만
 import type {
   MapInstance,
   MarkerInstance,
@@ -153,13 +152,6 @@ export const calculateBounds = (points: { lat: number; lng: number }[]) => {
 
 /**
  * 단일 마커를 관리하는 유틸리티 클래스
- *
- * @example
- * ```typescript
- * const markerManager = new SingleMarkerManager(mapInstance);
- * markerManager.showMarker(37.5665, 126.978);
- * markerManager.hideMarker();
- * ```
  */
 export class SingleMarkerManager {
   private _marker: MarkerInstance | null = null;
@@ -234,5 +226,109 @@ export class SingleMarkerManager {
    */
   getMarker(): MarkerInstance | null {
     return this._marker;
+  }
+}
+
+/**
+ * 다중 마커를 관리하는 유틸리티 클래스
+ */
+export class MultiMarkerManager {
+  private _markers: MarkerInstance[] = [];
+  private _infoWindows: InfoWindowInstance[] = [];
+  private _mapInstance: MapInstance;
+
+  constructor(mapInstance: MapInstance) {
+    this._mapInstance = mapInstance;
+  }
+
+  /**
+   * 마커 정보를 기반으로 마커와 정보창을 생성
+   */
+  private _createMarkerWithInfoWindow(markerInfo: MarkerInfo): void {
+    if (!this._mapInstance) return;
+
+    // 마커 생성 (기본 이미지 사용)
+    const marker = createKakaoMarker(
+      { lat: markerInfo.lat, lng: markerInfo.lng },
+      this._mapInstance,
+      {
+        image: new window.kakao.maps.MarkerImage(
+          'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',
+          new window.kakao.maps.Size(24, 35)
+        ),
+      }
+    );
+
+    // 정보창 생성
+    const infoWindow = createInfoWindow(markerInfo);
+
+    // 마커 클릭 이벤트
+    window.kakao.maps.event.addListener(marker, 'click', () => {
+      // 다른 정보창들 닫기
+      this._infoWindows.forEach(iw => iw.close());
+      // 현재 정보창 열기
+      infoWindow.open(this._mapInstance, marker);
+    });
+
+    this._markers.push(marker);
+    this._infoWindows.push(infoWindow);
+  }
+
+  /**
+   * 다중 마커 추가
+   */
+  addMarkers(markerInfos: MarkerInfo[]): void {
+    markerInfos.forEach(markerInfo => {
+      if (markerInfo.lat && markerInfo.lng) {
+        this._createMarkerWithInfoWindow(markerInfo);
+      }
+    });
+  }
+
+  /**
+   * 모든 마커와 정보창 제거
+   */
+  clearAll(): void {
+    // 마커 제거
+    this._markers.forEach(marker => marker.setMap(null));
+    this._markers = [];
+
+    // 정보창 제거
+    this._infoWindows.forEach(infoWindow => infoWindow.close());
+    this._infoWindows = [];
+  }
+
+  /**
+   * 마커 개수 반환
+   */
+  getMarkerCount(): number {
+    return this._markers.length;
+  }
+
+  /**
+   * 모든 마커 위치 반환
+   */
+  getMarkerPositions(): { lat: number; lng: number }[] {
+    return this._markers.map(marker => {
+      const position = marker.getPosition();
+      return {
+        lat: position.getLat(),
+        lng: position.getLng(),
+      };
+    });
+  }
+
+  /**
+   * 지도 경계에 맞게 줌 조정
+   */
+  fitMapBounds(): void {
+    if (this._markers.length === 0) return;
+
+    const positions = this.getMarkerPositions();
+    const bounds = calculateBounds(positions);
+
+    if (bounds) {
+      this._mapInstance.setBounds(bounds);
+    }
   }
 }
