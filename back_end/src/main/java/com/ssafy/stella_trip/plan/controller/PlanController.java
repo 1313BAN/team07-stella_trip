@@ -39,7 +39,8 @@ public class PlanController {
             @RequestParam(value = "size", defaultValue = "20") int size,
             @RequestParam(value = "search", defaultValue = "") String search,
             @RequestParam(value = "username", defaultValue = "") String userName,
-            @RequestParam(value = "duration", defaultValue = "0") int duration,
+            @RequestParam(value = "minDuration", defaultValue = "0") int minDuration,
+            @RequestParam(value = "maxDuration", defaultValue = "0") int maxDuration,
             @RequestParam(value = "sort", defaultValue = "recent") String sort,
             @AuthenticationPrincipal JwtUserInfo user
     ) {
@@ -48,7 +49,8 @@ public class PlanController {
                 size,
                 search,
                 userName,
-                duration,
+                minDuration,
+                maxDuration,
                 sort,
                 user
         ), HttpStatus.OK);

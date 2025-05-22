@@ -30,7 +30,7 @@ public class ConstellationDTO {
     }
 
     public ConstellationDTO addNode(String name, int x, int y) {
-        this.nodes.add(new Node(name, x, y));
+        nodes.add(new Node(name, x, y));
         return this;
     }
 
