@@ -271,6 +271,7 @@ public class AttractionService {
                 .content(review.getContent())
                 .rating(review.getRating())
                 .visitDate(review.getVisitDate())
+                .likeCount(review.getLikeCount())
                 .createdAt(review.getCreatedAt())
                 .isLiked(review.isLiked())
                 .build();
