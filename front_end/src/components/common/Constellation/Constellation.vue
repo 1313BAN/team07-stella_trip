@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+
 interface Star {
   x: number;
   y: number;
-  r: number;
-  brightness: number;
+  r?: number;
+  brightness?: number;
   delay?: number;
   duration?: number;
 }
@@ -13,12 +15,40 @@ interface Connection {
   to: number;
 }
 
-defineProps<{
+interface Props {
   stars: Star[];
   connections: Connection[];
   backgroundStars: Star[];
   isHovered: boolean;
-}>();
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  stars: () => [],
+  connections: () => [],
+  backgroundStars: () => [],
+  isHovered: false,
+});
+
+// Star 객체의 기본값을 처리하는 computed
+const processedStars = computed(() =>
+  props.stars.map(star => ({
+    ...star,
+    r: star.r ?? 1,
+    brightness: star.brightness ?? 1,
+    delay: star.delay ?? 1,
+    duration: star.duration ?? 1,
+  }))
+);
+
+const processedBackgroundStars = computed(() =>
+  props.backgroundStars.map(star => ({
+    ...star,
+    r: star.r ?? 1,
+    brightness: star.brightness ?? 1,
+    delay: star.delay ?? 1,
+    duration: star.duration ?? 1,
+  }))
+);
 </script>
 
 <template>
@@ -51,7 +81,7 @@ defineProps<{
     <!-- 우주 배경별들 -->
     <g opacity="0.7">
       <circle
-        v-for="(star, index) in backgroundStars"
+        v-for="(star, index) in processedBackgroundStars"
         :key="`bg-star-${index}`"
         :cx="star.x"
         :cy="star.y"
@@ -72,10 +102,10 @@ defineProps<{
       <line
         v-for="(connection, index) in connections"
         :key="`connection-${index}`"
-        :x1="stars[connection.from].x"
-        :y1="stars[connection.from].y"
-        :x2="stars[connection.to].x"
-        :y2="stars[connection.to].y"
+        :x1="processedStars[connection.from].x"
+        :y1="processedStars[connection.from].y"
+        :x2="processedStars[connection.to].x"
+        :y2="processedStars[connection.to].y"
         stroke="currentColor"
         stroke-width="1"
         opacity="0.7"
@@ -88,7 +118,7 @@ defineProps<{
     <!-- 별자리 메인 별들 -->
     <g>
       <circle
-        v-for="(star, index) in stars"
+        v-for="(star, index) in processedStars"
         :key="`star-${index}`"
         :cx="star.x"
         :cy="star.y"
@@ -97,7 +127,7 @@ defineProps<{
         :opacity="star.brightness"
         filter="url(#glow)"
         class="animate-pulse"
-        :style="{ animationDelay: `${star.delay || 0}s` }"
+        :style="{ animationDelay: `${star.delay}s` }"
       />
     </g>
   </svg>
