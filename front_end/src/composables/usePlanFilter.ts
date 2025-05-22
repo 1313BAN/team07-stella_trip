@@ -10,6 +10,15 @@ interface FilterParams {
   sort?: SortOption;
 }
 
+/**
+ * 여행 계획 필터링 기능을 관리하는 컴포저블
+ *
+ * @returns
+ * - `filterComponentRef`: 필터 컴포넌트 참조
+ * - `currentFilters`: 현재 적용된 필터 조건
+ * - `handleFilterChange`: 필터 변경 처리 함수
+ * - `closeFilterPanel`: 필터 패널 닫기 함수
+ */
 export function usePlanFilter() {
   const filterComponentRef = ref<InstanceType<typeof PlanFilter> | null>(null);
   const currentFilters = ref<FilterParams>({

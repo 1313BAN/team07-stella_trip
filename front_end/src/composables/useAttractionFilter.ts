@@ -1,6 +1,14 @@
 import { ref } from 'vue';
 import type AttractionFilter from '@/components/views/attraction/AttractionFilter.vue';
 
+/**
+ * 관광지 필터링 기능을 관리
+ *
+ * @returns
+ * - `filterComponentRef`: 필터 컴포넌트 참조
+ * - `handleFilterChange`: 필터 조건 변경 처리 함수
+ * - `closeFilterPanel`: 필터 패널 닫기 함수
+ */
 export function useAttractionFilter() {
   const filterComponentRef = ref<InstanceType<typeof AttractionFilter> | null>(null);
 
