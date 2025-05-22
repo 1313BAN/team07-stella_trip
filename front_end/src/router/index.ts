@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 import { setupInterceptors } from './interceptors';
 import { ROUTES } from './routes';
+import GlobalLayout from '@/components/Layout/GlobalLayout.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -11,41 +12,49 @@ const routes: Array<RouteRecordRaw> = [
       title: ROUTES.HOME.title,
     },
   },
+
   {
-    path: ROUTES.MAIN.path,
-    name: ROUTES.MAIN.name,
-    component: () => import('@/views/Main.vue'),
-    meta: {
-      title: ROUTES.MAIN.title,
-    },
-  },
-  {
-    path: ROUTES.ATTRACTION.path,
-    name: ROUTES.ATTRACTION.name,
-    component: () => import('@/views/Attraction.vue'),
-    meta: {
-      title: ROUTES.ATTRACTION.title,
-    },
-  },
-  {
-    path: ROUTES.PLANS.path,
-    name: ROUTES.PLANS.name,
-    component: () => import('@/views/Plan.vue'),
-    meta: {
-      title: ROUTES.PLANS.title,
-    },
+    path: '/',
+    component: GlobalLayout,
     children: [
       {
-        path: ROUTES.PLAN_DETAIL.path,
-        name: ROUTES.PLAN_DETAIL.name,
-        component: () => import('@/views/PlanDetail.vue'),
+        path: ROUTES.MAIN.path,
+        name: ROUTES.MAIN.name,
+        component: () => import('@/views/Main.vue'),
         meta: {
-          title: ROUTES.PLAN_DETAIL.title,
+          title: ROUTES.MAIN.title,
         },
-        props: true,
+      },
+      {
+        path: ROUTES.ATTRACTION.path,
+        name: ROUTES.ATTRACTION.name,
+        component: () => import('@/views/Attraction.vue'),
+        meta: {
+          title: ROUTES.ATTRACTION.title,
+        },
+      },
+      {
+        path: ROUTES.PLANS.path,
+        name: ROUTES.PLANS.name,
+        component: () => import('@/views/Plan.vue'),
+        meta: {
+          title: ROUTES.PLANS.title,
+        },
+        children: [
+          {
+            path: ROUTES.PLAN_DETAIL.path,
+            name: ROUTES.PLAN_DETAIL.name,
+            component: () => import('@/views/PlanDetail.vue'),
+            meta: {
+              title: ROUTES.PLAN_DETAIL.title,
+            },
+            props: true,
+          },
+        ],
       },
     ],
   },
+
   {
     path: ROUTES.NOT_FOUND.path,
     name: ROUTES.NOT_FOUND.name,

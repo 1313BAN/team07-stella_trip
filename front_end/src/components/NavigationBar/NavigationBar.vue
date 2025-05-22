@@ -97,7 +97,7 @@ const handleModalOpen = (value: '' | 'login' | 'register') => {
 
 <template>
   <header
-    class="relative top-0 right-0 left-0 z-20 max-h-16 border-b border-white/20 bg-black/40 backdrop-blur-md"
+    class="fixed top-0 right-0 left-0 z-20 max-h-16 border-b border-white/20 bg-black/40 backdrop-blur-md"
   >
     <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
       <!-- Logo -->
