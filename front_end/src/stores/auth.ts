@@ -1,5 +1,6 @@
 import type { AuthToken, User } from '@/types/type';
 import { defineStore } from 'pinia';
+import type { PersistenceOptions } from 'pinia-plugin-persistedstate';
 
 interface AuthState {
   user: User | null;
@@ -41,4 +42,10 @@ export const useAuthStore = defineStore('auth', {
       this.token = tokens;
     },
   },
+
+  persist: {
+    key: 'auth',
+    storage: sessionStorage,
+    paths: ['token', 'isAuthenticated'],
+  } as PersistenceOptions<AuthState>,
 });
