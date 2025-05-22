@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive } from 'vue';
+import { ROUTES } from '@/router/routes';
 import { useRouter } from 'vue-router';
 import { Button } from '@/components/ui/button';
 import {
@@ -56,7 +57,7 @@ const isLoggedIn = computed(() => {
 const menuItems = computed(() => {
   const navigationItems = [
     { name: '여행계획', icon: Map, route: '/trip-plans' },
-    { name: '여행지', icon: Compass, route: '/attractions' },
+    { name: '여행지', icon: Compass, route: ROUTES.ATTRACTION.path },
   ];
 
   return navigationItems;
@@ -74,13 +75,13 @@ const handleLogout = () => {
   const authStore = useAuthStore();
   logout({ refreshToken: authStore.getRefreshToken == null ? '' : authStore.getRefreshToken })
     .then(() => {
-      authStore.clearAuth();
       toast('로그아웃 되었습니다.');
     })
     .catch(() => {
       // Handle error during logout
       toast('로그아웃중 오류가 발생했습니다.');
     });
+  authStore.clearAuth();
 };
 
 const handleModalClose = () => {
