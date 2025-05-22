@@ -56,8 +56,8 @@ const isLoggedIn = computed(() => {
 // Navigation items - separate regular and auth items
 const menuItems = computed(() => {
   const navigationItems = [
-    { name: '여행계획', icon: Map, route: '/trip-plans' },
-    { name: '여행지', icon: Compass, route: ROUTES.ATTRACTION.path },
+    { name: '여행계획', icon: Map, route: '/plans' },
+    { name: '여행지', icon: Compass, route: '/attractions' },
   ];
 
   return navigationItems;

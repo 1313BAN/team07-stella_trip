@@ -17,7 +17,6 @@ const emit = defineEmits<{
   (e: 'cardClick', attraction: Attraction): void;
   (e: 'likeClick', attraction: Attraction): void;
   (e: 'tagClick', contentType: number): void;
-  (e: 'moreClick'): void;
 }>();
 
 const attractions = ref<Attraction[]>([]);

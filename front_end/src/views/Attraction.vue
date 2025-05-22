@@ -25,7 +25,7 @@
           >
             <AsyncContainer
               :loadingComponent="FilteredAttractionsSkeleton"
-              :errorComponent="AttractionsError"
+              :errorComponent="FilteredAttractionsError"
             >
               <FilteredAttractions
                 :parentScrollContainer="scrollContainerRef"
@@ -83,10 +83,10 @@ import HeroBackground from '@/components/background/HeroBackground.vue';
 import AsyncContainer from '@/components/AsyncContainer/AsyncContainer.vue';
 import MapContainer from '@/components/map/MapContainer.vue';
 import MapError from '@/components/map/MapError.vue';
-import { AttractionsError } from '@/components/views/main/AttractionsSection';
 import {
   FilteredAttractionsSkeleton,
   FilteredAttractions,
+  FilteredAttractionsError,
 } from '@/components/views/attraction/FilteredAttractions';
 import AttractionFilter from '@/components/views/attraction/AttractionFilter.vue';
 import NavigationBar from '@/components/NavigationBar/NavigationBar.vue';
