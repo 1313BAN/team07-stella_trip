@@ -1,5 +1,6 @@
 package com.ssafy.stella_trip.attraction.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,5 +24,6 @@ public class ReviewDTO {
     private LocalDate visitDate;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+    @JsonProperty("isLiked")
     private boolean isLiked;
 }
