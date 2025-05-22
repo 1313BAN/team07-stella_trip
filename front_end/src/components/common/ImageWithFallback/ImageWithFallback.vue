@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { ImageIcon } from 'lucide-vue-next';
 import { cn } from '@/lib/shadcn/utils';
 
@@ -11,6 +11,14 @@ const props = defineProps<{
 
 const imageLoaded = ref(false);
 const imageError = ref(false);
+
+watch(
+  () => props.src,
+  () => {
+    imageLoaded.value = false;
+    imageError.value = false;
+  }
+);
 
 const handleLoad = () => {
   imageLoaded.value = true;
@@ -26,7 +34,7 @@ const handleError = () => {
     <!-- 로딩 중 -->
     <div
       v-if="!imageLoaded && !imageError"
-      class="absolute inset-0 z-10 flex animate-pulse items-center justify-center bg-gray-900"
+      class="absolute inset-0 z-1 flex animate-pulse items-center justify-center bg-gray-900"
     >
       <ImageIcon class="h-12 w-12 text-gray-500" />
     </div>
@@ -34,7 +42,7 @@ const handleError = () => {
     <!-- 에러 시 -->
     <div
       v-if="imageError"
-      class="absolute inset-0 z-10 flex items-center justify-center bg-gray-900"
+      class="absolute inset-0 z-1 flex items-center justify-center bg-gray-900"
     >
       <ImageIcon class="h-12 w-12 text-red-400" />
     </div>

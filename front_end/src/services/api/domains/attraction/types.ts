@@ -32,3 +32,5 @@ export type Review = {
   visitedDate: string;
   createdAt: string;
 };
+
+export type AttractionDetail = Attraction;

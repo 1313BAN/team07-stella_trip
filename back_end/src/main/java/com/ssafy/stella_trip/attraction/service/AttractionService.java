@@ -17,16 +17,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AttractionService {
 
     private final AttractionDAO attractionDAO;
 
+    @Transactional
     public PageDTO<AttractionResponseDTO> getAttractionsByCondition(
             Integer sidoCode,
             Integer gugunCode,
-            Integer contentTypeId,
+            List<Integer> contentTypeIds,
             String keyword,
             int page,
             int size,
@@ -36,12 +39,12 @@ public class AttractionService {
         return PaginationUtils.getPagedResult(
                 page,
                 size,
-                () -> attractionDAO.getAttractionCountByConditions(sidoCode, gugunCode, contentTypeId, keyword),
+                () -> attractionDAO.getAttractionCountByConditions(sidoCode, gugunCode, contentTypeIds, keyword),
                 (offset, pageSize) -> attractionDAO.getAttractionByConditions(
                         userId,
                         sidoCode,
                         gugunCode,
-                        contentTypeId,
+                        contentTypeIds,
                         keyword,
                         offset,
                         pageSize
@@ -268,6 +271,7 @@ public class AttractionService {
                 .content(review.getContent())
                 .rating(review.getRating())
                 .visitDate(review.getVisitDate())
+                .likeCount(review.getLikeCount())
                 .createdAt(review.getCreatedAt())
                 .isLiked(review.isLiked())
                 .build();

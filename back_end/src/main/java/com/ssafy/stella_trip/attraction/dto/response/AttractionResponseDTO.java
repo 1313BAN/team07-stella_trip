@@ -22,6 +22,7 @@ public class AttractionResponseDTO {
     private double rating;
     private double latitude;
     private double longitude;
+    @JsonProperty("isLiked")
     private boolean isLiked;
     private List<ReviewResponseDTO> review;
 }

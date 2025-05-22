@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.stella_trip.dao.sigungu.SigunguDAO">
+    <resultMap id="SigunguResultMap" type="SigunguDTO">
+        <result property="sidoCode" column="sido_code"/>
+        <result property="sidoName" column="sido_name"/>
+        <result property="gugunCode" column="gugun_code"/>
+        <result property="gugunName" column="gugun_name"/>
+    </resultMap>
+
+    <!-- 시군구코드들 조회 -->
+    <select id="getSigunguList" resultMap="SigunguResultMap">
+        SELECT g.sido_code, s.sido_name, g.gugun_code, g.gugun_name FROM gugun g
+        LEFT JOIN sido s ON g.sido_code = s.sido_code;
+    </select>
+</mapper>

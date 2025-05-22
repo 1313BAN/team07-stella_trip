@@ -7,6 +7,7 @@ import com.ssafy.stella_trip.security.exception.InvalidTokenException;
 import com.ssafy.stella_trip.security.util.JwtTokenProvider;
 import com.ssafy.stella_trip.user.dto.UserDTO;
 import com.ssafy.stella_trip.user.dto.UserRole;
+import com.ssafy.stella_trip.user.dto.request.LogoutRequestDTO;
 import com.ssafy.stella_trip.user.dto.response.ActionResponseDTO;
 import com.ssafy.stella_trip.user.dto.response.LoginResponseDTO;
 import com.ssafy.stella_trip.user.dto.response.SignupResponseDTO;
@@ -82,22 +83,27 @@ public class UserService {
         if (!jwtTokenProvider.validateToken(refreshToken)) {
             throw new InvalidTokenException("만료되었거나 위조된 refresh 토큰입니다.");
         }
-
-        // TODO: 나중에 redis를 이용하여 저장하기
         String email = jwtTokenProvider.getEmailFromToken(refreshToken);
         UserDTO user = userDAO.getUserByEmail(email);
+
+        jwtTokenProvider.addToBlacklist(refreshToken);
+
         String accessToken = "Bearer " + jwtTokenProvider.generateAccessToken(user.getUserId(), email, user.getRole());
         String refreshTokenRefresh = "Bearer " + jwtTokenProvider.generateRefreshToken(email);
         return new TokenRefreshResponseDTO(accessToken, refreshTokenRefresh);
     }
 
-    private int getCurrentAuthenticatedUserId() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(!(principal instanceof JwtUserInfo)) {
-            throw new ProfileNotFoundException("인증된 사용자의 정보가 아닙니다.");
+    /**
+     * 로그아웃 Service
+     * @param logoutRequestDTO 무효화할 refresh 토큰
+     * @return 로그아웃 성공 여부
+     */
+    public ActionResponseDTO logout(LogoutRequestDTO logoutRequestDTO) {
+        if (logoutRequestDTO.getRefreshToken() != null) {
+            jwtTokenProvider.addToBlacklist(logoutRequestDTO.getRefreshToken());
         }
-        JwtUserInfo userInfo = (JwtUserInfo) principal;
-        return userInfo.getUserId();
+
+        return new ActionResponseDTO(true);
     }
 
     /**
@@ -109,5 +115,14 @@ public class UserService {
 
         userDAO.deleteUserByUserId(userId);
         return new ActionResponseDTO(true);
+    }
+
+    private int getCurrentAuthenticatedUserId() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!(principal instanceof JwtUserInfo)) {
+            throw new ProfileNotFoundException("인증된 사용자의 정보가 아닙니다.");
+        }
+        JwtUserInfo userInfo = (JwtUserInfo) principal;
+        return userInfo.getUserId();
     }
 }

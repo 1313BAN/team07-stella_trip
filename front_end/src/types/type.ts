@@ -1,7 +1,9 @@
+import type { AttractionContentType } from '@/constants/constant';
+
 export type User = {
   id: string;
   email: string;
-  username: string;
+  name: string;
 };
 
 export type AuthToken = {
@@ -26,3 +28,6 @@ export type ConstellationData = {
   stars: Star[];
   connections: Connection[];
 };
+
+export type AttractionContentTypeCode = keyof typeof AttractionContentType;
+export type AttractionContentTypeValue = (typeof AttractionContentType)[AttractionContentTypeCode];

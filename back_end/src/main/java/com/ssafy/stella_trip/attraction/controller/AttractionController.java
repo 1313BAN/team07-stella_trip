@@ -17,6 +17,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/v1/attractions")
 @PreAuthorize("isAuthenticated()")
@@ -39,13 +41,13 @@ public class AttractionController {
     public CommonResponse<PageDTO<AttractionResponseDTO>> getAttractions(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "20") int size,
-            @RequestParam(value = "sidoCode", defaultValue = "") Integer sidoCode,
-            @RequestParam(value = "gugunCode", defaultValue = "") Integer gugunCode,
-            @RequestParam(value = "contentTypeId", defaultValue = "") Integer contentTypeId,
+            @RequestParam(value = "sidoCode", required = false) Integer sidoCode,
+            @RequestParam(value = "gugunCode", required = false) Integer gugunCode,
+            @RequestParam(value = "contentTypeIds", required = false) List<Integer> contentTypeIds,
             @RequestParam(value = "keyword", defaultValue = "") String keyword,
             @AuthenticationPrincipal JwtUserInfo user
     ) {
-        return new CommonResponse<>(attractionService.getAttractionsByCondition(sidoCode, gugunCode, contentTypeId, keyword, page, size, user), HttpStatus.OK);
+        return new CommonResponse<>(attractionService.getAttractionsByCondition(sidoCode, gugunCode, contentTypeIds, keyword, page, size, user), HttpStatus.OK);
     }
 
     @GetMapping("/{attractionId}")

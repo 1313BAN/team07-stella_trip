@@ -20,6 +20,33 @@ const routes: Array<RouteRecordRaw> = [
     },
   },
   {
+    path: ROUTES.ATTRACTION.path,
+    name: ROUTES.ATTRACTION.name,
+    component: () => import('@/views/Attraction.vue'),
+    meta: {
+      title: ROUTES.ATTRACTION.title,
+    },
+  },
+  {
+    path: ROUTES.PLANS.path,
+    name: ROUTES.PLANS.name,
+    component: () => import('@/views/Plan.vue'),
+    meta: {
+      title: ROUTES.PLANS.title,
+    },
+    children: [
+      {
+        path: ROUTES.PLAN_DETAIL.path,
+        name: ROUTES.PLAN_DETAIL.name,
+        component: () => import('@/views/PlanDetail.vue'),
+        meta: {
+          title: ROUTES.PLAN_DETAIL.title,
+        },
+        props: true,
+      },
+    ],
+  },
+  {
     path: ROUTES.NOT_FOUND.path,
     name: ROUTES.NOT_FOUND.name,
     component: () => import('@/views/NotFound.vue'),

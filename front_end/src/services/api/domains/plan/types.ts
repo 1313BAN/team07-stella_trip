@@ -31,3 +31,50 @@ export type Writer = {
   userId: number;
   name: string;
 };
+
+export type RouteAttraction = {
+  order: number;
+  name: string;
+  image: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  memo: string | null;
+  routeId: number;
+  attractionId: number;
+  contentTypeId: number;
+  likeCount: number;
+  rating: number;
+  visitTime: string;
+};
+
+export type PlanDetails = {
+  [date: string]: RouteAttraction[];
+};
+
+export type PlanDetail = {
+  planId: number;
+  title: string;
+  description: string | null;
+  stella: {
+    stars: Array<{
+      x: number;
+      y: number;
+      r: number;
+      brightness: number;
+      delay: number;
+    }>;
+    connections: Array<{
+      from: number;
+      to: number;
+    }>;
+  } | null;
+  likeCount: number;
+  tags: Tag[];
+  isLiked: boolean;
+  details: PlanDetails;
+  isPublic: boolean;
+  startDate: string;
+  endDate: string;
+  planWriters: Writer[];
+};
