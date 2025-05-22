@@ -48,9 +48,7 @@ export type RouteAttraction = {
   visitTime: string;
 };
 
-export type PlanDetails = {
-  [date: string]: RouteAttraction[];
-};
+export type PlanDetails = Record<string, RouteAttraction[]>;
 
 export type PlanDetail = {
   planId: number;
