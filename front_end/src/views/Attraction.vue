@@ -1,85 +1,80 @@
 <template>
-  <HeroBackground />
-  <div class="h-screen">
-    <NavigationBar />
-    <section class="relative h-[calc(100vh-4rem)]">
-      <ResizablePanelGroup direction="horizontal" class="h-full">
-        <!-- 왼쪽 섹션 (필터 + 그리드) -->
-        <ResizablePanel :defaultSize="33" :minSize="20" :maxSize="60" class="relative">
-          <div
-            class="absolute top-0 left-0 z-10 h-fit w-full p-2 transition-transform duration-300"
-            :class="{ '-translate-y-full': isScrollingDown && scrollY > 100 }"
+  <section class="relative h-[calc(100vh-4rem)]">
+    <ResizablePanelGroup direction="horizontal" class="h-full">
+      <!-- 왼쪽 섹션 (필터 + 그리드) -->
+      <ResizablePanel :defaultSize="33" :minSize="20" :maxSize="60" class="relative">
+        <div
+          class="absolute top-0 left-0 z-10 h-fit w-full p-2 transition-transform duration-300"
+          :class="{ '-translate-y-full': isScrollingDown && scrollY > 100 }"
+        >
+          <AttractionFilter
+            ref="filterComponentRef"
+            :isScrollingDown="isScrollingDown"
+            :scrollY="scrollY"
+            @filter="handleFilterChange"
+          />
+        </div>
+        <!-- 그리드 영역 (스크롤 가능) -->
+        <div
+          ref="scrollContainerRef"
+          class="h-full overflow-x-hidden overflow-y-auto px-2 pt-12"
+          @scroll="e => handleScroll(e, closeFilterPanel)"
+        >
+          <AsyncContainer
+            :loadingComponent="FilteredAttractionsSkeleton"
+            :errorComponent="FilteredAttractionsError"
           >
-            <AttractionFilter
-              ref="filterComponentRef"
-              :isScrollingDown="isScrollingDown"
-              :scrollY="scrollY"
-              @filter="handleFilterChange"
-            />
-          </div>
-          <!-- 그리드 영역 (스크롤 가능) -->
-          <div
-            ref="scrollContainerRef"
-            class="h-full overflow-x-hidden overflow-y-auto px-2 pt-12"
-            @scroll="e => handleScroll(e, closeFilterPanel)"
-          >
-            <AsyncContainer
-              :loadingComponent="FilteredAttractionsSkeleton"
-              :errorComponent="FilteredAttractionsError"
-            >
-              <FilteredAttractions
-                :parentScrollContainer="scrollContainerRef"
-                :apiParams="{ page: 1, size: 100 }"
-                @cardClick="handleAttractionCardClick"
-                @likeClick="handleAttractionLikeClick"
-                @tagClick="handleAttractionTagClick"
-                @moreClick="() => handleMoreClick(12)"
-              />
-            </AsyncContainer>
-          </div>
-        </ResizablePanel>
-
-        <ResizableHandle withHandle />
-
-        <!-- 오른쪽: 지도 -->
-        <ResizablePanel :defaultSize="67" class="relative" @resizeend="handleMapResize">
-          <AsyncContainer :loadingComponent="CommonSkeleton" :errorComponent="MapError">
-            <MapContainer
-              ref="mapRef"
-              :center="mapCenter"
-              :level="mapLevel"
-              :showCenterMarker="true"
+            <FilteredAttractions
+              :parentScrollContainer="scrollContainerRef"
+              :apiParams="{ page: 1, size: 100 }"
+              @cardClick="handleAttractionCardClick"
+              @likeClick="handleAttractionLikeClick"
+              @tagClick="handleAttractionTagClick"
+              @moreClick="() => handleMoreClick(12)"
             />
           </AsyncContainer>
+        </div>
+      </ResizablePanel>
 
-          <!-- 여행지 상세 정보 영역 (오버레이로 표시) -->
-          <div
-            v-if="selectedAttractionRef"
-            class="absolute top-0 left-0 z-20 w-1/2 max-w-md rounded-md shadow-lg backdrop-blur-sm transition-all duration-300"
-            style="height: calc(100% - 2rem); margin: 1rem"
+      <ResizableHandle withHandle />
+
+      <!-- 오른쪽: 지도 -->
+      <ResizablePanel :defaultSize="67" class="relative" @resizeend="handleMapResize">
+        <AsyncContainer :loadingComponent="CommonSkeleton" :errorComponent="MapError">
+          <MapContainer
+            ref="mapRef"
+            :center="mapCenter"
+            :level="mapLevel"
+            :showCenterMarker="true"
+          />
+        </AsyncContainer>
+
+        <!-- 여행지 상세 정보 영역 (오버레이로 표시) -->
+        <div
+          v-if="selectedAttractionRef"
+          class="absolute top-0 left-0 z-20 w-1/2 max-w-md rounded-md shadow-lg backdrop-blur-sm transition-all duration-300"
+          style="height: calc(100% - 2rem); margin: 1rem"
+        >
+          <AsyncContainer
+            :loadingComponent="AttractionDetailSkeleton"
+            :errorComponent="AttractionDetailError"
+            :attractionName="selectedAttractionRef.name"
           >
-            <AsyncContainer
-              :loadingComponent="AttractionDetailSkeleton"
-              :errorComponent="AttractionDetailError"
+            <AttractionDetail
+              :attractionId="selectedAttractionRef.attractionId"
               :attractionName="selectedAttractionRef.name"
-            >
-              <AttractionDetail
-                :attractionId="selectedAttractionRef.attractionId"
-                :attractionName="selectedAttractionRef.name"
-                :attraction="selectedAttractionRef"
-                @close="closeReview"
-              />
-            </AsyncContainer>
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
-    </section>
-  </div>
+              :attraction="selectedAttractionRef"
+              @close="closeReview"
+            />
+          </AsyncContainer>
+        </div>
+      </ResizablePanel>
+    </ResizablePanelGroup>
+  </section>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import HeroBackground from '@/components/background/HeroBackground.vue';
 import AsyncContainer from '@/components/AsyncContainer/AsyncContainer.vue';
 import MapContainer from '@/components/map/MapContainer.vue';
 import MapError from '@/components/map/MapError.vue';
@@ -89,7 +84,6 @@ import {
   FilteredAttractionsError,
 } from '@/components/views/attraction/FilteredAttractions';
 import AttractionFilter from '@/components/views/attraction/AttractionFilter.vue';
-import NavigationBar from '@/components/NavigationBar/NavigationBar.vue';
 import {
   AttractionDetail,
   AttractionDetailError,
