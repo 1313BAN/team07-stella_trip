@@ -136,14 +136,9 @@
         WHEN fa.user_id IS NOT NULL THEN 1
         ELSE 0
         END AS is_liked
+        FROM (
+        SELECT a.*
         FROM attraction a
-        LEFT JOIN liked_attraction fa ON a.attraction_id = fa.attraction_id AND fa.user_id = #{userId}
-        LEFT JOIN (
-        SELECT r1.*,
-        ROW_NUMBER() OVER (PARTITION BY r1.attraction_id ORDER BY r1.rating DESC, r1.created_at DESC) as row_num
-        FROM review r1
-        ) r ON a.attraction_id = r.attraction_id AND r.row_num &lt;= 2
-        LEFT JOIN user u ON r.user_id = u.user_id
         <where>
             <if test="sidoCode != null">
                 AND a.sido_code = #{sidoCode}
@@ -151,14 +146,26 @@
                     AND a.gugun_code = #{gugunCode}
                 </if>
             </if>
-            <if test="contentTypeId != null">
-                AND a.content_type_id = #{contentTypeId}
+            <if test="contentTypeIds != null and !contentTypeIds.isEmpty()">
+                AND a.content_type_id IN
+                <foreach collection="contentTypeIds" item="contentTypeId" open="(" close=")" separator=",">
+                    #{contentTypeId}
+                </foreach>
             </if>
             <if test="keyword != null">
                 AND a.title LIKE CONCAT('%', #{keyword}, '%')
             </if>
         </where>
         LIMIT #{size} OFFSET #{offset}
+        ) a
+        LEFT JOIN liked_attraction fa ON a.attraction_id = fa.attraction_id AND fa.user_id = #{userId}
+        LEFT JOIN (
+        SELECT r1.*,
+        ROW_NUMBER() OVER (PARTITION BY r1.attraction_id ORDER BY r1.rating DESC, r1.created_at DESC) as row_num
+        FROM review r1
+        ) r ON a.attraction_id = r.attraction_id AND r.row_num &lt; 2
+        LEFT JOIN user u ON r.user_id = u.user_id
+        ORDER BY a.attraction_id, r.row_num
     </select>
 
     <select id="getAttractionCountByConditions" resultType="int">
@@ -171,8 +178,11 @@
                     AND a.gugun_code = #{gugunCode}
                 </if>
             </if>
-            <if test="contentTypeId != null">
-                AND a.content_type_id = #{contentTypeId}
+            <if test="contentTypeIds != null and !contentTypeIds.isEmpty()">
+                AND a.content_type_id IN
+                <foreach collection="contentTypeIds" item="contentTypeId" open="(" close=")" separator=",">
+                    #{contentTypeId}
+                </foreach>
             </if>
             <if test="keyword != null">
                 AND a.title LIKE CONCAT('%', #{keyword}, '%')
