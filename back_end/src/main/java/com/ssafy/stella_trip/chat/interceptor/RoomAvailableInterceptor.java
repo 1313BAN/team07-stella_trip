@@ -20,10 +20,15 @@ public class RoomAvailableInterceptor implements ChannelInterceptor {
         if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
             String destination = accessor.getDestination();
             if (destination != null && destination.startsWith("/sub/chat/room/")) {
-                int roomId = Integer.parseInt(destination.substring("/sub/chat/room/".length()));
-                if (!chatDAO.existsById(roomId)) {
-                    throw new IllegalArgumentException("존재하지 않는 채팅방입니다: " + roomId);
+                try {
+                    int roomId = Integer.parseInt(destination.substring("/sub/chat/room/".length()));
+                    if (!chatDAO.existsById(roomId)) {
+                        throw new IllegalArgumentException("존재하지 않는 채팅방입니다: " + roomId);
+                    }
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("잘못된 채팅방 ID 형식입니다: " + destination);
                 }
+
             }
         }
         return message;

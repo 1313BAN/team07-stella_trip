@@ -16,7 +16,7 @@
     <resultMap id="ChatResultMap" type="ChatDTO">
         <id property="chatId" column="chat_id"/>
         <result property="roomId" column="room_id"/>
-        <result property="userName" column="userName"/>
+        <result property="userName" column="user_name"/>
         <result property="content" column="content"/>
         <result property="createdAt" column="created_at"/>
     </resultMap>
@@ -40,9 +40,9 @@
 
     </select>
 
-    <insert id="addChat">
+    <insert id="addChat" useGeneratedKeys="true" keyProperty="chatId" keyColumn="chat_id">
         INSERT INTO chat(room_id, user_name, content)
-        VALUES (#{roomId}, #{userName}, #{content})
+        VALUES (#{chat.roomId}, #{chat.userName}, #{chat.content})
     </insert>
 
     <select id="existsById" resultType="boolean">

@@ -13,7 +13,7 @@ public interface ChatDAO {
 
     List<ChatDTO> getChats(@Param("size") int size, @Param("roomId") int roomId, @Param("lastChatId") int lastChatId);
 
-    void addChat(@Param("userName") String userName, @Param("roomId") int roomId, @Param("content") String content);
+    void addChat(@Param("chat") ChatDTO chat);
 
     boolean existsById(@Param("roomId") int roomId);
 }

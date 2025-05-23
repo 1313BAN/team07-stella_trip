@@ -3,6 +3,7 @@ package com.ssafy.stella_trip.chat.interceptor;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
 import com.ssafy.stella_trip.security.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -15,6 +16,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.List;
 
 @RequiredArgsConstructor
+@Slf4j
 public class JwtChannelInterceptor implements ChannelInterceptor {
 
     private final JwtTokenProvider jwtProvider;
@@ -36,7 +38,7 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
                         setAuthenticationFromToken(accessor, token);
                     } catch (Exception e) {
                         // 인증 실패 시 로그만 남기고 연결은 허용
-                        System.out.println("WebSocket 인증 실패: " + e.getMessage());
+                        log.error("WebSocket 인증 실패: " + e.getMessage());
                     }
                 }
             }
