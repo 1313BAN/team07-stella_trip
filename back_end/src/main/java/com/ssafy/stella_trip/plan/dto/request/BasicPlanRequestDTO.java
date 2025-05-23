@@ -11,6 +11,5 @@ import lombok.NoArgsConstructor;
 public class BasicPlanRequestDTO {
     private String title;
     private String description;
-    @JsonProperty("is_public")
     private boolean isPublic;
 }
