@@ -6,7 +6,7 @@
         <!-- 라우터 뷰를 통해 자식 컴포넌트(PlanDetail) 렌더링 -->
         <router-view v-slot="{ Component }">
           <template v-if="Component">
-            <component :is="Component" :mapRef="mapRef" />
+            <component :is="Component" />
           </template>
           <template v-else>
             <!-- 기존 Plan 콘텐츠 (필터 + 그리드) -->
