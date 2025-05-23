@@ -5,6 +5,7 @@
 
     <!-- 기본 정보 섹션 -->
     <PlanInfo
+      class="px-2"
       :planId="planId"
       :title="planDetail?.title"
       :dateRange="formatDateRange(planDetail?.startDate, planDetail?.endDate)"
@@ -19,7 +20,7 @@
     <!-- 일정 섹션 -->
     <div class="flex-1 bg-slate-900/20 p-3">
       <div class="mb-3 flex items-center justify-between">
-        <h3 class="font-semibold text-purple-200">일정</h3>
+        <h3 class="p-2 text-lg font-semibold text-purple-200">일정</h3>
         <div v-if="selectedDate" class="flex items-center">
           <Badge variant="outline" class="border-purple-400/30 bg-purple-900/30 text-purple-200">
             {{ selectedDate }} 경로 표시 중
