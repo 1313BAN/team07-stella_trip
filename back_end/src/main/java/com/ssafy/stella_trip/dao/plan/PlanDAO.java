@@ -80,6 +80,8 @@ public interface PlanDAO {
 
     int insertTags(@Param("tags") List<String> tags);
 
+    void updateTagCount();
+
     int linkTagsToPlan(@Param("planId") int planId, @Param("tags") List<String> tags);
 
     int deletePlanTagByPlanId(@Param("planId") int planId);
