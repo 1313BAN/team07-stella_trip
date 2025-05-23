@@ -45,7 +45,7 @@ public class UserService {
         //인증 후 user 정보 가져오기
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal(); 
         UserDTO user = userDetails.getUser();
-        String accessToken = "Bearer " + jwtTokenProvider.generateAccessToken(user.getUserId(), userDetails.getUsername(), user.getRole());
+        String accessToken = "Bearer " + jwtTokenProvider.generateAccessToken(user.getUserId(), userDetails.getUsername(), user.getName() , user.getRole());
         String refreshToken = "Bearer " + jwtTokenProvider.generateRefreshToken(userDetails.getUsername());
         log.info(user.toString());
         return new LoginResponseDTO(user.getUserId(), user.getName(), user.getEmail(), accessToken, refreshToken);
@@ -88,7 +88,7 @@ public class UserService {
 
         jwtTokenProvider.addToBlacklist(refreshToken);
 
-        String accessToken = "Bearer " + jwtTokenProvider.generateAccessToken(user.getUserId(), email, user.getRole());
+        String accessToken = "Bearer " + jwtTokenProvider.generateAccessToken(user.getUserId(), email, user.getName(), user.getRole());
         String refreshTokenRefresh = "Bearer " + jwtTokenProvider.generateRefreshToken(email);
         return new TokenRefreshResponseDTO(accessToken, refreshTokenRefresh);
     }
