@@ -3,24 +3,22 @@
     class="cursor-pointer border-white/10 bg-white/5 shadow-none transition-all duration-200 hover:bg-white/10"
     @click="showRouteOnMap"
   >
-    <CardHeader class="border-b border-white/10 p-3 pb-2">
-      <h4 class="flex items-center text-lg font-semibold text-white">
-        <Calendar class="mr-2 h-5 w-5 text-purple-400" />
+    <CardHeader class="border-b border-white/10 px-6">
+      <h4 class="flex items-center gap-3 text-lg font-semibold text-white">
+        <Calendar class="h-5 w-5 text-purple-400" />
         {{ date }}
       </h4>
     </CardHeader>
-    <CardContent class="p-3">
-      <div class="space-y-3">
-        <AttractionItem
-          v-for="attraction in sortedAttractions"
-          :key="attraction.routeId"
-          :order="attraction.order"
-          :name="attraction.name"
-          :visitTime="attraction.visitTime"
-          :address="attraction.address"
-          :memo="attraction.memo ?? ''"
-        />
-      </div>
+    <CardContent class="flex flex-col gap-2 px-3">
+      <AttractionItem
+        v-for="attraction in sortedAttractions"
+        :key="attraction.routeId"
+        :order="attraction.order"
+        :name="attraction.name"
+        :visitTime="attraction.visitTime"
+        :address="attraction.address"
+        :memo="attraction.memo ?? ''"
+      />
     </CardContent>
   </Card>
 </template>
@@ -29,7 +27,7 @@
 import { computed } from 'vue';
 import { Calendar } from 'lucide-vue-next';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
-import AttractionItem from './AttractionItem.vue';
+import AttractionItem from '@/components/common/AttractionItem/AttractionItem.vue';
 import type { RouteAttraction } from '@/services/api/domains/plan';
 
 const props = defineProps<{

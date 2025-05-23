@@ -59,7 +59,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import StellaHeader from './StellaHeader.vue';
 import PlanInfo from './PlanInfo.vue';
-import DailySchedule from './DailySchedule.vue';
+import DailySchedule from '@/components/card/DailyScheduleCard/DailyScheduleCard.vue';
 import EmptySchedule from './EmptySchedule.vue';
 import { getPlanDetail, type PlanDetail, type RouteAttraction } from '@/services/api/domains/plan';
 import { useMapState } from '@/composables/useMapState';
