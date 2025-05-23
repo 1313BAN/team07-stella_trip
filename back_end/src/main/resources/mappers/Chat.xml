@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.stella_trip.dao.chat.ChatDAO">
+    <!-- chatroom 조회 결과 맵 정의 -->
+    <resultMap id="ChatRoomResultMap" type="ChatRoomDTO">
+        <id property="roomId" column="room_id"/>
+        <result property="sidoCode" column="sido_code"/>
+        <result property="sidoName" column="sido_name"/>
+        <result property="gugunCode" column="gugun_code"/>
+        <result property="gugunName" column="gugun_name"/>
+    </resultMap>
+
+    <!-- chat 조회 결과 맵 정의 -->
+    <resultMap id="ChatResultMap" type="ChatDTO">
+        <id property="chatId" column="chat_id"/>
+        <result property="roomId" column="room_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="content" column="content"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="getChatRooms" resultMap="ChatRoomResultMap">
+        SELECT c.room_id, g.gugun_code, g.gugun_name, s.sido_code, s.sido_name FROM chat_room c
+        LEFT JOIN gugun g ON g.gugun_id = c.gugun_id
+        LEFT JOIN sido s ON s.sido_code = g.sido_code;
+    </select>
+
+    <select id="getChats" resultMap="ChatResultMap">
+            SELECT chat_id, room_id, user_name, content, created_at FROM chat
+            WHERE room_id = #{roomId}
+            <if test="lastChatId != -1">
+                <![CDATA[
+                AND chat_id < #{lastChatId}
+                ]]>
+            </if>
+            ORDER BY chat_id DESC
+            LIMIT #{size}
+
+    </select>
+
+    <insert id="addChat" useGeneratedKeys="true" keyProperty="chatId" keyColumn="chat_id">
+        INSERT INTO chat(room_id, user_name, content)
+        VALUES (#{chat.roomId}, #{chat.userName}, #{chat.content})
+    </insert>
+
+    <select id="existsById" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1 FROM chat_room WHERE room_id = #{roomId}
+        )
+    </select>
+
+
+
+</mapper>
