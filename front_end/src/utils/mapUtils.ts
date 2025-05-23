@@ -141,8 +141,12 @@ export const calculateBounds = (points: { lat: number; lng: number }[]) => {
     return null;
   }
 
-  const bounds = new window.kakao.maps.LatLngBounds();
+  const firstPoint = new window.kakao.maps.LatLng(points[0].lat, points[0].lng);
+  const bounds = new window.kakao.maps.LatLngBounds(firstPoint, firstPoint);
 
+  points.slice(1).forEach(point => {
+    bounds.extend(new window.kakao.maps.LatLng(point.lat, point.lng));
+  });
   points.forEach(point => {
     bounds.extend(new window.kakao.maps.LatLng(point.lat, point.lng));
   });
