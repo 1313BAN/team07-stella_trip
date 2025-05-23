@@ -16,9 +16,7 @@ public class RoutesUpdateRequestDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class RouteDTO{
-        @JsonProperty("route_id")
         private int routeId;
-        @JsonProperty("day_index")
         private int dayIndex;
         private int order;
         private boolean deleted;

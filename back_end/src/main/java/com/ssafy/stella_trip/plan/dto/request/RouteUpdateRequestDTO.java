@@ -11,7 +11,6 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RouteUpdateRequestDTO {
-    @JsonProperty("visit_time")
     private LocalTime visitTime;
     private String memo;
 }

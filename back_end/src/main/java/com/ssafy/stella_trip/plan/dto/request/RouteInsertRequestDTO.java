@@ -11,11 +11,8 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RouteInsertRequestDTO {
-    @JsonProperty("day_index")
     private int dayIndex;
-    @JsonProperty("attraction_id")
     private int attractionId;
-    @JsonProperty("visit_time")
     private LocalTime visitTime;
     private String memo;
 }
