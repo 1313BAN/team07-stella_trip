@@ -8,6 +8,7 @@ export const AUTH = {
 export const PLAN = {
   PLANS: 'v1/plans',
   TAGS: 'v1/plans/tags',
+  ADD_ATTRACTIONS: (planId: number) => `v1/plans/${planId}/attraction`,
   DETAIL: (planId: number) => `v1/plans/${planId}`,
   LIKE: (planId: number) => `v1/plans/${planId}/like`,
 } as const;
