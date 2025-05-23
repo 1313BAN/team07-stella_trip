@@ -24,9 +24,18 @@ import Constellation from '@/components/common/Constellation/Constellation.vue';
 
 defineProps<{
   stella?: {
-    stars: any[];
-    connections: any[];
-  };
+    stars: Array<{
+      x: number;
+      y: number;
+      r: number;
+      brightness: number;
+      delay: number;
+    }>;
+    connections: Array<{
+      from: number;
+      to: number;
+    }>;
+  } | null;
   backgroundStars: any[];
 }>();
 </script>

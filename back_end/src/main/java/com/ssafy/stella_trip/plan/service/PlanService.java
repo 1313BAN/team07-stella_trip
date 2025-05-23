@@ -38,7 +38,8 @@ public class PlanService {
             int size,
             String search,
             String userName,
-            int duration,
+            int minDuration,
+            int maxDuration,
             String sort,
             JwtUserInfo user
     ){
@@ -48,7 +49,7 @@ public class PlanService {
         }
 
         // 전체 검색수
-        int totalCount = planDAO.countPlansByCondition(search, userName, duration);
+        int totalCount = planDAO.countPlansByCondition(search, userName, minDuration, maxDuration);
         // 전체 페이지 수
         int totalPages = (int) Math.ceil((double) totalCount / size);
         // offset 계산
@@ -61,7 +62,7 @@ public class PlanService {
         boolean isLast = (page == totalPages);
 
         // 검색 결과
-        List<PlanDTO> planDTOList = planDAO.getPlansByCondition(offset, size, search, userName, duration, sort, user != null ? user.getUserId() : -1);
+        List<PlanDTO> planDTOList = planDAO.getPlansByCondition(offset, size, search, userName, minDuration, maxDuration, sort, user != null ? user.getUserId() : -1);
         List<PlanResponseDTO> planResponseDTOList = new ArrayList<>();
         for (PlanDTO planDTO : planDTOList) {
             // 태그 리스트

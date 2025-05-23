@@ -56,11 +56,12 @@ public class JwtTokenProvider {
      * @param role 역할
      * @return jwt string 반환
      */
-    public String generateAccessToken(int userId, String email, UserRole role) {
+    public String generateAccessToken(int userId, String email, String name, UserRole role) {
         return Jwts.builder()
                 .subject(email)
                 .claim("roles", List.of(role.name())) // 하나지만 리스트로 담는 이유: Spring Security가 Collection 기반이기 때문
                 .claim("userId", userId)
+                .claim("name", name)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + accessExpirationTime * 1000L)) // 1시간 후 만료
                 .signWith(key, Jwts.SIG.HS256)
@@ -106,6 +107,11 @@ public class JwtTokenProvider {
     public int getUserIdFromToken(String token) {
         Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
         return claims.get("userId", Integer.class);
+    }
+
+    public String getUserNameFromToken(String token) {
+        Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+        return claims.get("name", String.class);
     }
 
     /**

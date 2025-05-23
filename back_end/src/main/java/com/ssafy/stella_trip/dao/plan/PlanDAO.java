@@ -18,15 +18,16 @@ public interface PlanDAO {
             @Param("size") int size,
             @Param("search") String search,
             @Param("userName") String userName,
-            @Param("duration") int duration,
+            @Param("minDuration") int minDuration,
+            @Param("maxDuration") int maxDuration,
             @Param("sort") String sort,
             @Param("currentUserId") int currentUserId
     );
     int countPlansByCondition(
             @Param("search") String search,
             @Param("userName") String userName,
-            @Param("duration") int duration
-
+            @Param("minDuration") int minDuration,
+            @Param("maxDuration") int maxDuration
     );
 
     int increaseLikeCount(@Param("planId") int planId);
