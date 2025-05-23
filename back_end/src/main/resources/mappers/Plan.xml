@@ -73,6 +73,15 @@
         ON DUPLICATE KEY UPDATE name = name
     </insert>
 
+    <update id="updateTagCount">
+        UPDATE tag t
+            SET t.count = (
+            SELECT COUNT(*)
+            FROM tag_plan tp
+            WHERE tp.tag_id = t.tag_id
+        );
+    </update>
+
     <!-- 여행 계획과 태그를 연결 -->
     <insert id="linkTagsToPlan">
         INSERT INTO tag_plan (plan_id, tag_id)
@@ -175,11 +184,10 @@
             )
         </if>
         <if test="userName != null and userName != ''">
-            AND EXISTS (
-            SELECT 1
-            FROM user u2
-            WHERE u2.user_id = pw.user_id
-            AND u2.name = #{userName}
+            AND p.plan_id IN (
+                SELECT pw2.plan_id
+                FROM plan_writer pw2
+                INNER JOIN user u2 ON u2.name = #{userName} AND pw2.user_id = u2.user_id
             )
         </if>
         <if test="minDuration > 0 and maxDuration > 0">

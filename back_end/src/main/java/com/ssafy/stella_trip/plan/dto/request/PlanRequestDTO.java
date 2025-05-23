@@ -15,10 +15,7 @@ public class PlanRequestDTO {
     private String title;
     private String description;
     private List<String> tags;
-    @JsonProperty("is_public")
     private boolean isPublic;
-    @JsonProperty("start_date")
     private LocalDate startDate;
-    @JsonProperty("end_date")
     private LocalDate endDate;
 }
