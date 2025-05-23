@@ -185,7 +185,12 @@ export class SingleMarkerManager {
 
     // 마커가 이미 존재하면 위치만 업데이트
     if (this._marker) {
-      this._marker.setPosition(new window.kakao.maps.LatLng(lat, lng));
+      if (show) {
+        this._marker.setPosition(new window.kakao.maps.LatLng(lat, lng));
+      } else {
+        this._marker.setMap(null);
+        this._marker = null;
+      }
       return;
     }
 
@@ -279,7 +284,7 @@ export class MultiMarkerManager {
    */
   addMarkers(markerInfos: MarkerInfo[]): void {
     markerInfos.forEach(markerInfo => {
-      if (markerInfo.lat && markerInfo.lng) {
+      if (Number.isFinite(markerInfo.lat) && Number.isFinite(markerInfo.lng)) {
         this._createMarkerWithInfoWindow(markerInfo);
       }
     });

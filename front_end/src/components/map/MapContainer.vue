@@ -186,6 +186,7 @@ watch(
   }
 );
 
+//TODO: getCurrentInstance 미사용으로 mapRef 주입 실패
 onMounted(async () => {
   await initializeMap();
 });
