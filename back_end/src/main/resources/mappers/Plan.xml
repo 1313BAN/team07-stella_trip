@@ -169,7 +169,7 @@
         LEFT JOIN user u ON pw.user_id = u.user_id
         LEFT JOIN tag_plan tp ON p.plan_id = tp.plan_id
         LEFT JOIN tag t ON tp.tag_id = t.tag_id
-        LEFT JOIN liked_plan pl ON p.plan_id = pl.plan_id
+        LEFT JOIN liked_plan pl ON p.plan_id = pl.plan_id AND pl.user_id = #{currentUserId}
         WHERE p.is_public = 1
         <if test="search != null and search != ''">
             AND (
@@ -187,7 +187,7 @@
             AND p.plan_id IN (
                 SELECT pw2.plan_id
                 FROM plan_writer pw2
-                INNER JOIN user u2 ON u2.name = #{userName}
+                INNER JOIN user u2 ON u2.name = #{userName} AND pw2.user_id = u2.user_id
             )
         </if>
         <if test="minDuration > 0 and maxDuration > 0">

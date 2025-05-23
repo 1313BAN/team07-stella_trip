@@ -7,8 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class TagConutScheduler {
-    // 매일 자정에 실행
+public class TagCountScheduler {
     private final PlanDAO planDAO;
 
     @Scheduled(cron = "0 0 * * * *")
