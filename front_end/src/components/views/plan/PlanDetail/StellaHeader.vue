@@ -23,7 +23,7 @@
 import Constellation from '@/components/common/Constellation/Constellation.vue';
 
 defineProps<{
-  stella: {
+  stella?: {
     stars: Array<{
       x: number;
       y: number;

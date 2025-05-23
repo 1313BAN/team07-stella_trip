@@ -1,10 +1,11 @@
 <template>
   <div class="flex flex-col divide-y divide-white/10">
     <!-- 별자리 표시 섹션 -->
-    <StellaHeader :stella="planDetail!.stella" :backgroundStars="backgroundStars" />
+    <StellaHeader :stella="planDetail?.stella" :backgroundStars="backgroundStars" />
 
     <!-- 기본 정보 섹션 -->
     <PlanInfo
+      :planId="planId"
       :title="planDetail?.title"
       :dateRange="formatDateRange(planDetail?.startDate, planDetail?.endDate)"
       :description="planDetail?.description ?? ''"

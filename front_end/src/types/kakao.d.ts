@@ -160,7 +160,7 @@ declare global {
     kakao: {
       maps: {
         // 생성자들
-        LatLngBounds: new () => KakaoLatLngBounds;
+        LatLngBounds: new (sw: KakaoLatLng, ne: KakaoLatLng) => KakaoLatLngBounds;
         LatLng: new (lat: number, lng: number) => KakaoLatLng;
         Size: new (width: number, height: number) => KakaoSize;
         Map: new (container: HTMLElement, options: KakaoMapOptions) => KakaoMap;
