@@ -33,7 +33,7 @@
 
         <!-- 즉시 로딩: tags -->
         <collection property="tags" ofType="com.ssafy.stella_trip.plan.dto.TagDTO">
-            <id column="tag_id" property="tagId"/>
+            <id column="t   ag_id" property="tagId"/>
             <result column="tag_name" property="name"/>
             <result column="tag_count" property="count"/>
         </collection>
@@ -163,7 +163,16 @@
         LEFT JOIN liked_plan pl ON p.plan_id = pl.plan_id AND pl.user_id = #{currentUserId}
         WHERE p.is_public = 1
         <if test="search != null and search != ''">
-            AND p.title LIKE CONCAT('%', #{search}, '%')
+            AND (
+                p.title LIKE CONCAT('%', #{search}, '%')
+                OR EXISTS (
+                    SELECT 1
+                    FROM tag_plan tp2
+                    JOIN tag t2 ON tp2.tag_id = t2.tag_id
+                    WHERE tp2.plan_id = p.plan_id
+                    AND t2.name LIKE CONCAT('%', #{search}, '%')
+                )
+            )
         </if>
         <if test="userName != null and userName != ''">
             AND EXISTS (
@@ -173,8 +182,8 @@
             AND u2.name = #{userName}
             )
         </if>
-        <if test="duration > 0">
-            AND DATEDIFF(p.end_date, p.start_date) + 1 = #{duration}
+        <if test="minDuration > 0 and maxDuration > 0">
+            AND DATEDIFF(p.end_date, p.start_date) + 1 BETWEEN #{minDuration} AND #{maxDuration}
         </if>
         ORDER BY
         <choose>
@@ -201,13 +210,22 @@
         </if>
         WHERE p.is_public = 1
         <if test="search != null and search != ''">
-            AND p.title LIKE CONCAT('%', #{search}, '%')
+            AND (
+                p.title LIKE CONCAT('%', #{search}, '%')
+                OR EXISTS (
+                    SELECT 1
+                    FROM tag_plan tp2
+                    JOIN tag t2 ON tp2.tag_id = t2.tag_id
+                    WHERE tp2.plan_id = p.plan_id
+                    AND t2.name LIKE CONCAT('%', #{search}, '%')
+                )
+            )
         </if>
         <if test="userName != null and userName != ''">
             AND u.name = #{userName}
         </if>
-        <if test="duration > 0">
-            AND DATEDIFF(p.end_date, p.start_date) + 1 = #{duration}
+        <if test="minDuration > 0 and maxDuration > 0">
+            AND DATEDIFF(p.end_date, p.start_date) + 1 BETWEEN #{minDuration} AND #{maxDuration}
         </if>
     </select>
   
