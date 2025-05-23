@@ -15,7 +15,6 @@
               :class="{ '-translate-y-full': isScrollingDown && scrollY > 100 }"
             >
               <PlanFilter
-                ref="filterComponentRef"
                 :isScrollingDown="isScrollingDown"
                 :scrollY="scrollY"
                 @filter="handleFilterChange"
@@ -31,8 +30,8 @@
                 :errorComponent="FilteredPlansError"
               >
                 <FilteredPlans
+                  :filter="currentFilters"
                   :parentScrollContainer="scrollContainerRef"
-                  :apiParams="{ page: 1, size: 100 }"
                   @cardClick="handlePlanCardClick"
                   @likeClick="handlePlanLikeClick"
                   @tagClick="handlePlanTagClick"
@@ -61,23 +60,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import AsyncContainer from '@/components/AsyncContainer/AsyncContainer.vue';
 import MapContainer from '@/components/map/MapContainer.vue';
 import MapError from '@/components/map/MapError.vue';
+import PlanFilter from '@/components/views/plan/PlanFilter.vue';
+import { type PlansParams, type PlansSortOption } from '@/services/api/domains/plan';
 import {
   FilteredPlansSkeleton,
   FilteredPlans,
   FilteredPlansError,
 } from '@/components/views/plan/FilteredPlans';
-import PlanFilter from '@/components/views/plan/PlanFilter.vue';
 import CommonSkeleton from '@/components/skeleton/CommonSkeleton/CommonSkeleton.vue';
 import { type Plan, type Tag } from '@/services/api/domains/plan';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { useMapState } from '@/composables/useMapState';
 import { useScroll } from '@/composables/useScroll';
-import { usePlanFilter } from '@/composables/usePlanFilter';
 import { ROUTES } from '@/router/routes';
 
 // Vue Router
@@ -86,8 +85,13 @@ const router = useRouter();
 // 상태 관리
 const scrollContainerRef = ref<HTMLElement | null>(null);
 const { mapRef, mapLevel, mapCenter, selectPlan } = useMapState();
-const { filterComponentRef, handleFilterChange, closeFilterPanel } = usePlanFilter();
+const filterComponentRef = ref<InstanceType<typeof PlanFilter> | null>(null);
 const { isScrollingDown, scrollY, handleScroll } = useScroll();
+const currentFilters = reactive<PlansParams>({
+  page: 1,
+  size: 10,
+  sort: 'recent',
+});
 
 // 지도 리사이즈 핸들러
 const handleMapResize = () => {
@@ -106,6 +110,22 @@ const handlePlanCardClick = (plan: Plan) => {
     name: ROUTES.PLAN_DETAIL.name,
     params: { planId: plan.planId.toString() },
   });
+};
+
+const handleFilterChange = (filters: PlansParams) => {
+  currentFilters.search = filters.search;
+  currentFilters.maxDuration = filters.maxDuration;
+  currentFilters.minDuration = filters.minDuration;
+  currentFilters.userName = filters.userName;
+  currentFilters.page = filters.page;
+  currentFilters.size = filters.size;
+  currentFilters.sort = filters.sort as PlansSortOption;
+};
+
+const closeFilterPanel = () => {
+  if (filterComponentRef.value) {
+    filterComponentRef.value.closeFilterPanel();
+  }
 };
 
 // 이벤트 핸들러

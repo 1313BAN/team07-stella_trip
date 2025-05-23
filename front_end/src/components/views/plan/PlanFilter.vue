@@ -108,9 +108,8 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { DualSlider } from '@/components/ui/slider';
-import { getPlans } from '@/services/api/domains/plan/index';
-
-type SortOption = 'RECENT' | 'POPULAR';
+import { type PlansParams } from '@/services/api/domains/plan';
+import { type PlansSortOption } from '@/services/api/domains/plan/types';
 
 const props = defineProps({
   parentScrollContainer: {
@@ -127,34 +126,24 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits<{
-  (
-    e: 'filter',
-    filters: {
-      search?: string;
-      userName?: string;
-      duration?: number;
-      sort?: SortOption;
-    }
-  ): void;
-}>();
-
 // // 여행 기간 옵션 (일 수)
 // const durationOptions = [0, 1, 2, 3, 7, 14];
 
 // 정렬 옵션
 const sortOptions = {
-  RECENT: '최신순',
-  POPULAR: '인기순',
+  recent: '최신순',
+  like: '인기순',
 };
 
 const isSearchFocused = ref(false);
 const containerRef = ref<HTMLElement | null>(null);
-
 const searchQuery = ref('');
 const userName = ref('');
-const selectedSort = ref<SortOption>('RECENT');
+const selectedSort = ref<PlansSortOption>('recent');
 const rangeValue = ref([1, 30]);
+const emit = defineEmits<{
+  (e: 'filter', filters: PlansParams): void;
+}>();
 
 // 스크롤 상태 변화 감지
 watch([() => props.isScrollingDown, () => props.scrollY], ([newIsScrollingDown, newScrollY]) => {
@@ -170,21 +159,12 @@ const handleClickOutside = (event: MouseEvent) => {
     !containerRef.value.contains(event.target as Node) &&
     isSearchFocused.value
   ) {
-    closeFilterPanel();
+    //closePanel();
+    if (isSearchFocused.value) {
+      isSearchFocused.value = false;
+    }
   }
 };
-
-// 필터 패널 닫기 메소드
-const closeFilterPanel = () => {
-  if (isSearchFocused.value) {
-    isSearchFocused.value = false;
-  }
-};
-
-// 부모 컴포넌트에 메소드 노출
-defineExpose({
-  closeFilterPanel,
-});
 
 onMounted(() => {
   document.addEventListener('mousedown', handleClickOutside);
@@ -211,23 +191,22 @@ const resetFilters = () => {
 // 검색 핸들러
 const handleSearch = () => {
   applyFilters();
-
-  const response: PagenationResponse<Plan> = getPlans({
-    search: searchQuery.value,
-    userName: userName.value,
-    duration: rangeValue.value[0],
-    sort: selectedSort.value,
-  });
 };
+
+const closeFilterPanel = () => {
+  if (isSearchFocused.value) {
+    isSearchFocused.value = false;
+  }
+};
+
+// 부모 컴포넌트에 메소드 노출
+defineExpose({
+  closeFilterPanel,
+});
 
 // 필터 적용
 const applyFilters = () => {
-  const filters: {
-    search?: string;
-    userName?: string;
-    duration?: number;
-    sort?: SortOption;
-  } = {
+  const filters: PlansParams = {
     sort: selectedSort.value,
   };
 
@@ -238,6 +217,9 @@ const applyFilters = () => {
   if (userName.value) {
     filters.userName = userName.value;
   }
+
+  filters.maxDuration = rangeValue.value[1];
+  filters.minDuration = rangeValue.value[0];
 
   emit('filter', filters);
   isSearchFocused.value = false;

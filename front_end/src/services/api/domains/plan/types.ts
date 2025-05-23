@@ -5,8 +5,10 @@ export type PlansParams = {
   userName?: string;
   minDuration?: number;
   maxDuration?: number;
-  sort?: 'recent' | 'like' | '';
+  sort?: PlansSortOption;
 };
+
+export type PlansSortOption = 'recent' | 'like' | '';
 
 export type Plan = {
   title: string;
