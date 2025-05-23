@@ -3,7 +3,7 @@ import DailyScheduleCard from './DailyScheduleCard.vue';
 import type { RouteAttraction } from '@/services/api/domains/plan';
 
 const meta: Meta<typeof DailyScheduleCard> = {
-  title: 'Components/DailyScheduleCard',
+  title: 'Components/card/DailyScheduleCard',
   component: DailyScheduleCard,
   tags: ['autodocs'],
   parameters: {

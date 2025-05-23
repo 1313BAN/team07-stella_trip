@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3';
 import AttractionItem from './AttractionItem.vue';
 
 const meta: Meta<typeof AttractionItem> = {
-  title: 'Components/AttractionItem',
+  title: 'Components/common/AttractionItem',
   component: AttractionItem,
   tags: ['autodocs'],
   parameters: {
