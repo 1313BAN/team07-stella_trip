@@ -23,28 +23,26 @@
     <!-- 펼쳐지는 필터 영역 -->
     <div
       class="overflow-hidden px-4 transition-all duration-300"
-      :class="isSearchFocused ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'"
+      :class="isSearchFocused ? 'max-h-130 opacity-100' : 'max-h-0 opacity-0'"
     >
       <Card
         class="mt-2 space-y-4 border-purple-500/20 bg-slate-900/90 p-4 text-white shadow-md backdrop-blur-md"
       >
-        <!-- 기간 선택 -->
-        <div class="space-y-2">
+        <div class="space-y-4">
           <Label class="text-sm font-medium text-purple-200/80">여행 기간</Label>
-          <div class="flex flex-wrap gap-2">
-            <Badge
-              v-for="(days, index) in durationOptions"
-              :key="index"
-              :variant="selectedDuration === days ? 'default' : 'outline'"
-              class="cursor-pointer border-purple-400/30 bg-slate-800 py-1.5 text-sm text-white transition-all hover:bg-slate-700"
-              :class="{
-                'border-purple-500/50 bg-purple-600 text-white hover:bg-purple-500':
-                  selectedDuration === days,
-              }"
-              @click="toggleDuration(days)"
-            >
-              {{ formatDurationLabel(days) }}
-            </Badge>
+          <DualSlider
+            v-model="rangeValue"
+            :min="1"
+            :max="30"
+            :step="1"
+            :minStepsBetweenThumbs="1"
+            class="slider-purple"
+          />
+          <div>
+            여행 기간:
+            {{ formatDurationLabel(rangeValue[0]) }}
+            -
+            {{ formatDurationLabel(rangeValue[1] - 1) }}
           </div>
         </div>
 
@@ -109,6 +107,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
+import { DualSlider } from '@/components/ui/slider';
+import { getPlans } from '@/services/api/domains/plan/index';
 
 type SortOption = 'RECENT' | 'POPULAR';
 
@@ -139,8 +139,8 @@ const emit = defineEmits<{
   ): void;
 }>();
 
-// 여행 기간 옵션 (일 수)
-const durationOptions = [0, 1, 2, 3, 7, 14];
+// // 여행 기간 옵션 (일 수)
+// const durationOptions = [0, 1, 2, 3, 7, 14];
 
 // 정렬 옵션
 const sortOptions = {
@@ -153,8 +153,8 @@ const containerRef = ref<HTMLElement | null>(null);
 
 const searchQuery = ref('');
 const userName = ref('');
-const selectedDuration = ref<number | null>(null);
 const selectedSort = ref<SortOption>('RECENT');
+const rangeValue = ref([1, 30]);
 
 // 스크롤 상태 변화 감지
 watch([() => props.isScrollingDown, () => props.scrollY], ([newIsScrollingDown, newScrollY]) => {
@@ -196,31 +196,28 @@ onBeforeUnmount(() => {
 
 // 여행 기간 포맷
 const formatDurationLabel = (days: number) => {
-  if (days === 0) return '전체';
-  if (days === 1) return '당일';
-  return `${days}일`;
-};
-
-// 여행 기간 토글 핸들러
-const toggleDuration = (days: number) => {
-  if (selectedDuration.value === days) {
-    selectedDuration.value = null;
-  } else {
-    selectedDuration.value = days;
-  }
+  if (days === 1) return '당일치기';
+  return `${days}박 ${days + 1}일`;
 };
 
 // 필터 초기화
 const resetFilters = () => {
   searchQuery.value = '';
   userName.value = '';
-  selectedDuration.value = null;
-  selectedSort.value = 'RECENT';
+  selectedSort.value = 'recent';
+  rangeValue.value = [1, 30];
 };
 
 // 검색 핸들러
 const handleSearch = () => {
   applyFilters();
+
+  const response: PagenationResponse<Plan> = getPlans({
+    search: searchQuery.value,
+    userName: userName.value,
+    duration: rangeValue.value[0],
+    sort: selectedSort.value,
+  });
 };
 
 // 필터 적용
@@ -240,10 +237,6 @@ const applyFilters = () => {
 
   if (userName.value) {
     filters.userName = userName.value;
-  }
-
-  if (selectedDuration.value !== null && selectedDuration.value > 0) {
-    filters.duration = selectedDuration.value;
   }
 
   emit('filter', filters);
