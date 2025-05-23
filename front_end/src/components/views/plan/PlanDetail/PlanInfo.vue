@@ -56,6 +56,7 @@ import { Button } from '@/components/ui/button';
 import Tag from '@/components/common/Tag/Tag.vue';
 
 const props = defineProps<{
+  planId: number;
   title?: string;
   dateRange: string;
   description?: string;

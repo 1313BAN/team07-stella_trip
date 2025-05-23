@@ -37,7 +37,7 @@ const router = useRouter();
 const route = useRoute();
 
 // planId 계산 속성
-const planId = computed(() => route.params.planId as string);
+const planId = computed(() => Number(route.params.planId));
 
 // 지도 상태 관리
 const { mapRef, showAllMarkers } = useMapState();

@@ -1,5 +1,18 @@
 import { ref } from 'vue';
 
+/**
+ * 스크롤 동작을 감지하고 관리하는 컴포저블
+ *
+ * @param scrollThreshold - 스크롤 임계값 (픽셀 단위, 기본값: 30)
+ *
+ * @returns
+ * - `isScrollingDown`: 아래로 스크롤 중인지 여부
+ * - `scrollY`: 현재 스크롤 Y 위치
+ * - `handleScroll`: 스크롤 이벤트 핸들러
+ * - `register`: 스크롤 이벤트 리스너 등록
+ * - `unregister`: 스크롤 이벤트 리스너 제거
+ * - `cleanup`: 리소스 정리 (언마운트 시 사용)
+ */
 export function useScroll(scrollThreshold = 30) {
   const isScrollingDown = ref(false);
   const scrollY = ref(0);
