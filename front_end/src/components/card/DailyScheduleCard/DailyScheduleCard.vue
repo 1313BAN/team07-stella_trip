@@ -19,13 +19,20 @@
         :address="attraction.address"
         :memo="attraction.memo ?? ''"
       />
+      <button
+        class="mt-2 flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-white/20 py-2 text-sm text-white transition-colors hover:cursor-pointer hover:border-purple-400/50 hover:bg-white/10"
+        @click.stop="handleAddAttraction"
+      >
+        <Plus class="h-4 w-4 text-white" />
+        여행지 추가하기
+      </button>
     </CardContent>
   </Card>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Calendar } from 'lucide-vue-next';
+import { Calendar, Plus } from 'lucide-vue-next';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import AttractionItem from '@/components/common/AttractionItem/AttractionItem.vue';
 import type { RouteAttraction } from '@/services/api/domains/plan';
@@ -37,6 +44,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'showRoute', date: string, attractions: RouteAttraction[]): void;
+  (e: 'addAttraction', date: string): void;
 }>();
 
 const sortedAttractions = computed(() => {
@@ -46,5 +54,9 @@ const sortedAttractions = computed(() => {
 
 const showRouteOnMap = () => {
   emit('showRoute', props.date, props.attractions);
+};
+
+const handleAddAttraction = () => {
+  emit('addAttraction', props.date);
 };
 </script>
