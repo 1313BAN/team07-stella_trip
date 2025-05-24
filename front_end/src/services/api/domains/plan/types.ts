@@ -3,9 +3,12 @@ export type PlansParams = {
   size?: number;
   search?: string;
   userName?: string;
-  duration?: number;
-  sort?: 'RECENT' | 'POPULAR';
+  minDuration?: number;
+  maxDuration?: number;
+  sort?: PlansSortOption;
 };
+
+export type PlansSortOption = 'recent' | 'like' | '';
 
 export type Plan = {
   title: string;
