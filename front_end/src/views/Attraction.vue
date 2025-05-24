@@ -75,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { ref, reactive, watch } from 'vue';
 import AsyncContainer from '@/components/AsyncContainer/AsyncContainer.vue';
 import MapContainer from '@/components/map/MapContainer.vue';
 import MapError from '@/components/map/MapError.vue';
@@ -99,6 +99,7 @@ import type { AttractionsParams } from '@/services/api/domains/attraction/types'
 import { getAttractions } from '@/services/api/domains/attraction';
 import { postAttractionLike, deleteAttractionLike } from '@/services/api/domains/attraction/index';
 import { toast } from 'vue-sonner';
+import { useAuthStore } from '@/stores/auth';
 
 const scrollContainerRef = ref<HTMLElement | null>(null);
 const { mapRef, mapLevel, mapCenter, selectedAttraction, selectAttraction, clearMarkers } =
@@ -115,6 +116,14 @@ const handleMapResize = () => {
     mapRef.value.refreshMap();
   }
 };
+
+const authStore = useAuthStore();
+watch(
+  () => authStore.isAuthenticated,
+  () => {
+    fetchAttractions();
+  }
+);
 
 // 선택된 여행지 상태 관리
 const selectedAttractionRef = ref<Attraction | null>(selectedAttraction.value ?? null);
