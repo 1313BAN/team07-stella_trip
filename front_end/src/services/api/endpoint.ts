@@ -17,5 +17,6 @@ export const ATTRACTION = {
   ATTRACTIONS: 'v1/attractions',
   DETAIL: (attractionId: number) => `v1/attractions/${attractionId}`,
   LIKE: (attractionId: number) => `v1/attractions/${attractionId}/like`,
+  REVIEW: (attractionId: number) => `v1/attractions/${attractionId}/reviews`,
   SIGUNGU: 'v1/attractions/sigungu',
 } as const;

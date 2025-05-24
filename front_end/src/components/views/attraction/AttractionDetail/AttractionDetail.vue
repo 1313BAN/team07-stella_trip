@@ -90,7 +90,7 @@
           class="space-y-4"
         >
           <div
-            v-for="review in props.attraction.review"
+            v-for="review in reviews"
             :key="review.reviewId"
             class="rounded-lg border border-white/10 bg-white/5 p-3 shadow-sm transition-all duration-200 hover:bg-white/10"
           >
@@ -161,22 +161,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import {
-  Heart,
-  Star,
-  MapPin,
-  User,
-  PenLine,
-  MessageSquare,
-  ThumbsUp,
-  X,
-  Plus,
-} from 'lucide-vue-next';
+import { ref, computed, onMounted } from 'vue';
+import { Heart, Star, MapPin, User, PenLine, MessageSquare, ThumbsUp, X } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import ImageWithFallback from '@/components/common/ImageWithFallback/ImageWithFallback.vue';
 import { getContentTypeNameKR } from '@/utils/util';
+import { getAttractionReview } from '@/services/api/domains/attraction';
 import type { Review, Attraction } from '@/services/api/domains/attraction/types';
 import { useAuthStore } from '@/stores/auth';
 
@@ -196,6 +187,16 @@ const emit = defineEmits<{
 const isLoggedIn = computed(() => {
   const authStore = useAuthStore();
   return authStore.isAuthenticated;
+});
+
+const reviews = ref<Review[]>([]);
+
+onMounted(() => {
+  getAttractionReview(props.attractionId)
+    .then(response => {
+      reviews.value = response.content;
+    })
+    .catch(() => {});
 });
 
 // 좋아요 토글

@@ -41,14 +41,15 @@ export type Attraction = {
 
 export type Review = {
   reviewId: number;
+  userId: number;
+  userName: string;
   title: string;
   content: string;
   rating: number;
-  isLiked: boolean;
-  userId: number;
-  userName: string;
   visitedDate: string;
   createdAt: string;
+  likeCount: number;
+  isLiked: boolean;
 };
 
 export type AttractionDetail = Attraction;
