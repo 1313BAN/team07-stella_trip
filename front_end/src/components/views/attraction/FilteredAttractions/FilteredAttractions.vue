@@ -7,11 +7,13 @@ import GridCardListContainer from '@/components/common/GridCardListContainer/Gri
 interface Props {
   apiParams?: AttractionsParams;
   attractions?: Attraction[];
+  showAddButton?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   apiParams: () => ({ page: 1, size: 10 }),
   attractions: () => [],
+  showAddButton: false,
 });
 
 const emit = defineEmits<{
@@ -22,6 +24,9 @@ const emit = defineEmits<{
 }>();
 
 const handleCardClick = (attraction: Attraction) => {
+  if (props.showAddButton) {
+    return;
+  }
   emit('cardClick', attraction);
 };
 

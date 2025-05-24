@@ -52,11 +52,11 @@
           :errorComponent="FilteredAttractionsError"
         >
           <FilteredAttractions
+            :attractions="attractions"
             :parentScrollContainer="scrollContainerRef"
             :apiParams="{ page: 1, size: 100 }"
             :showAddButton="true"
             @cardClick="handleAttractionCardClick"
-            @addClick="handleAddClick"
             @likeClick="handleAttractionLikeClick"
             @tagClick="handleAttractionTagClick"
             @moreClick="() => handleMoreClick(12)"
@@ -67,7 +67,7 @@
   </section>
 </template>
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { ArrowLeft } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
@@ -79,9 +79,9 @@ import {
   FilteredAttractionsError,
 } from '@/components/views/attraction/FilteredAttractions';
 import AttractionFilter from '@/components/views/attraction/AttractionFilter.vue';
-import type { Attraction } from '@/services/api/domains/attraction';
+import type { Attraction, AttractionsParams } from '@/services/api/domains/attraction/types';
+import { getAttractions } from '@/services/api/domains/attraction';
 import { useScroll } from '@/composables/useScroll';
-import { useAttractionFilter } from '@/composables/useAttractionFilter';
 import { useMapState } from '@/composables/useMapState';
 import { toast } from 'vue-sonner';
 
@@ -93,39 +93,53 @@ const props = defineProps<{
 const emit = defineEmits<{
   addAttraction: [attraction: Attraction, date: string];
 }>();
+const filterComponentRef = ref<InstanceType<typeof AttractionFilter> | null>(null);
 
 const router = useRouter();
 const route = useRoute();
 
 // 쿼리에서 날짜 가져오기
 const selectedDate = computed(() => props.currentDate || (route.query.date as string) || null);
-
+const attractions = ref<Attraction[]>([]);
 const scrollContainerRef = ref<HTMLElement | null>(null);
-const { filterComponentRef, handleFilterChange, closeFilterPanel } = useAttractionFilter();
 const { isScrollingDown, scrollY, handleScroll } = useScroll();
 const { selectAttraction } = useMapState();
+const filterParams = reactive<AttractionsParams>({
+  page: 1,
+  size: 100,
+});
 
 // 뒤로가기
 const goBack = () => {
   router.back();
 };
 
+const handleFilterChange = (filters: AttractionsParams) => {
+  // 필터 변경 시 처리 로직
+  filterParams.sidoCode = filters.sidoCode;
+  filterParams.gugunCode = filters.gugunCode;
+  filterParams.contentTypeIds = filters.contentTypeIds;
+  filterParams.keyword = filters.keyword;
+  filterParams.page = filters.page;
+  filterParams.size = filters.size;
+  fetchAttractions();
+};
+
+const closeFilterPanel = () => {
+  if (filterComponentRef.value) {
+    filterComponentRef.value.closeFilterPanel();
+  }
+};
+
+const fetchAttractions = async () => {
+  const response = await getAttractions(filterParams);
+  attractions.value = response.content;
+};
+
 // 여행지 카드 클릭 핸들러 (상세 정보 표시용)
 const handleAttractionCardClick = (attraction: Attraction) => {
   console.log('여행지 카드 클릭:', attraction.name);
   selectAttraction(attraction);
-};
-
-// 여행지 추가 버튼 클릭 핸들러
-const handleAddClick = (attraction: Attraction) => {
-  if (!selectedDate.value) {
-    toast.error('날짜를 선택해주세요', {
-      description: '관광지를 추가하려면 먼저 날짜를 선택해야 합니다.',
-    });
-    return;
-  }
-
-  emit('addAttraction', attraction, selectedDate.value);
 };
 
 // 기타 이벤트 핸들러들

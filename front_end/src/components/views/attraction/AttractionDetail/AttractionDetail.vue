@@ -227,7 +227,6 @@ const openReviewForm = () => {
 
 // 여행 계획에 추가
 const handleAddToPlan = () => {
-  console.log(props.attractionId);
   emit('addToPlan', props.attractionId);
 };
 </script>
