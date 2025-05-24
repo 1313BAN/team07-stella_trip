@@ -6,6 +6,7 @@ import com.ssafy.stella_trip.plan.dto.request.*;
 import com.ssafy.stella_trip.plan.dto.response.*;
 import com.ssafy.stella_trip.plan.service.PlanService;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
+import com.ssafy.stella_trip.user.dto.response.ActionResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -82,12 +83,12 @@ public class PlanController {
             @ApiResponse(responseCode = "200", description = "정상적으로 등록 완료"),
             @ApiResponse(responseCode = "400", description = "PLAN-002: 중복된 좋아요 등록 / 취소 입니다."),
     })
-    public CommonResponse<Void> likePlan(
+    public CommonResponse<ActionResponseDTO> likePlan(
             @PathVariable(value = "planId") int planId,
             @AuthenticationPrincipal JwtUserInfo user
     ) {
-        planService.likePlan(planId, user);
-        return new CommonResponse<>(null, HttpStatus.OK);
+
+        return new CommonResponse<>(planService.likePlan(planId, user), HttpStatus.OK);
     }
 
     @DeleteMapping("/{planId}/like")
@@ -99,12 +100,11 @@ public class PlanController {
             @ApiResponse(responseCode = "200", description = "정상적으로 취소 완료"),
             @ApiResponse(responseCode = "400", description = "PLAN-002: 중복된 좋아요 등록 / 취소 입니다."),
     })
-    public CommonResponse<Void> unlikePlan(
+    public CommonResponse<ActionResponseDTO> unlikePlan(
             @PathVariable(value = "planId") int planId,
             @AuthenticationPrincipal JwtUserInfo user
     ) {
-        planService.unlikePlan(planId, user);
-        return new CommonResponse<>(null, HttpStatus.OK);
+        return new CommonResponse<>(planService.unlikePlan(planId, user), HttpStatus.OK);
     }
 
     @GetMapping("/{planId}/lock-check")

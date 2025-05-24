@@ -270,7 +270,7 @@
         u.name,
         CASE WHEN lr.user_id IS NOT NULL THEN TRUE ELSE FALSE END as is_liked
         FROM review r
-        JOIN user u ON r.user_id = u.user_id
+        LEFT JOIN user u ON r.user_id = u.user_id
         LEFT JOIN liked_review lr ON r.review_id = lr.review_id AND lr.user_id = #{userId}
         WHERE r.attraction_id = #{attractionId}
         ORDER BY r.created_at DESC

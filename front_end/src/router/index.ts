@@ -34,6 +34,33 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
+        path: ROUTES.MY_PLANS.path,
+        name: ROUTES.MY_PLANS.name,
+        component: () => import('@/views/MyPlan.vue'),
+        meta: {
+          title: ROUTES.MY_PLANS.title,
+        },
+      },
+      {
+        path: ROUTES.PLAN_MODIFY.path,
+        name: ROUTES.PLAN_MODIFY.name,
+        component: () => import('@/views/PlanModify.vue'),
+        meta: {
+          title: ROUTES.PLAN_MODIFY.title,
+        },
+        children: [
+          {
+            path: ROUTES.PLAN_MODIFY_ATTRACTION.path,
+            name: ROUTES.PLAN_MODIFY_ATTRACTION.name,
+            component: () => import('@/views/PlanAttractionSearch.vue'),
+            meta: {
+              title: ROUTES.PLAN_MODIFY_ATTRACTION.title,
+            },
+            props: true,
+          },
+        ],
+      },
+      {
         path: ROUTES.PLANS.path,
         name: ROUTES.PLANS.name,
         component: () => import('@/views/Plan.vue'),

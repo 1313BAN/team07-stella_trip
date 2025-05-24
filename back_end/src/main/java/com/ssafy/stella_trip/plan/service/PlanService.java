@@ -14,6 +14,7 @@ import com.ssafy.stella_trip.plan.dto.response.*;
 import com.ssafy.stella_trip.plan.exception.*;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
 import com.ssafy.stella_trip.user.dto.UserDTO;
+import com.ssafy.stella_trip.user.dto.response.ActionResponseDTO;
 import com.ssafy.stella_trip.util.PlanLockUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -146,21 +147,24 @@ public class PlanService {
     }
 
     @Transactional
-    public void likePlan(int planId, JwtUserInfo user) {
+    public ActionResponseDTO likePlan(int planId, JwtUserInfo user) {
         if(planDAO.isPlanLikedByUser(planId, user.getUserId())) {
             throw new DuplicatedLikeException("이미 좋아요를 누른 계획입니다.");
         }
         planDAO.likePlan(planId, user.getUserId());
         planDAO.increaseLikeCount(planId);
+        return new ActionResponseDTO( true);
     }
 
     @Transactional
-    public void unlikePlan(int planId, JwtUserInfo user) {
+    public ActionResponseDTO unlikePlan(int planId, JwtUserInfo user) {
         if(!planDAO.isPlanLikedByUser(planId, user.getUserId())) {
             throw new DuplicatedLikeException("이미 좋아요가 없습니다..");
         }
         planDAO.unlikePlan(planId, user.getUserId());
         planDAO.decreaseLikeCount(planId);
+        return new ActionResponseDTO(true);
+
     }
 
     @Transactional

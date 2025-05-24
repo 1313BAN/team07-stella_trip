@@ -58,6 +58,7 @@ const menuItems = computed(() => {
   const navigationItems = [
     { name: '여행계획', icon: Map, route: '/plans' },
     { name: '여행지', icon: Compass, route: '/attractions' },
+    { name: '내여행계획', icon: Compass, route: '/my-plans' },
   ];
 
   return navigationItems;

@@ -52,8 +52,7 @@
         <!-- 여행지 상세 정보 영역 (오버레이로 표시) -->
         <div
           v-if="selectedAttractionRef"
-          class="absolute top-0 left-0 z-20 w-1/2 max-w-md rounded-md shadow-lg backdrop-blur-sm transition-all duration-300"
-          style="height: calc(100% - 2rem); margin: 1rem"
+          class="absolute top-0 left-0 z-20 m-1 h-full w-1/2 max-w-md rounded-md shadow-lg backdrop-blur-sm transition-all duration-300"
         >
           <AsyncContainer
             :loadingComponent="AttractionDetailSkeleton"
