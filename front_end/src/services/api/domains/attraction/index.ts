@@ -1,7 +1,7 @@
 import { ATTRACTION } from '../../endpoint';
 import api from '../../api';
 import type { ApiResponse, PagenationResponse, CommonSuccessBody } from '../../types';
-import type { Attraction, AttractionsParams, AttractionDetail, Sigungu } from './types';
+import type { Attraction, AttractionsParams, AttractionDetail, Sigungu, Review } from './types';
 
 /**
  * query parameter를 바탕으로 여행지 리스트 조회
@@ -64,4 +64,20 @@ export const deleteAttractionLike = async (attractionId: number): Promise<boolea
   const response = await api.delete<ApiResponse<CommonSuccessBody>>(ATTRACTION.LIKE(attractionId));
 
   return response.data.body.success;
+};
+
+/**
+ * 여행지 리뷰 조회 API
+ * @param attractionId 여행지 ID
+ * @returns 여행지 리뷰 리스트
+ */
+
+export const getAttractionReview = async (
+  attractionId: number
+): Promise<PagenationResponse<Review>> => {
+  const response = await api.get<ApiResponse<PagenationResponse<Review>>>(
+    ATTRACTION.REVIEW(attractionId)
+  );
+
+  return response.data.body;
 };
