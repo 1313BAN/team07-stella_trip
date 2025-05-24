@@ -46,7 +46,7 @@ export type Review = {
   title: string;
   content: string;
   rating: number;
-  visitedDate: string;
+  visitDate: string;
   createdAt: string;
   likeCount: number;
   isLiked: boolean;

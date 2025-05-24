@@ -71,7 +71,6 @@
         <div class="mb-3 flex items-center justify-between">
           <h3 class="font-semibold text-purple-200">리뷰 {{ reviews.length }}개</h3>
           <Button
-            v-if="isLoggedIn"
             size="sm"
             variant="outline"
             class="h-8 border-purple-400/50 bg-purple-900/30 text-purple-200 hover:bg-purple-800/40 hover:text-white"
@@ -109,7 +108,7 @@
                       ]"
                     />
                   </div>
-                  <span class="mt-0.5 block text-xs text-gray-400">{{ review.visitedDate }}</span>
+                  <span class="mt-0.5 block text-xs text-gray-400">{{ review.visitDate }}</span>
                 </div>
               </div>
               <button
@@ -279,6 +278,7 @@ const emit = defineEmits<{
   (e: 'toggleLike', attraction: Attraction): void;
   (e: 'writeReview', attractionId: number): void;
   (e: 'addToPlan', attractionId: number): void;
+  (e: 'reloadCards'): void;
 }>();
 
 const isLoggedIn = computed(() => {
@@ -297,15 +297,20 @@ const newReview = ref({
 });
 const isSubmitting = ref(false);
 
+const reloadReviews = () => {
+  if (!props.attraction) return;
+  getAttractionReview(props.attraction.attractionId)
+    .then(response => {
+      reviews.value = response.content;
+    })
+    .catch(() => {});
+};
+
 watch(
   () => props.attraction,
   newAttraction => {
     if (!newAttraction) return;
-    getAttractionReview(newAttraction.attractionId)
-      .then(response => {
-        reviews.value = response.content;
-      })
-      .catch(() => {});
+    reloadReviews();
   },
   { immediate: true }
 );
@@ -358,6 +363,10 @@ const toggleReviewLike = async (review: Review) => {
 
 // 리뷰 작성 폼 열기
 const openReviewForm = () => {
+  if (isLoggedIn.value === false) {
+    toast.error('로그인 후 리뷰를 작성할 수 있습니다');
+    return;
+  }
   isReviewFormOpen.value = true;
 };
 
@@ -400,11 +409,8 @@ const submitReview = async () => {
       toast.success('리뷰가 등록되었습니다');
       closeReviewForm();
       if (!props.attraction) return;
-      getAttractionReview(props.attraction.attractionId)
-        .then(response => {
-          reviews.value = response.content;
-        })
-        .catch(() => {});
+      reloadReviews();
+      emit('reloadCards');
     })
     .catch(() => {
       toast.error('리뷰 등록에 실패했습니다', {

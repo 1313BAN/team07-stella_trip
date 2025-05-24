@@ -66,6 +66,7 @@
               :attraction="selectedAttractionRef"
               @close="closeReview"
               @toggleLike="handleAttractionLikeClick"
+              @reloadCards="fetchAttractions"
             />
           </AsyncContainer>
         </div>
