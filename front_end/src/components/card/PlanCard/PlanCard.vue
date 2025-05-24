@@ -122,7 +122,7 @@ const handleTagClick = (index: number) => {
           ></TagComp>
         </div>
         <div class="flex items-center gap-2 text-purple-200">
-          <LikeButton transparent :isLiked="plan.isLiked" size="sm" @click.stop="handleLikeClick" />
+          <LikeButton transparent :isLiked="plan.isLiked" size="sm" @click="handleLikeClick" />
           <span class="text-sm">{{ formatLikeCount(plan.likeCount) }} 명이 좋아해요</span>
         </div>
       </div>

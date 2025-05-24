@@ -50,7 +50,7 @@ const config = sizeConfig[props.size];
     ]"
     :ariaLabel="isLiked ? '좋아요 취소하기' : '좋아요 하기'"
     :ariaPressed="isLiked"
-    @click.stop="handleClick"
+    @click="handleClick"
   >
     <Heart
       :class="[
