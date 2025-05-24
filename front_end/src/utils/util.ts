@@ -68,6 +68,7 @@ export const calculatePeriod = (startDate: string, endDate: string): string => {
 
 // ContentTypeId로 한글 이름 가져오기
 export function getContentTypeNameKR(id: ContentTypeId | null): string {
+  if (id === null) return '알 수 없음';
   return contentTypeNameKR[id as ContentTypeId] || '알 수 없음';
 }
 

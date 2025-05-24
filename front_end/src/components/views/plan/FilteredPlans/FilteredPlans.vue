@@ -17,13 +17,9 @@ const fetchPlans = async () => {
   plans.value = response.content;
 };
 
-watch(
-  props.filter,
-  () => {
-    fetchPlans();
-  },
-  { immediate: true }
-);
+watch(props.filter, () => {
+  fetchPlans();
+});
 
 await fetchPlans();
 

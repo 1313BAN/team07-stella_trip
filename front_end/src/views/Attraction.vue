@@ -173,6 +173,11 @@ const handleFilterChange = (filters: AttractionsParams) => {
 
 // 남은 이벤트 핸들러들
 const handleAttractionLikeClick = (attraction: Attraction) => {
+  if (!authStore.isAuthenticated) {
+    toast('로그인이 필요합니다.');
+    return;
+  }
+
   if (attraction.isLiked) {
     attraction.isLiked = false;
     attraction.likeCount = attraction.likeCount == 0 ? 0 : attraction.likeCount - 1;

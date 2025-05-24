@@ -293,8 +293,20 @@ const newReview = ref({
   title: '',
   content: '',
   rating: 5,
-  visit_date: new Date().toISOString().split('T')[0],
+  visit_date: '',
 });
+
+// selectedDate와 newReview.visit_date 동기화
+watch(
+  selectedDate,
+  newDate => {
+    if (newDate) {
+      newReview.value.visit_date = newDate.toString();
+    }
+  },
+  { immediate: true }
+);
+
 const isSubmitting = ref(false);
 
 const reloadReviews = () => {
@@ -380,6 +392,7 @@ const closeReviewForm = () => {
     rating: 5,
     visit_date: '',
   };
+  selectedDate.value = today(getLocalTimeZone());
 };
 
 // 리뷰 제출
@@ -403,7 +416,7 @@ const submitReview = async () => {
     title: newReview.value.title,
     content: newReview.value.content,
     rating: newReview.value.rating,
-    visitedDate: newReview.value.visit_date,
+    visitedDate: selectedDate.value.toString(),
   })
     .then(() => {
       toast.success('리뷰가 등록되었습니다');
