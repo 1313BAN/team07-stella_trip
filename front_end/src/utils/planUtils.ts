@@ -8,6 +8,14 @@ export const generateDateRange = (startDate: string, endDate: string): string[] 
   const start = new Date(startDate);
   const end = new Date(endDate);
 
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    throw new Error('Invalid date format');
+  }
+
+  if (start > end) {
+    throw new Error('출발일이 도착일보다 늦습니다.');
+  }
+
   const currentDate = new Date(start);
   while (currentDate <= end) {
     dates.push(currentDate.toISOString().split('T')[0]);

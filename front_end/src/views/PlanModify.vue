@@ -107,15 +107,16 @@ const handleMoveToAttractionSearch = (date: string) => {
 
 // 여행지 추가 핸들러
 const handleAddAttraction = async (attractionId: number) => {
-  const dayIndex = calculateDayIndex(
-    selectedDate.value ?? '',
-    planStore.currentPlan?.startDate ?? ''
-  );
+  if (!selectedDate.value || !planStore.currentPlan?.startDate) {
+    throw new Error('필수 날짜 정보가 없습니다.');
+    return;
+  }
+  const dayIndex = calculateDayIndex(selectedDate.value, planStore.currentPlan?.startDate);
 
   const requestData: PlanAttractionRequest = {
     dayIndex,
     attractionId,
-    visiteTime: '',
+    visitTime: '',
     memo: '',
   };
 
@@ -131,8 +132,16 @@ const handleAddAttraction = async (attractionId: number) => {
 
 // dayIndex 계산 함수
 function calculateDayIndex(selectedDate: string, planStartDate: string): number {
+  if (!selectedDate || !planStartDate) {
+    throw new Error('날짜 값이 유효하지 않습니다');
+  }
+
   const selected = new Date(selectedDate);
   const startDate = new Date(planStartDate);
+
+  if (isNaN(selected.getTime()) || isNaN(startDate.getTime())) {
+    throw new Error('날짜 형식이 올바르지 않습니다');
+  }
 
   const timeDiff = selected.getTime() - startDate.getTime();
   const dayDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
