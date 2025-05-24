@@ -162,7 +162,17 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { Heart, Star, MapPin, User, PenLine, MessageSquare, ThumbsUp, X } from 'lucide-vue-next';
+import {
+  Heart,
+  Star,
+  MapPin,
+  User,
+  PenLine,
+  MessageSquare,
+  ThumbsUp,
+  X,
+  Plus,
+} from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import ImageWithFallback from '@/components/common/ImageWithFallback/ImageWithFallback.vue';

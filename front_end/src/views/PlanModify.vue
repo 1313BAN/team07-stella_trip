@@ -96,7 +96,6 @@ const handleMoveToAttractionSearch = (date: string) => {
 const handleAddAttraction = async (attractionId: number) => {
   if (!selectedDate.value || !planStore.currentPlan?.startDate) {
     throw new Error('필수 날짜 정보가 없습니다.');
-    return;
   }
   const dayIndex = calculateDayIndex(selectedDate.value, planStore.currentPlan?.startDate);
 
