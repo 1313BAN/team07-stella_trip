@@ -15,6 +15,6 @@ export const Default = {
       };
       return { handleAddPlan };
     },
-    template: `<AddPlanCard @addPlan="handleAddPlan" />`,
+    template: `<AddPlanCard @addPlanClick="handleAddPlan" />`,
   }),
 };
