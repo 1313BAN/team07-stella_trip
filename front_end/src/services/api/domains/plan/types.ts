@@ -86,6 +86,7 @@ export type CreatePlanRequest = {
   endDate: string;
 };
 
+//TODO: 타입 일관화 필요
 export type PlanWriter = {
   id: number;
   name: string;
@@ -107,13 +108,13 @@ export type CreatedPlanResponse = {
   likeCount: number;
   planWriters: PlanWriter[];
   tags: PlanTag[];
-  liked: boolean;
-  public: boolean;
+  isLiked: boolean;
+  isPublic: boolean;
 };
 
 export type PlanAttractionRequest = {
   dayIndex: number;
   attractionId: number;
-  visiteTime: string;
+  visitTime: string;
   memo: string;
 };
