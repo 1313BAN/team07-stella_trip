@@ -64,7 +64,7 @@ const props = defineProps<{
 
 // Emits
 const emit = defineEmits<{
-  (e: 'addAttraction', date: string): void;
+  (e: 'moveToAttractionSearch', date: string): void;
 }>();
 
 const { selectPlanDetail, showRoute, clearPolylines, clearMarkers } = useMapState();
@@ -76,7 +76,7 @@ const selectedDate = ref<string | null>(null);
 
 // 여행지 추가 버튼 클릭 핸들러
 const handleAddAttraction = (date: string) => {
-  emit('addAttraction', date);
+  emit('moveToAttractionSearch', date);
 };
 
 // 좋아요 토글

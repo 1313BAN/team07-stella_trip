@@ -83,16 +83,11 @@ import type { Attraction, AttractionsParams } from '@/services/api/domains/attra
 import { getAttractions } from '@/services/api/domains/attraction';
 import { useScroll } from '@/composables/useScroll';
 import { useMapState } from '@/composables/useMapState';
-import { toast } from 'vue-sonner';
 
 const props = defineProps<{
   currentDate?: string | null;
 }>();
 
-// Emits
-const emit = defineEmits<{
-  addAttraction: [attraction: Attraction, date: string];
-}>();
 const filterComponentRef = ref<InstanceType<typeof AttractionFilter> | null>(null);
 
 const router = useRouter();

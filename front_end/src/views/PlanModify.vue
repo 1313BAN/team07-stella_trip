@@ -8,16 +8,7 @@
             <component :is="Component" :currentDate="selectedDate" />
           </template>
           <template v-else>
-            <AsyncContainer
-              :loadingComponent="PlanDetailSkeleton"
-              :errorComponent="PlanDetailError"
-            >
-              <PlanDetail
-                :planId="planId"
-                class="h-full overflow-x-hidden overflow-y-auto"
-                @addAttraction="handleMoveToAttractionSearch"
-              />
-            </AsyncContainer>
+            <PlanDetail @moveToAttractionSearch="handleMoveToAttractionSearch" />
           </template>
         </router-view>
       </ResizablePanel>
@@ -65,15 +56,11 @@ import AsyncContainer from '@/components/AsyncContainer/AsyncContainer.vue';
 import MapContainer from '@/components/map/MapContainer.vue';
 import MapError from '@/components/map/MapError.vue';
 import {
-  PlanDetailError,
-  PlanDetailSkeleton,
-  PlanDetail,
-} from '@/components/views/plan/PlanDetail';
-import {
   AttractionDetail,
   AttractionDetailError,
   AttractionDetailSkeleton,
 } from '@/components/views/attraction/AttractionDetail';
+import PlanDetail from '@/views/PlanDetail.vue';
 import CommonSkeleton from '@/components/skeleton/CommonSkeleton/CommonSkeleton.vue';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { usePlanStore } from '@/stores/plan';

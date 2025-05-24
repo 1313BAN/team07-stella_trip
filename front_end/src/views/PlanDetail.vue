@@ -13,7 +13,7 @@
     </div>
 
     <AsyncContainer :loadingComponent="PlanDetailSkeleton" :errorComponent="PlanDetailError">
-      <PlanDetail :planId="planId" />
+      <PlanDetail :planId="planId" @moveToAttractionSearch="handleMoveToAttractionSearch" />
     </AsyncContainer>
   </div>
 </template>
@@ -38,6 +38,14 @@ const route = useRoute();
 // planId 계산 속성
 const planId = computed(() => Number(route.params.planId));
 
+const emit = defineEmits<{
+  (e: 'moveToAttractionSearch', date: string): void;
+}>();
+
+// 여행지 추가 버튼 클릭 핸들러
+const handleMoveToAttractionSearch = (date: string) => {
+  emit('moveToAttractionSearch', date);
+};
 // 뒤로 가기
 const goBack = () => {
   router.push({ name: ROUTES.PLANS.name });
