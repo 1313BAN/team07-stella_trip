@@ -4,18 +4,7 @@
     <StellaHeader :stella="planDetail?.stella" :backgroundStars="backgroundStars" />
 
     <!-- 기본 정보 섹션 -->
-    <PlanInfo
-      class="px-2"
-      :planId="planId"
-      :title="planDetail?.title"
-      :dateRange="formatDateRange(planDetail?.startDate, planDetail?.endDate)"
-      :description="planDetail?.description ?? ''"
-      :tags="planDetail?.tags"
-      :writers="planDetail?.planWriters"
-      :likeCount="planDetail?.likeCount || 0"
-      :isLiked="planDetail?.isLiked"
-      @toggleLike="toggleLike"
-    />
+    <PlanInfo class="px-2" :plan="planDetail" @toggleLike="toggleLike" />
 
     <!-- 일정 섹션 -->
     <div class="flex-1 bg-slate-900/20 p-3">
@@ -44,6 +33,7 @@
           :date="date"
           :attractions="attractions"
           @showRoute="showRouteOnMap"
+          @addAttraction="handleAddAttraction"
         />
       </div>
 
@@ -54,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onUnmounted, watch } from 'vue';
+import { ref, computed, onUnmounted, watch } from 'vue';
 import { X } from 'lucide-vue-next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -64,42 +54,33 @@ import DailySchedule from '@/components/card/DailyScheduleCard/DailyScheduleCard
 import EmptySchedule from './EmptySchedule.vue';
 import { getPlanDetail, type PlanDetail, type RouteAttraction } from '@/services/api/domains/plan';
 import { useMapState } from '@/composables/useMapState';
+import { fillPlanDetails } from '@/utils/planUtils';
+import { usePlanStore } from '@/stores/plan';
 import type { MarkerInfo } from '@/types/kakao';
 
-// Props
 const props = defineProps<{
   planId: number;
 }>();
 
 // Emits
 const emit = defineEmits<{
-  (e: 'toggleLike', planId: number): void;
+  (e: 'addAttraction', date: string): void;
 }>();
 
 const { selectPlanDetail, showRoute, clearPolylines, clearMarkers } = useMapState();
+const planStore = usePlanStore();
 
-const planDetail = ref<PlanDetail | null>(null);
+// Store에서 현재 플랜 데이터 가져오기
+const planDetail = computed(() => planStore.currentPlan);
 const selectedDate = ref<string | null>(null);
 
-// 날짜 범위 표시 형식
-const formatDateRange = (startDate?: string, endDate?: string) => {
-  if (!startDate || !endDate) return '';
-
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-
-  const startStr = `${start.getFullYear()}년 ${start.getMonth() + 1}월 ${start.getDate()}일`;
-  const endStr = `${end.getFullYear()}년 ${end.getMonth() + 1}월 ${end.getDate()}일`;
-
-  return `${startStr} ~ ${endStr}`;
+// 여행지 추가 버튼 클릭 핸들러
+const handleAddAttraction = (date: string) => {
+  emit('addAttraction', date);
 };
 
 // 좋아요 토글
-const toggleLike = () => {
-  if (planDetail.value) {
-    emit('toggleLike', planDetail.value.planId);
-  }
-};
+const toggleLike = (planId: number) => {};
 
 // 배경 별 생성
 const backgroundStars = Array.from({ length: 30 }, () => ({
@@ -129,12 +110,12 @@ const showRouteOnMap = (date: string, attractions: RouteAttraction[]) => {
 
   if (!planDetail.value) return;
 
-  const dailyPlanDetail: PlanDetail = {
+  const dailyPlanDetail = {
     ...planDetail.value,
     details: {
       [date]: attractions,
     },
-  };
+  } as PlanDetail;
 
   // 다중 마커 표시
   selectPlanDetail(dailyPlanDetail);
@@ -153,20 +134,23 @@ const resetRoute = () => {
   clearPolylines();
 
   if (planDetail.value) {
-    selectPlanDetail(planDetail.value);
+    selectPlanDetail(planDetail.value as PlanDetail);
   }
 };
 
 // 비동기 초기화 데이터 로드
 const initializeData = async () => {
   const data = await getPlanDetail(props.planId);
-  planDetail.value = data;
 
-  if (data) {
-    selectPlanDetail(data);
+  // 모든 날짜에 대해 details 채우기
+  const filledData = data ? fillPlanDetails(data) : null;
+  planStore.setPlanDetail(filledData);
+
+  if (filledData) {
+    selectPlanDetail(filledData);
   }
 
-  return data;
+  return filledData;
 };
 
 onUnmounted(() => {

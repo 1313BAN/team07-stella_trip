@@ -13,13 +13,13 @@
     </div>
 
     <AsyncContainer :loadingComponent="PlanDetailSkeleton" :errorComponent="PlanDetailError">
-      <PlanDetail :planId="planId" @toggleLike="handleToggleLike" />
+      <PlanDetail :planId="planId" />
     </AsyncContainer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue';
+import { computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { ChevronLeft } from 'lucide-vue-next';
 import AsyncContainer from '@/components/AsyncContainer/AsyncContainer.vue';
@@ -29,7 +29,6 @@ import {
   PlanDetailSkeleton,
   PlanDetail,
 } from '@/components/views/plan/PlanDetail';
-import { useMapState } from '@/composables/useMapState';
 import { ROUTES } from '@/router/routes';
 
 // Vue Router
@@ -38,26 +37,6 @@ const route = useRoute();
 
 // planId 계산 속성
 const planId = computed(() => Number(route.params.planId));
-
-// 지도 상태 관리
-const { mapRef, showAllMarkers } = useMapState();
-
-// MapContainer 컴포넌트의 map 객체 감시
-// 여기가 핵심: mapRef.value.map이 변경될 때마다 마커를 다시 그림
-watch(
-  () => mapRef.value?.map,
-  newMap => {
-    if (newMap) {
-      showAllMarkers();
-    }
-  },
-  { deep: true }
-);
-
-// 좋아요 토글 핸들러
-const handleToggleLike = (planId: number) => {
-  console.log('여행 계획 좋아요 토글:', planId);
-};
 
 // 뒤로 가기
 const goBack = () => {

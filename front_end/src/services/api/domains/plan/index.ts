@@ -1,7 +1,15 @@
 import { PLAN } from '../../endpoint';
 import api from '../../api';
 import type { ApiResponse, PagenationResponse } from '../../types';
-import type { Plan, PlansParams, Tag, PlanDetail } from './types';
+import type {
+  Plan,
+  PlansParams,
+  Tag,
+  PlanDetail,
+  CreatePlanRequest,
+  CreatedPlanResponse,
+  PlanAttractionRequest,
+} from './types';
 
 /**
  * query parameter를 바탕으로 여행 계획 리스트 조회
@@ -32,6 +40,26 @@ export const getPopularTags = async (size?: number): Promise<Tag[]> => {
  */
 export const getPlanDetail = async (planId: number): Promise<PlanDetail> => {
   const response = await api.get<ApiResponse<PlanDetail>>(PLAN.DETAIL(planId));
+
+  return response.data.body;
+};
+
+/**
+ * 여행 계획 추가
+ * @param data 여행 계획 데이터
+ * @returns 생성된 여행 계획 정보
+ */
+export const createPlan = async (data: CreatePlanRequest): Promise<CreatedPlanResponse> => {
+  const response = await api.post<ApiResponse<CreatedPlanResponse>>(PLAN.PLANS, data);
+
+  return response.data.body;
+};
+
+export const addAttractionToDate = async (
+  planId: number,
+  data: PlanAttractionRequest
+): Promise<PlanDetail> => {
+  const response = await api.post<ApiResponse<PlanDetail>>(PLAN.ADD_ATTRACTIONS(planId), data);
 
   return response.data.body;
 };
