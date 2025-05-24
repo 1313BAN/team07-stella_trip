@@ -69,7 +69,8 @@ public class AttractionService {
      * @param size 한 페이지 크기
      * @return PageDTO
      */
-    public PageDTO<ReviewResponseDTO> getAttractionReviews(int attractionId, int page, int size, int userId){
+    public PageDTO<ReviewResponseDTO> getAttractionReviews(int attractionId, int page, int size, JwtUserInfo user){
+        Integer userId = user == null ? -1 : user.getUserId();
         return PaginationUtils.getPagedResult(
                 page,
                 size,

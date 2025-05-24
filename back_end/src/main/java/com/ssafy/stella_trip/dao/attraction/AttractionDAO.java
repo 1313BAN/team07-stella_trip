@@ -35,7 +35,7 @@ public interface AttractionDAO {
 
     ReviewDTO getReviewByReviewId(int reviewId);
     int countReviewsByAttractionId(int attractionId);
-    List<ReviewWithUserNameDTO> getReviewsByAttractionId(@Param("attractionId") int attractionId, @Param("offset") int offset, @Param("size") int size, @Param("userId") int userId);
+    List<ReviewWithUserNameDTO> getReviewsByAttractionId(@Param("attractionId") int attractionId, @Param("offset") int offset, @Param("size") int size, @Param("userId") Integer userId);
     int insertReview(ReviewDTO reviewDTO);
     int updateReview(ReviewDTO reviewDTO);
     int deleteReviewByReviewId(int reviewId);

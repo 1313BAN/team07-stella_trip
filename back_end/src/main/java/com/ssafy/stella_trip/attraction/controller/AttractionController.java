@@ -70,13 +70,14 @@ public class AttractionController {
 
     //리뷰 페이징 조회
     @GetMapping("/{attractionId}/reviews")
+    @PreAuthorize("permitAll()")
     public CommonResponse<PageDTO<ReviewResponseDTO>> getAttractionReviews(
             @PathVariable int attractionId,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "20") int size,
             @AuthenticationPrincipal JwtUserInfo user
             ) {
-        return new CommonResponse<>(attractionService.getAttractionReviews(attractionId, page, size, user.getUserId()), HttpStatus.OK);
+        return new CommonResponse<>(attractionService.getAttractionReviews(attractionId, page, size, user), HttpStatus.OK);
     }
 
     //리뷰 생성
