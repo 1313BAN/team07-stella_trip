@@ -5,7 +5,7 @@ export type AttractionsParams = {
   size?: number;
   sidoCode?: number;
   gugunCode?: number;
-  contentTypeIdList?: ContentTypeId[];
+  contentTypeIds?: ContentTypeId[];
   keyword?: string;
 };
 

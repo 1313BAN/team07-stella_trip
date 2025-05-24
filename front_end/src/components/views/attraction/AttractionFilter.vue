@@ -144,6 +144,17 @@ import type {
 } from '@/services/api/domains/attraction/types';
 
 const props = defineProps({
+  filterParams: {
+    type: Object as PropType<AttractionsParams>,
+    default: () => ({
+      page: 1,
+      size: 10,
+      keyword: '',
+      sidoCode: undefined,
+      gugunCode: undefined,
+      contentTypeIds: [],
+    }),
+  },
   parentScrollContainer: {
     type: Object as PropType<HTMLElement | null>,
     default: null,
@@ -165,11 +176,21 @@ const emit = defineEmits<{
 const isSearchFocused = ref(false);
 const containerRef = ref<HTMLElement | null>(null);
 
-const searchQuery = ref('');
-const selectedSido = ref<Sido | null>();
-const selectedGugun = ref<Gugun | null>();
-const selectedContentTypes = ref<ContentTypeId[]>([]);
 const sigunguList = ref<Sigungu | null>(null);
+
+const searchQuery = ref(props.filterParams.keyword);
+const selectedSido = ref<Sido | null>(
+  sigunguList.value?.sidoList.find(sido => sido.sidoCode === props.filterParams.sidoCode) || null
+);
+const selectedGugun = ref<Gugun | null>(
+  selectedSido.value?.gugunList.find(gugun => gugun.gugunCode === props.filterParams.gugunCode) ||
+    null
+);
+const selectedContentTypes = ref<ContentTypeId[]>(
+  props.filterParams.contentTypeIds && props.filterParams.contentTypeIds.length > 0
+    ? props.filterParams.contentTypeIds
+    : []
+);
 
 // 스크롤 상태 변화 감지
 watch([() => props.isScrollingDown, () => props.scrollY], ([newIsScrollingDown, newScrollY]) => {
@@ -254,7 +275,7 @@ const applyFilters = () => {
     keyword: searchQuery.value,
     sidoCode: selectedSido.value === null ? undefined : selectedSido.value?.sidoCode,
     gugunCode: selectedGugun.value === null ? undefined : selectedGugun.value?.gugunCode,
-    contentTypeIdList: selectedContentTypes.value,
+    contentTypeIds: selectedContentTypes.value,
   });
   isSearchFocused.value = false;
 };

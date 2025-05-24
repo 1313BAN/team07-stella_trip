@@ -1,6 +1,6 @@
 import { ATTRACTION } from '../../endpoint';
 import api from '../../api';
-import type { ApiResponse, PagenationResponse } from '../../types';
+import type { ApiResponse, PagenationResponse, CommonSuccessBody } from '../../types';
 import type { Attraction, AttractionsParams, AttractionDetail, Sigungu } from './types';
 
 /**
@@ -42,4 +42,26 @@ export const getSigunguList = async (): Promise<Sigungu> => {
   const response = await api.get<ApiResponse<Sigungu>>(ATTRACTION.SIGUNGU);
 
   return response.data.body;
+};
+
+/**
+ * 여행지 좋아요 API
+ * @param attractionId 여행지 ID
+ * @returns 좋아요 여부
+ */
+export const postAttractionLike = async (attractionId: number): Promise<boolean> => {
+  const response = await api.post<ApiResponse<CommonSuccessBody>>(ATTRACTION.LIKE(attractionId));
+
+  return response.data.body.success;
+};
+
+/**
+ * 여행지 좋아요 취소 API
+ * @param attractionId 여행지 ID
+ * @returns 좋아요 취소 여부
+ */
+export const deleteAttractionLike = async (attractionId: number): Promise<boolean> => {
+  const response = await api.delete<ApiResponse<CommonSuccessBody>>(ATTRACTION.LIKE(attractionId));
+
+  return response.data.body.success;
 };
