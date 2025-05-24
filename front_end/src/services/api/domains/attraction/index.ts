@@ -1,7 +1,14 @@
 import { ATTRACTION } from '../../endpoint';
 import api from '../../api';
 import type { ApiResponse, PagenationResponse, CommonSuccessBody } from '../../types';
-import type { Attraction, AttractionsParams, AttractionDetail, Sigungu, Review } from './types';
+import type {
+  Attraction,
+  AttractionsParams,
+  AttractionDetail,
+  Sigungu,
+  Review,
+  ReviewRequest,
+} from './types';
 
 /**
  * query parameter를 바탕으로 여행지 리스트 조회
@@ -80,4 +87,55 @@ export const getAttractionReview = async (
   );
 
   return response.data.body;
+};
+
+/**
+ * 여행지 리뷰 작성 API
+ * @param attractionId 여행지 ID
+ * @param review 여행지 리뷰
+ * @returns 여행지 리뷰 작성 여부
+ */
+export const postAttractionReview = async (
+  attractionId: number,
+  review: ReviewRequest
+): Promise<boolean> => {
+  const response = await api.post<ApiResponse<CommonSuccessBody>>(
+    ATTRACTION.REVIEW(attractionId),
+    review
+  );
+
+  return response.data.body.success;
+};
+
+/**
+ * 여행지 리뷰 수정 API
+ * @param attractionId 여행지 ID
+ * @param reviewId 여행지 리뷰 ID
+ * @param review 여행지 리뷰
+ * @returns 여행지 리뷰 수정 여부
+ */
+export const postReviewLike = async (attractionId: number, reviewId: number): Promise<boolean> => {
+  const response = await api.post<ApiResponse<CommonSuccessBody>>(
+    ATTRACTION.REVIEW_LIKE(attractionId, reviewId)
+  );
+
+  return response.data.body.success;
+};
+
+/**
+ * 여행지 리뷰 수정 API
+ * @param attractionId 여행지 ID
+ * @param reviewId 여행지 리뷰 ID
+ * @param review 여행지 리뷰
+ * @returns 여행지 리뷰 수정 여부
+ */
+export const deleteReviewLike = async (
+  attractionId: number,
+  reviewId: number
+): Promise<boolean> => {
+  const response = await api.delete<ApiResponse<CommonSuccessBody>>(
+    ATTRACTION.REVIEW_LIKE(attractionId, reviewId)
+  );
+
+  return response.data.body.success;
 };

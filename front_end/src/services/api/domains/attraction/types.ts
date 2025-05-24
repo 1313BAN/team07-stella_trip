@@ -52,4 +52,11 @@ export type Review = {
   isLiked: boolean;
 };
 
+export type ReviewRequest = {
+  title: string;
+  content: string;
+  rating: number;
+  visitedDate: string;
+};
+
 export type AttractionDetail = Attraction;
