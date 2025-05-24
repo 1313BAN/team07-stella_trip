@@ -1,5 +1,5 @@
 import { ref, computed, watch, type ComputedRef } from 'vue';
-import type { Attraction } from '@/services/api/domains/attraction';
+import type { Attraction } from '@/services/api/domains/attraction/types';
 import type { Plan, PlanDetail } from '@/services/api/domains/plan';
 import type { MarkerInfo, MarkerInstance, PolylineInstance } from '@/types/kakao';
 import type MapContainer from '@/components/map/MapContainer.vue';

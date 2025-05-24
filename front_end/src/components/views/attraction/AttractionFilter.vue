@@ -31,25 +31,45 @@
         <!-- 시도/구군 선택 -->
         <div class="grid grid-cols-2 gap-2">
           <div class="relative">
-            <Select v-model="selectedSido" @update:modelValue="onSidoChange">
+            <Select
+              v-model="selectedSido"
+              :disabled="sigunguList === null"
+              @update:modelValue="onSidoChange"
+            >
               <SelectTrigger class="border-purple-500/30 bg-slate-800/90 text-white">
                 <SelectValue placeholder="시/도 선택" />
               </SelectTrigger>
               <SelectContent class="border-purple-500/20 bg-slate-900 text-white">
-                <SelectItem value="all" class="focus:bg-purple-500/30">전체</SelectItem>
-                <!-- 시도 목록은 API에서 가져옴 -->
+                <SelectItem value="null" class="focus:bg-purple-500/30">전체</SelectItem>
+                <!-- 구군 목록은 API에서 가져옴 -->
+                <SelectItem
+                  v-for="sido in sigunguList?.sidoList || []"
+                  :key="sido.sidoCode"
+                  :value="sido"
+                  class="focus:bg-purple-500/30"
+                >
+                  {{ sido.sidoName }}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div class="relative">
-            <Select v-model="selectedGugun" :disabled="!selectedSido || selectedSido === 'all'">
+            <Select v-model="selectedGugun" :disabled="selectedSido === null">
               <SelectTrigger class="border-purple-500/30 bg-slate-800/90 text-white">
                 <SelectValue placeholder="구/군 선택" />
               </SelectTrigger>
               <SelectContent class="border-purple-500/20 bg-slate-900 text-white">
-                <SelectItem value="all" class="focus:bg-purple-500/30">전체</SelectItem>
+                <SelectItem value="null" class="focus:bg-purple-500/30">전체</SelectItem>
                 <!-- 구군 목록은 API에서 가져옴 -->
+                <SelectItem
+                  v-for="gugun in selectedSido?.gugunList || []"
+                  :key="gugun.gugunCode"
+                  :value="gugun"
+                  class="focus:bg-purple-500/30"
+                >
+                  {{ gugun.gugunName }}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -60,17 +80,19 @@
           <Label class="text-sm font-medium text-purple-200/80">관광 유형</Label>
           <div class="flex flex-wrap gap-2">
             <Badge
-              v-for="(name, id) in contentTypeOptions"
-              :key="id"
-              :variant="selectedContentTypes.includes(Number(id)) ? 'default' : 'outline'"
+              v-for="(label, contentTypeId) in contentTypeNameKR"
+              :key="contentTypeId"
+              :variant="
+                selectedContentTypes.includes(Number(contentTypeId)) ? 'default' : 'outline'
+              "
               class="cursor-pointer border-purple-400/30 bg-slate-800 py-1.5 text-sm text-white transition-all hover:bg-slate-700"
               :class="{
                 'border-purple-500/50 bg-purple-600 text-white hover:bg-purple-500':
-                  selectedContentTypes.includes(Number(id)),
+                  selectedContentTypes.includes(Number(contentTypeId)),
               }"
-              @click="toggleContentType(Number(id))"
+              @click="toggleContentType(Number(contentTypeId))"
             >
-              {{ name }}
+              {{ label }}
             </Badge>
           </div>
         </div>
@@ -98,7 +120,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch, type PropType, computed } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch, type PropType } from 'vue';
 import { Search } from 'lucide-vue-next';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -112,9 +134,27 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import { AttractionContentType } from '@/constants/constant';
+import { ContentTypeId, contentTypeNameKR } from '@/constants/constant';
+import { getSigunguList } from '@/services/api/domains/attraction/index';
+import type {
+  AttractionsParams,
+  Sigungu,
+  Sido,
+  Gugun,
+} from '@/services/api/domains/attraction/types';
 
 const props = defineProps({
+  filterParams: {
+    type: Object as PropType<AttractionsParams>,
+    default: () => ({
+      page: 1,
+      size: 10,
+      keyword: '',
+      sidoCode: undefined,
+      gugunCode: undefined,
+      contentTypeIds: [],
+    }),
+  },
   parentScrollContainer: {
     type: Object as PropType<HTMLElement | null>,
     default: null,
@@ -130,26 +170,27 @@ const props = defineProps({
 });
 
 const emit = defineEmits<{
-  (
-    e: 'filter',
-    filters: {
-      query: string;
-      sido: string;
-      gugun: string;
-      contentTypes: number[];
-    }
-  ): void;
+  (e: 'filter', filters: AttractionsParams): void;
 }>();
-
-const contentTypeOptions = computed(() => AttractionContentType);
 
 const isSearchFocused = ref(false);
 const containerRef = ref<HTMLElement | null>(null);
 
-const searchQuery = ref('');
-const selectedSido = ref('');
-const selectedGugun = ref('');
-const selectedContentTypes = ref<number[]>([]);
+const sigunguList = ref<Sigungu | null>(null);
+
+const searchQuery = ref(props.filterParams.keyword);
+const selectedSido = ref<Sido | null>(
+  sigunguList.value?.sidoList.find(sido => sido.sidoCode === props.filterParams.sidoCode) || null
+);
+const selectedGugun = ref<Gugun | null>(
+  selectedSido.value?.gugunList.find(gugun => gugun.gugunCode === props.filterParams.gugunCode) ||
+    null
+);
+const selectedContentTypes = ref<ContentTypeId[]>(
+  props.filterParams.contentTypeIds && props.filterParams.contentTypeIds.length > 0
+    ? props.filterParams.contentTypeIds
+    : []
+);
 
 // 스크롤 상태 변화 감지
 watch([() => props.isScrollingDown, () => props.scrollY], ([newIsScrollingDown, newScrollY]) => {
@@ -160,9 +201,18 @@ watch([() => props.isScrollingDown, () => props.scrollY], ([newIsScrollingDown, 
 
 // 외부 클릭 감지용 이벤트 핸들러
 const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as HTMLElement;
+
+  // Select 및 dropdown 관련 요소에 대한 클릭은 무시
+  const isSelectElement =
+    target.closest('[data-slot="select-content"]') ||
+    target.closest('[data-slot="select-item"]') ||
+    target.closest('[data-slot="select-trigger"]');
+
   if (
     containerRef.value &&
-    !containerRef.value.contains(event.target as Node) &&
+    !containerRef.value.contains(target as Node) &&
+    !isSelectElement &&
     isSearchFocused.value
   ) {
     closeFilterPanel();
@@ -181,8 +231,9 @@ defineExpose({
   closeFilterPanel,
 });
 
-onMounted(() => {
+onMounted(async () => {
   document.addEventListener('mousedown', handleClickOutside);
+  sigunguList.value = await getSigunguList();
 });
 
 onBeforeUnmount(() => {
@@ -190,9 +241,8 @@ onBeforeUnmount(() => {
 });
 
 // 시도 변경 핸들러
-const onSidoChange = () => {
-  selectedGugun.value = '';
-  // 여기서 선택된 시도에 따른 구군 목록을 API에서 가져올 수 있음
+const onSidoChange = async () => {
+  selectedGugun.value = null;
 };
 
 // 컨텐츠 타입 토글 핸들러
@@ -207,8 +257,8 @@ const toggleContentType = (typeId: number) => {
 // 필터 초기화
 const resetFilters = () => {
   searchQuery.value = '';
-  selectedSido.value = '';
-  selectedGugun.value = '';
+  selectedSido.value = null;
+  selectedGugun.value = null;
   selectedContentTypes.value = [];
 };
 
@@ -220,12 +270,13 @@ const handleSearch = () => {
 // 필터 적용
 const applyFilters = () => {
   emit('filter', {
-    query: searchQuery.value,
-    sido: selectedSido.value === 'all' ? '' : selectedSido.value,
-    gugun: selectedGugun.value === 'all' ? '' : selectedGugun.value,
-    contentTypes: selectedContentTypes.value,
+    page: 1,
+    size: 10,
+    keyword: searchQuery.value,
+    sidoCode: selectedSido.value === null ? undefined : selectedSido.value?.sidoCode,
+    gugunCode: selectedGugun.value === null ? undefined : selectedGugun.value?.gugunCode,
+    contentTypeIds: selectedContentTypes.value,
   });
-
   isSearchFocused.value = false;
 };
 </script>

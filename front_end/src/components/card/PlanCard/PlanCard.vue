@@ -59,10 +59,12 @@ const handleCardClick = () => {
 };
 
 const handleLikeClick = () => {
+  // 이벤트 버블링 방지
   emit('likeClick', props.plan);
 };
 
 const handleTagClick = (index: number) => {
+  // 이벤트 버블링 방지
   emit('tagClick', props.plan.tags[index]);
 };
 </script>
@@ -115,14 +117,14 @@ const handleTagClick = (index: number) => {
       <div class="flex flex-col gap-1">
         <div class="flex flex-wrap gap-2">
           <TagComp
-            v-for="tag in plan.tags.slice(0, 3)"
+            v-for="(tag, index) in plan.tags.slice(0, 3)"
             :key="tag.tagId"
             :label="tag.name"
-            @tagClick="handleTagClick"
+            @tagClick="handleTagClick(index)"
           ></TagComp>
         </div>
         <div class="flex items-center gap-2 text-purple-200">
-          <LikeButton transparent :isLiked="plan.isLiked" size="sm" @click.stop="handleLikeClick" />
+          <LikeButton transparent :isLiked="plan.isLiked" size="sm" @likeClick="handleLikeClick" />
           <span class="text-sm">{{ formatLikeCount(plan.likeCount) }} 명이 좋아해요</span>
         </div>
       </div>

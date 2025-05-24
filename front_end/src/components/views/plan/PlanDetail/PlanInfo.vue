@@ -14,7 +14,7 @@
           variant="ghost"
           size="sm"
           class="flex items-center gap-1.5 text-purple-200 hover:bg-purple-900/30"
-          @click="handleClick"
+          @click="handleLikeClick"
         >
           <Heart v-if="plan?.isLiked" class="h-4 w-4 fill-purple-400 text-purple-400" />
           <Heart v-else class="h-4 w-4 text-gray-300" />
@@ -54,14 +54,14 @@ import { Heart, Calendar, Users } from 'lucide-vue-next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Tag from '@/components/common/Tag/Tag.vue';
-import type { PlanDetail } from '@/services/api/domains/plan';
+import { type PlanDetail } from '@/services/api/domains/plan';
 
 const props = defineProps<{
   plan?: PlanDetail | null;
 }>();
 
 const emit = defineEmits<{
-  toggleLike: [planId: number];
+  toggleLike: [];
 }>();
 
 // 날짜 범위 표시 형식
@@ -77,9 +77,7 @@ const formatDateRange = (startDate?: string, endDate?: string) => {
   return `${startStr} ~ ${endStr}`;
 };
 
-const handleClick = () => {
-  if (props.plan?.planId) {
-    emit('toggleLike', props.plan.planId);
-  }
+const handleLikeClick = () => {
+  emit('toggleLike');
 };
 </script>

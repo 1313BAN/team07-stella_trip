@@ -52,11 +52,19 @@ import StellaHeader from './StellaHeader.vue';
 import PlanInfo from './PlanInfo.vue';
 import DailySchedule from '@/components/card/DailyScheduleCard/DailyScheduleCard.vue';
 import EmptySchedule from './EmptySchedule.vue';
-import { getPlanDetail, type PlanDetail, type RouteAttraction } from '@/services/api/domains/plan';
+import {
+  deletePlanLike,
+  getPlanDetail,
+  postPlanLike,
+  type PlanDetail,
+  type RouteAttraction,
+} from '@/services/api/domains/plan';
 import { useMapState } from '@/composables/useMapState';
 import { fillPlanDetails } from '@/utils/planUtils';
 import { usePlanStore } from '@/stores/plan';
 import type { MarkerInfo } from '@/types/kakao';
+import { toast } from 'vue-sonner';
+import { useAuthStore } from '@/stores/auth';
 
 const props = defineProps<{
   planId: number;
@@ -79,8 +87,53 @@ const handleAddAttraction = (date: string) => {
   emit('addAttraction', date);
 };
 
+// 로그인 여부 확인 (예시: 로컬스토리지 토큰 기반)
+const isLoggedIn = computed(() => {
+  const authStore = useAuthStore();
+  return authStore.isAuthenticated;
+});
+
 // 좋아요 토글
-const toggleLike = (planId: number) => {};
+const toggleLike = () => {
+  if (isLoggedIn.value === false) {
+    toast('로그인이 필요한 기능입니다.');
+    return;
+  }
+
+  if (planStore.currentPlan) {
+    if (planStore.currentPlan?.planId) {
+      if (!planStore.currentPlan.isLiked) {
+        postPlanLike(planStore.currentPlan.planId)
+          .then(() => {
+            toast('좋아요가 추가되었습니다.');
+          })
+          .catch(() => {
+            toast('좋아요 처리 중 오류 발생:');
+          })
+          .finally(() => {
+            if (planStore.currentPlan) {
+              planStore.currentPlan.isLiked = true;
+              planStore.currentPlan.likeCount += 1;
+            }
+          });
+      } else {
+        deletePlanLike(planStore.currentPlan.planId)
+          .then(() => {
+            toast('좋아요가 취소되었습니다.');
+          })
+          .catch(() => {
+            toast('이미 좋아요를 누른 계획입니다.');
+          })
+          .finally(() => {
+            if (planStore.currentPlan) {
+              planStore.currentPlan.isLiked = false;
+              planStore.currentPlan.likeCount -= 1;
+            }
+          });
+      }
+    }
+  }
+};
 
 // 배경 별 생성
 const backgroundStars = Array.from({ length: 30 }, () => ({

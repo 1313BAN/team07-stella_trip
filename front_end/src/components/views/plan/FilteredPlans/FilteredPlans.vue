@@ -4,34 +4,24 @@ import PlanCard from '@/components/card/PlanCard/PlanCard.vue';
 import GridCardListContainer from '@/components/common/GridCardListContainer/GridCardListContainer.vue';
 import { getPlans, type PlansParams, type Plan, type Tag } from '@/services/api/domains/plan';
 
-interface Props {
-  apiParams?: PlansParams;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  apiParams: () => ({ page: 1, size: 10 }),
-});
-
+const props = defineProps<{ filter: PlansParams }>();
 const emit = defineEmits<{
   (e: 'cardClick', plan: Plan): void;
   (e: 'likeClick', plan: Plan): void;
   (e: 'tagClick', tag: Tag): void;
 }>();
-
 const plans = ref<Plan[]>([]);
 
 const fetchPlans = async () => {
-  const response = await getPlans(props.apiParams);
+  const response = await getPlans(props.filter);
   plans.value = response.content;
 };
 
-await fetchPlans();
+watch(props.filter, () => {
+  fetchPlans();
+});
 
-watch(
-  () => props.apiParams,
-  () => fetchPlans(),
-  { deep: true }
-);
+await fetchPlans();
 
 const handleCardClick = (plan: Plan) => {
   emit('cardClick', plan);

@@ -10,6 +10,10 @@ export type ApiErrorBody = {
 
 export type ApiErrorResponse = ApiResponse<ApiErrorBody>;
 
+export type CommonSuccessBody = {
+  success: boolean;
+};
+
 export type PagenationResponse<T> = {
   content: T[];
   hasNext: boolean;
