@@ -15,6 +15,8 @@ const handleClick = () => {
     tabindex="0"
     aria-label="여행 계획 추가하기"
     @click="handleClick"
+    @keydown.enter="handleClick"
+    @keydown.space.prevent="handleClick"
   >
     <div class="flex flex-col items-center gap-2">
       <span class="text-lg font-semibold">여행계획 추가</span>

@@ -83,6 +83,7 @@ import type { Attraction } from '@/services/api/domains/attraction';
 import { useScroll } from '@/composables/useScroll';
 import { useAttractionFilter } from '@/composables/useAttractionFilter';
 import { useMapState } from '@/composables/useMapState';
+import { toast } from 'vue-sonner';
 
 const props = defineProps<{
   currentDate?: string | null;
@@ -118,7 +119,9 @@ const handleAttractionCardClick = (attraction: Attraction) => {
 // 여행지 추가 버튼 클릭 핸들러
 const handleAddClick = (attraction: Attraction) => {
   if (!selectedDate.value) {
-    console.error('선택된 날짜가 없습니다.');
+    toast.error('날짜를 선택해주세요', {
+      description: '관광지를 추가하려면 먼저 날짜를 선택해야 합니다.',
+    });
     return;
   }
 
