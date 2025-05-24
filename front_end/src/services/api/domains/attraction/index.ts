@@ -1,7 +1,7 @@
 import { ATTRACTION } from '../../endpoint';
 import api from '../../api';
 import type { ApiResponse, PagenationResponse } from '../../types';
-import type { Attraction, AttractionsParams, AttractionDetail } from './types';
+import type { Attraction, AttractionsParams, AttractionDetail, Sigungu } from './types';
 
 /**
  * query parameter를 바탕으로 여행지 리스트 조회
@@ -14,6 +14,9 @@ export const getAttractions = async (
     ATTRACTION.ATTRACTIONS,
     {
       params,
+      paramsSerializer: {
+        indexes: null, // 이렇게 설정하면 contentTypeIdList[]가 아니라 contentTypeIdList로 직렬화됩니다
+      },
     }
   );
 
@@ -31,4 +34,12 @@ export const getAttractionDetail = async (attractionId: number): Promise<Attract
   return response.data.body;
 };
 
-export * from './types';
+/**
+ * 시군구 조회 API
+ * @returns 시군구 리스트
+ */
+export const getSigunguList = async (): Promise<Sigungu> => {
+  const response = await api.get<ApiResponse<Sigungu>>(ATTRACTION.SIGUNGU);
+
+  return response.data.body;
+};

@@ -8,7 +8,6 @@
           :class="{ '-translate-y-full': isScrollingDown && scrollY > 100 }"
         >
           <AttractionFilter
-            ref="filterComponentRef"
             :isScrollingDown="isScrollingDown"
             :scrollY="scrollY"
             @filter="handleFilterChange"
@@ -26,10 +25,11 @@
           >
             <FilteredAttractions
               :parentScrollContainer="scrollContainerRef"
-              :apiParams="{ page: 1, size: 100 }"
+              :apiParams="filterParams"
               @cardClick="handleAttractionCardClick"
               @likeClick="handleAttractionLikeClick"
               @tagClick="handleAttractionTagClick"
+              @filteredSearch="handleFileredResults"
               @moreClick="() => handleMoreClick(12)"
             />
           </AsyncContainer>
@@ -45,7 +45,7 @@
             ref="mapRef"
             :center="mapCenter"
             :level="mapLevel"
-            :showCenterMarker="true"
+            :showCenterMarker="false"
           />
         </AsyncContainer>
 
@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import AsyncContainer from '@/components/AsyncContainer/AsyncContainer.vue';
 import MapContainer from '@/components/map/MapContainer.vue';
 import MapError from '@/components/map/MapError.vue';
@@ -90,16 +90,20 @@ import {
   AttractionDetailSkeleton,
 } from '@/components/views/attraction/AttractionDetail';
 import CommonSkeleton from '@/components/skeleton/CommonSkeleton/CommonSkeleton.vue';
-import type { Attraction } from '@/services/api/domains/attraction';
+import type { Attraction } from '@/services/api/domains/attraction/types';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { useMapState } from '@/composables/useMapState';
 import { useScroll } from '@/composables/useScroll';
-import { useAttractionFilter } from '@/composables/useAttractionFilter';
+import type { AttractionsParams } from '@/services/api/domains/attraction/types';
 
 const scrollContainerRef = ref<HTMLElement | null>(null);
-const { mapRef, mapLevel, mapCenter, selectedAttraction, selectAttraction } = useMapState();
-const { filterComponentRef, handleFilterChange, closeFilterPanel } = useAttractionFilter();
+const { mapRef, mapLevel, mapCenter, selectedAttraction, selectAttraction, clearMarkers } =
+  useMapState();
 const { isScrollingDown, scrollY, handleScroll } = useScroll();
+const filterParams = reactive<AttractionsParams>({
+  page: 1,
+  size: 100,
+});
 
 // 지도 리사이즈 핸들러
 const handleMapResize = () => {
@@ -110,6 +114,7 @@ const handleMapResize = () => {
 
 // 선택된 여행지 상태 관리
 const selectedAttractionRef = ref<Attraction | null>(selectedAttraction.value ?? null);
+const filterComponentRef = ref<InstanceType<typeof AttractionFilter> | null>(null);
 
 // 관광지 카드 클릭 핸들러
 const handleAttractionCardClick = (attraction: Attraction) => {
@@ -120,6 +125,28 @@ const handleAttractionCardClick = (attraction: Attraction) => {
 // 리뷰 닫기 핸들러
 const closeReview = () => {
   selectedAttractionRef.value = null;
+  clearMarkers();
+};
+
+const closeFilterPanel = () => {
+  if (filterComponentRef.value) {
+    filterComponentRef.value.closeFilterPanel();
+  }
+};
+
+const handleFilterChange = (filters: AttractionsParams) => {
+  // 필터 변경 시 처리 로직
+  filterParams.sidoCode = filters.sidoCode;
+  filterParams.gugunCode = filters.gugunCode;
+  filterParams.contentTypeIdList = filters.contentTypeIdList;
+  filterParams.keyword = filters.keyword;
+  filterParams.page = filters.page;
+  filterParams.size = filters.size;
+};
+
+const handleFileredResults = (attractions: Attraction[]) => {
+  // 필터링된 결과 처리 로직
+  console.log('필터링된 결과:', attractions);
 };
 
 // 남은 이벤트 핸들러들

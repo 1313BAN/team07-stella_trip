@@ -46,7 +46,7 @@
             variant="outline"
             class="rounded-md border-purple-400/50 bg-purple-900/20 text-purple-200"
           >
-            {{ getAttractionTypeName(attractionData?.contentType ?? 0) }}
+            {{ getContentTypeNameKR(attractionData?.contentType ?? null) }}
           </Badge>
           <div class="ml-1 flex items-center">
             <Star class="h-4 w-4 fill-yellow-400 text-yellow-400" />
@@ -157,9 +157,9 @@ import { Heart, Star, MapPin, User, PenLine, MessageSquare, ThumbsUp, X } from '
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import ImageWithFallback from '@/components/common/ImageWithFallback/ImageWithFallback.vue';
-import { getAttractionTypeName } from '@/utils/util';
+import { getContentTypeNameKR } from '@/utils/util';
 import { getAttractionDetail } from '@/services/api/domains/attraction';
-import type { AttractionDetail, Review } from '@/services/api/domains/attraction';
+import type { AttractionDetail, Review } from '@/services/api/domains/attraction/types';
 
 const props = defineProps<{
   attractionId: number;

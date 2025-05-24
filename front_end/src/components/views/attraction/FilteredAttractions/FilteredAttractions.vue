@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import AttractionCard from '@/components/card/AttractionCard/AttractionCard.vue';
-import { getAttractions, type Attraction } from '@/services/api/domains/attraction';
-import type { AttractionsParams } from '@/services/api/domains/attraction';
+import { getAttractions } from '@/services/api/domains/attraction';
+import type { AttractionsParams, Attraction } from '@/services/api/domains/attraction/types';
 import GridCardListContainer from '@/components/common/GridCardListContainer/GridCardListContainer.vue';
 
 interface Props {
@@ -17,6 +17,7 @@ const emit = defineEmits<{
   (e: 'cardClick', attraction: Attraction): void;
   (e: 'likeClick', attraction: Attraction): void;
   (e: 'tagClick', contentType: number): void;
+  (e: 'filteredSearch', filters: Attraction[]): void;
 }>();
 
 const attractions = ref<Attraction[]>([]);
@@ -24,6 +25,7 @@ const attractions = ref<Attraction[]>([]);
 const fetchAttractions = async () => {
   const response = await getAttractions(props.apiParams);
   attractions.value = response.content;
+  emit('filteredSearch', attractions.value);
 };
 
 await fetchAttractions();

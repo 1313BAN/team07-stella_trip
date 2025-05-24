@@ -4,8 +4,9 @@ import LikeButton from '@/components/common/LikeButton/LikeButton.vue';
 import StarRating from '@/components/common/StarRating/StarRating.vue';
 import Tag from '@/components/common/Tag/Tag.vue';
 import ImageWithFallback from '@/components/common/ImageWithFallback/ImageWithFallback.vue';
-import { formatLikeCount, getAttractionTypeName } from '@/utils/util';
-import type { Attraction } from '@/services/api/domains/attraction';
+import { formatLikeCount, getContentTypeNameKR } from '@/utils/util';
+import type { Attraction } from '@/services/api/domains/attraction/types';
+import { ContentTypeId } from '@/constants/constant';
 
 interface Props {
   attraction: Attraction;
@@ -19,7 +20,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   cardClick: [attraction: Attraction];
   likeClick: [attraction: Attraction];
-  tagClick: [contentType: number];
+  tagClick: [contentType: ContentTypeId];
 }>();
 
 const handleCardClick = () => {
@@ -76,7 +77,7 @@ const handleTagClick = () => {
 
       <!-- 컨텐츠 타입과 좋아요 수 -->
       <div class="flex flex-col gap-1">
-        <Tag :label="getAttractionTypeName(attraction.contentType)" @click.stop="handleTagClick" />
+        <Tag :label="getContentTypeNameKR(attraction.contentType)" @click.stop="handleTagClick" />
         <div class="flex items-center gap-2 text-purple-200">
           <LikeButton
             transparent
