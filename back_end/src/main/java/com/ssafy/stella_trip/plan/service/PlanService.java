@@ -429,6 +429,10 @@ public class PlanService {
     }
 
     private void checkPlanAuthority(int planId, JwtUserInfo user) throws PlanNotFoundException, UnauthorizedPlanAccessException{
+        if(user == null) {
+            throw new UnauthorizedPlanAccessException("로그인이 필요합니다.");
+        }
+
         // 계획 유무 체크
         PlanDTO planDTO = planDAO.getPlanById(planId, user.getUserId());
         if(planDTO == null) {
