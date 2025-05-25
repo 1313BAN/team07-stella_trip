@@ -14,6 +14,7 @@
       </div>
 
       <Button
+        v-if="isModifyPage"
         variant="outline"
         size="sm"
         class="border-purple-500/50 bg-purple-900/30 text-purple-300 hover:bg-purple-800/50 hover:text-purple-200"
@@ -24,11 +25,7 @@
     </div>
 
     <AsyncContainer :loadingComponent="PlanDetailSkeleton" :errorComponent="PlanDetailError">
-      <PlanDetail
-        :planId="planId"
-        @moveToAttractionSearch="handleMoveToAttractionSearch"
-        @toggleScheduleEdit="handleToggleScheduleEdit"
-      />
+      <PlanDetail :planId="planId" @moveToAttractionSearch="handleMoveToAttractionSearch" />
     </AsyncContainer>
 
     <!-- 여행 계획 정보 수정 모달 -->
@@ -65,10 +62,18 @@ import {
   type UpdatePlanInfoRequest,
   type UpdatePlanScheduleRequest,
 } from '@/services/api/domains/plan';
+import { ROUTES } from '@/router/routes';
+
+const route = useRoute();
+/**
+ * 현재 라우트가 편집 화면인지 확인
+ */
+const isModifyPage = computed(() => {
+  return route.name === ROUTES.PLAN_MODIFY.name;
+});
 
 // Vue Router
 const router = useRouter();
-const route = useRoute();
 const planStore = usePlanStore();
 
 // planId 계산 속성
@@ -88,13 +93,6 @@ const emit = defineEmits<{
  */
 const handleMoveToAttractionSearch = (date: string) => {
   emit('moveToAttractionSearch', date);
-};
-
-/**
- * 일정 편집 모드 토글
- */
-const handleToggleScheduleEdit = () => {
-  planStore.toggleModifying();
 };
 
 /**
