@@ -133,6 +133,8 @@ const handleMapResize = () => {
 };
 
 onMounted(async () => {
+  selectedAttraction.value = null; // 초기화
+  clearMarkers();
   await fetchAttractions();
   if (route.query.selectedAttractionId) {
     const attractionId = Number(route.query.selectedAttractionId);
