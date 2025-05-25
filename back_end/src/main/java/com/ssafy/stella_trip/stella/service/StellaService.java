@@ -1,0 +1,65 @@
+package com.ssafy.stella_trip.stella.service;
+
+import com.ssafy.stella_trip.dao.plan.PlanDAO;
+import com.ssafy.stella_trip.dao.stella.StellaDAO;
+import com.ssafy.stella_trip.plan.dto.PlanDTO;
+import com.ssafy.stella_trip.plan.exception.PlanNotFoundException;
+import com.ssafy.stella_trip.plan.exception.UnauthorizedPlanAccessException;
+import com.ssafy.stella_trip.security.dto.JwtUserInfo;
+import com.ssafy.stella_trip.stella.dto.StellaDTO;
+import com.ssafy.stella_trip.stella.dto.request.StellaRequestDTO;
+import com.ssafy.stella_trip.stella.dto.response.StellaResponseDTO;
+import com.ssafy.stella_trip.stella.exception.StellaNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+@Service
+@RequiredArgsConstructor
+public class StellaService {
+
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final PlanDAO planDAO;
+    private final StellaDAO stellaDAO;
+
+    public StellaResponseDTO createStellaLink(StellaRequestDTO stella, JwtUserInfo user) {
+        PlanDTO planDTO = planDAO.getPlanById(stella.getPlanId(), 0);
+        if (planDTO == null) {
+            throw new PlanNotFoundException("해당 플랜이 존재하지 않습니다.:" + stella.getPlanId());
+        }
+        if(planDTO.getWriters().stream().noneMatch(writer -> writer.getUserId() == user.getUserId())) {
+            throw new UnauthorizedPlanAccessException("해당 플랜에 대한 권한이 없습니다.");
+        }
+
+        String randomLink = UUID.randomUUID().toString();
+        for (int i = 0; i < 10; i++) {
+            if (stellaDAO.getStellaLinkByStellaLink(randomLink) == null) {
+                stellaDAO.createStellaLink(stella.getStellaData(), randomLink, stella.getPlanId());
+                StellaResponseDTO responseDTO = new StellaResponseDTO(stella.getPlanId(), stella.getStellaData(), randomLink);
+                redisTemplate.opsForValue().set(randomLink, responseDTO, 7, TimeUnit.DAYS); // 1 day expiration
+                return responseDTO;
+            }
+            randomLink = UUID.randomUUID().toString();
+        }
+        throw new RuntimeException("랜덤 링크 생성에 실패했습니다. 다시 시도해주세요.");
+    }
+
+    public StellaResponseDTO getStella(String link) {
+        Object cachedResponse = redisTemplate.opsForValue().get(link);
+        if(cachedResponse instanceof StellaResponseDTO){
+            return (StellaResponseDTO) cachedResponse;
+        }
+        StellaDTO stella = stellaDAO.getStellaLinkByStellaLink(link);
+        if (stella == null) {
+            throw new StellaNotFoundException("해당 Stella 링크가 존재하지 않습니다: " + link);
+        }
+        // 캐시가 없으면 StellaDTO를 StellaResponseDTO로 변환
+        StellaResponseDTO responseDTO = new StellaResponseDTO(stella.getPlanId(), stella.getStellaData(), stella.getStellaLink());
+        redisTemplate.opsForValue().set(responseDTO.getStellaLink(), responseDTO, 7, TimeUnit.DAYS); // 1 day expiration
+        return responseDTO;
+    }
+
+}
