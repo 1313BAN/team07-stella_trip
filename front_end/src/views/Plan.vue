@@ -15,9 +15,11 @@
               :class="{ '-translate-y-full': isScrollingDown && scrollY > 100 }"
             >
               <PlanFilter
+                :filters="currentFilters"
                 :isScrollingDown="isScrollingDown"
                 :scrollY="scrollY"
                 @filter="handleFilterChange"
+                @clearFilter="clearFilter"
               />
             </div>
             <div
@@ -61,7 +63,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import AsyncContainer from '@/components/AsyncContainer/AsyncContainer.vue';
 import MapContainer from '@/components/map/MapContainer.vue';
 import MapError from '@/components/map/MapError.vue';
@@ -84,6 +86,7 @@ import { useAuthStore } from '@/stores/auth';
 
 // Vue Router
 const router = useRouter();
+const route = useRoute();
 
 // 상태 관리
 const scrollContainerRef = ref<HTMLElement | null>(null);
@@ -91,9 +94,15 @@ const { mapRef, mapLevel, mapCenter, selectPlan } = useMapState();
 const filterComponentRef = ref<InstanceType<typeof PlanFilter> | null>(null);
 const { isScrollingDown, scrollY, handleScroll } = useScroll();
 const currentFilters = reactive<PlansParams>({
-  page: 1,
-  size: 10,
-  sort: 'recent',
+  page: route.query.page ? Number(route.query.page) || 1 : 1,
+  size: route.query.size ? Number(route.query.size) || 20 : 20,
+  search: route.query.search ? String(route.query.search) : '',
+  maxDuration: route.query.maxDuration ? Number(route.query.maxDuration) || undefined : undefined,
+  minDuration: route.query.minDuration ? Number(route.query.minDuration) || undefined : undefined,
+  userName: route.query.userName ? String(route.query.userName) : '',
+  sort: route.query.sort
+    ? (String(route.query.sort) as PlansSortOption)
+    : ('recent' as PlansSortOption),
 });
 
 // 지도 리사이즈 핸들러
@@ -123,6 +132,12 @@ const handleFilterChange = (filters: PlansParams) => {
   currentFilters.page = filters.page;
   currentFilters.size = filters.size;
   currentFilters.sort = filters.sort as PlansSortOption;
+  router.replace({
+    path: ROUTES.PLANS.path,
+    query: {
+      ...currentFilters,
+    },
+  });
 };
 
 const closeFilterPanel = () => {
@@ -176,6 +191,30 @@ const handlePlanLikeClick = (plan: Plan) => {
 };
 
 const handlePlanTagClick = (tag: Tag) => {
-  console.log('여행 계획 태그 클릭:', tag.name);
+  currentFilters.search = tag.name;
+  currentFilters.maxDuration = undefined;
+  currentFilters.minDuration = undefined;
+  currentFilters.userName = undefined;
+  currentFilters.sort = 'recent';
+  router.replace({
+    path: ROUTES.PLANS.path,
+    query: {
+      ...currentFilters,
+    },
+  });
+};
+
+const clearFilter = () => {
+  currentFilters.search = undefined;
+  currentFilters.maxDuration = undefined;
+  currentFilters.minDuration = undefined;
+  currentFilters.userName = undefined;
+  currentFilters.sort = 'recent';
+  router.replace({
+    path: ROUTES.PLANS.path,
+    query: {
+      ...currentFilters,
+    },
+  });
 };
 </script>

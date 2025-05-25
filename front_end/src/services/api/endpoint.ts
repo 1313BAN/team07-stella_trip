@@ -28,4 +28,7 @@ export const ATTRACTION = {
   REVIEW_LIKE: (attractionId: number, reviewId: number) =>
     `v1/attractions/${attractionId}/reviews/${reviewId}/like`,
   SIGUNGU: 'v1/attractions/sigungu',
+  FEATURED_TAGS: 'v1/featured/tags',
+  FEATURED_ATTRACTIONS: (contentTypeId: number) =>
+    `v1/featured/attraction/contentType/${contentTypeId}`,
 } as const;

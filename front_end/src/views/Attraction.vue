@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue';
+import { ref, reactive, watch, onMounted } from 'vue';
 import AsyncContainer from '@/components/AsyncContainer/AsyncContainer.vue';
 import MapContainer from '@/components/map/MapContainer.vue';
 import MapError from '@/components/map/MapError.vue';
@@ -101,14 +101,28 @@ import { getAttractions } from '@/services/api/domains/attraction';
 import { postAttractionLike, deleteAttractionLike } from '@/services/api/domains/attraction/index';
 import { toast } from 'vue-sonner';
 import { useAuthStore } from '@/stores/auth';
+import { useRoute } from 'vue-router';
+import { ROUTES } from '@/router/routes';
+import router from '@/router';
+
+const route = useRoute();
+const authStore = useAuthStore();
 
 const scrollContainerRef = ref<HTMLElement | null>(null);
 const { mapRef, mapLevel, mapCenter, selectedAttraction, selectAttraction, clearMarkers } =
   useMapState();
 const { isScrollingDown, scrollY, handleScroll } = useScroll();
 const filterParams = reactive<AttractionsParams>({
-  page: 1,
-  size: 100,
+  page: route.query.page ? Number(route.query.page) || 1 : 1,
+  size: route.query.size ? Number(route.query.size) || 20 : 20,
+  sidoCode: route.query.sidoCode ? Number(route.query.sidoCode) : undefined,
+  gugunCode: route.query.gugunCode ? Number(route.query.gugunCode) : undefined,
+  contentTypeIds: route.query.contentTypeIds
+    ? (Array.isArray(route.query.contentTypeIds)
+        ? route.query.contentTypeIds.map(Number)
+        : [Number(route.query.contentTypeIds)]) || []
+    : [],
+  keyword: route.query.keyword ? String(route.query.keyword) : '',
 });
 
 // 지도 리사이즈 핸들러
@@ -118,7 +132,22 @@ const handleMapResize = () => {
   }
 };
 
-const authStore = useAuthStore();
+onMounted(async () => {
+  selectedAttraction.value = null; // 초기화
+  clearMarkers();
+  await fetchAttractions();
+  if (route.query.selectedAttractionId) {
+    const attractionId = Number(route.query.selectedAttractionId);
+    if (attractionId) {
+      const attraction = attractions.value.find(a => a.attractionId === attractionId);
+      if (attraction) {
+        selectAttraction(attraction);
+        selectedAttractionRef.value = attraction;
+      }
+    }
+  }
+});
+
 watch(
   () => authStore.isAuthenticated,
   () => {
@@ -137,12 +166,17 @@ const fetchAttractions = async () => {
   attractions.value = response.content;
 };
 
-await fetchAttractions();
-
 // 관광지 카드 클릭 핸들러
 const handleAttractionCardClick = (attraction: Attraction) => {
   selectAttraction(attraction);
   selectedAttractionRef.value = attraction;
+  router.replace({
+    path: ROUTES.ATTRACTION.path,
+    query: {
+      ...filterParams,
+      selectedAttractionId: attraction.attractionId.toString(),
+    },
+  });
 
   // 별도의 라우팅 없이 현재 화면에서 상세 정보 표시
   // 라우터로 인한 컴포넌트 리셋 방지
@@ -152,6 +186,13 @@ const handleAttractionCardClick = (attraction: Attraction) => {
 const closeReview = () => {
   selectedAttractionRef.value = null;
   clearMarkers();
+  router.replace({
+    path: ROUTES.ATTRACTION.path,
+    query: {
+      ...filterParams,
+      selectedAttractionId: undefined,
+    },
+  });
 };
 
 const closeFilterPanel = () => {
@@ -168,6 +209,12 @@ const handleFilterChange = (filters: AttractionsParams) => {
   filterParams.keyword = filters.keyword;
   filterParams.page = filters.page;
   filterParams.size = filters.size;
+  router.replace({
+    path: ROUTES.ATTRACTION.path,
+    query: {
+      ...filterParams,
+    },
+  });
   fetchAttractions();
 };
 
@@ -219,6 +266,12 @@ const handleAttractionTagClick = (contentType: number) => {
   filterParams.keyword = '';
   filterParams.sidoCode = undefined;
   filterParams.gugunCode = undefined;
+  router.replace({
+    path: ROUTES.ATTRACTION.path,
+    query: {
+      ...filterParams,
+    },
+  });
   fetchAttractions();
 };
 

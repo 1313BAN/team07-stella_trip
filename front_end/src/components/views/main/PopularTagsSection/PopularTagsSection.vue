@@ -7,7 +7,9 @@
 <script setup lang="ts">
 import GridCardListContainer from '@/components/common/GridCardListContainer/GridCardListContainer.vue';
 import TagCard from '@/components/card/TagCard/TagCard.vue';
-import { getPopularTags, type Tag } from '@/services/api/domains/plan';
+import { type FeaturedTags, type Tag } from '@/services/api/domains/plan';
+import { getPopularTags } from '@/services/api/domains/attraction';
 
-const tags: Tag[] = await getPopularTags();
+const featuredTages: FeaturedTags = await getPopularTags();
+const tags: Tag[] = featuredTages.featuredTags;
 </script>

@@ -20,3 +20,10 @@ export const contentTypeNameKR: Record<ContentTypeId, string> = {
   [ContentTypeId.SHOPPING]: '쇼핑',
   [ContentTypeId.TOURISM_SITE]: '관광지',
 };
+
+export const contentTypeList = Object.entries(ContentTypeId)
+  .filter(([key, value]) => typeof value === 'number') // 숫자 key만
+  .map(([key, value]) => ({
+    label: key,
+    value: value,
+  }));

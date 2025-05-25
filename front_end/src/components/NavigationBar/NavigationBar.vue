@@ -59,7 +59,6 @@ const menuItems = computed(() => {
   const navigationItems = [
     { name: '여행계획', icon: Map, route: ROUTES.PLANS.path },
     { name: '여행지', icon: Compass, route: ROUTES.ATTRACTION.path },
-    { name: '내여행계획', icon: Compass, route: ROUTES.MY_PLANS.path },
   ];
 
   return navigationItems;
@@ -141,6 +140,21 @@ const handleModalOpen = (value: '' | 'login' | 'register') => {
           >
             <!-- <component :is="item.icon" class="h-5 w-5" /> -->
             <span>{{ item.name }}</span>
+          </button>
+        </template>
+
+        <template v-if="isLoggedIn">
+          <button
+            class="group relative flex items-center gap-3 text-sm font-medium tracking-widest uppercase transition-all duration-300"
+            :class="[
+              isActiveRoute(ROUTES.MY_PLANS.path)
+                ? 'text-purple-400'
+                : 'text-gray-300 hover:text-purple-200',
+            ]"
+            @click="handleRoute(ROUTES.MY_PLANS.path)"
+          >
+            <!-- <component :is="item.icon" class="h-5 w-5" /> -->
+            <span>내여행계획</span>
           </button>
         </template>
         <!-- User Account Dropdown -->

@@ -1,4 +1,4 @@
-import { PLAN } from '../../endpoint';
+import { ATTRACTION, PLAN } from '../../endpoint';
 import api from '../../api';
 import type {
   ApiResponse,
@@ -9,7 +9,6 @@ import type {
 import type {
   Plan,
   PlansParams,
-  Tag,
   PlanDetail,
   CreatePlanRequest,
   PlanAttractionRequest,
@@ -27,16 +26,6 @@ export const getPlans = async (params?: PlansParams): Promise<PagenationResponse
   const response = await api.get<ApiResponse<PagenationResponse<Plan>>>(PLAN.PLANS, {
     params,
   });
-
-  return response.data.body;
-};
-
-/**
- * 인기 많은 여행 계획 태그 리스트 조회
- * @returns 여행 계획 태그 리스트
- */
-export const getPopularTags = async (size?: number): Promise<Tag[]> => {
-  const response = await api.get<ApiResponse<Tag[]>>(PLAN.TAGS, { params: { size } });
 
   return response.data.body;
 };

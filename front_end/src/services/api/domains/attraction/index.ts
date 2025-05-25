@@ -8,7 +8,10 @@ import type {
   Sigungu,
   Review,
   ReviewRequest,
+  FeaturedAttraction,
 } from './types';
+import type { FeaturedTags } from '../plan';
+import type { ContentTypeId } from '@/constants/constant';
 
 /**
  * query parameter를 바탕으로 여행지 리스트 조회
@@ -138,4 +141,24 @@ export const deleteReviewLike = async (
   );
 
   return response.data.body.success;
+};
+
+/**
+ * 인기 많은 여행 계획 태그 리스트 조회
+ * @returns 여행 계획 태그 리스트
+ */
+export const getPopularTags = async (): Promise<FeaturedTags> => {
+  const response = await api.get<ApiResponse<FeaturedTags>>(ATTRACTION.FEATURED_TAGS);
+
+  return response.data.body;
+};
+
+export const getFeaturedAttractions = async (
+  contentTypeId: number
+): Promise<FeaturedAttraction> => {
+  const response = await api.get<ApiResponse<FeaturedAttraction>>(
+    ATTRACTION.FEATURED_ATTRACTIONS(contentTypeId)
+  );
+
+  return response.data.body;
 };
