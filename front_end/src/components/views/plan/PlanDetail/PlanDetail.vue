@@ -317,11 +317,11 @@ const saveChangesAndReleaseLock = async () => {
 
       let description = '';
       if (deletedCount > 0 && modifiedCount > 0) {
-        description = `${modifiedCount}개 경로 수정, ${deletedCount}개 경로 삭제`;
+        description = `경로 수정, 삭제`;
       } else if (deletedCount > 0) {
         description = `${deletedCount}개 경로가 삭제되었습니다`;
       } else {
-        description = `${modifiedCount}개 경로가 수정되었습니다`;
+        description = `경로가 수정되었습니다`;
       }
 
       toast.success('변경사항이 저장되었습니다', {
