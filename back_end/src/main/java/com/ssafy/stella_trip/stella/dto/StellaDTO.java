@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class StellaDTO {
-    private int StellaLinkId;
+    private int stellaLinkId;
     private int planId;
     private String stellaData;
     private String stellaLink;
