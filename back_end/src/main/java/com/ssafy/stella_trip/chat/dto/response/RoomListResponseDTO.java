@@ -8,15 +8,12 @@ import java.util.List;
 
 @Data
 public class RoomListResponseDTO {
-    @JsonProperty("sido_list")
     List<Sido> sidoList;
 
     @Data
     @AllArgsConstructor
     public static class Sido {
-        @JsonProperty("sido_code")
         private int sidoCode;
-        @JsonProperty("sido_name")
         private String sidoName;
         List<ChatRoomResponseDTO> rooms;
     }

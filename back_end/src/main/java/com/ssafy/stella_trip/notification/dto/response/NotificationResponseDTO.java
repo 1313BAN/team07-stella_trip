@@ -13,13 +13,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NotificationResponseDTO {
-    @JsonProperty("notification_id")
     private int notificationId;
-    @JsonProperty("user_id")
     private int userId;
     private String title;
-    @JsonProperty("created_at")
     private LocalDateTime createdAt;
-    @JsonProperty("updated_at")
     private LocalDateTime updatedAt;
 }

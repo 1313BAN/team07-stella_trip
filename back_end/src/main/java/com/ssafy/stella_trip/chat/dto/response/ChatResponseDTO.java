@@ -11,9 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class ChatResponseDTO {
-    @JsonProperty("chat_id")
     private int chatId;
-    @JsonProperty("user_name")
     private String userName;
     private String content;
 }

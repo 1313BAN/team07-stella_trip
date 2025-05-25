@@ -9,10 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LockStatusResponseDTO {
-    @JsonProperty("user_id")
     private int userId;
-    @JsonProperty("plan_id")
     private int planId;
-    @JsonProperty("lock_status")
     private boolean lockStatus;
 }
