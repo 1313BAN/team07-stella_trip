@@ -290,7 +290,6 @@ public class PlanService {
         long dateDiff = ChronoUnit.DAYS.between(plan.getStartDate(), plan.getEndDate());
 
         // 루트 업데이트
-        List<RouteDTO> updatingRoutes = new ArrayList<>();
         List<RouteDTO> deletingRoutes = new ArrayList<>();
         for (RoutesUpdateRequestDTO.RouteDTO route : routesUpdateRequestDTO.getRoutes()) {
             if(route.isDeleted()){
@@ -307,11 +306,12 @@ public class PlanService {
                         .dayIndex(route.getDayIndex())
                         .order(route.getOrder())
                         .build();
-                updatingRoutes.add(routeDTO);
+                planDAO.updateRoute(routeDTO);
             }
         }
-        planDAO.updateRoutes(updatingRoutes);
-        planDAO.deleteRoutes(deletingRoutes);
+        if(!deletingRoutes.isEmpty()) {
+            planDAO.deleteRoutes(deletingRoutes);
+        }
         try {
             constellationService.updateStella(planId);
         } catch (JsonProcessingException e) {

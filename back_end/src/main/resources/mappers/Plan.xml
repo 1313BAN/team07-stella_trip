@@ -382,14 +382,12 @@
     </insert>
 
     <!-- 여러 경로의 날짜 및 순서 정보 일괄 수정 -->
-    <update id="updateRoutes">
-        <foreach collection="routes" item="route" separator=";">
-            UPDATE route
-            SET
-            day_index = #{route.dayIndex},
-            `order` = #{route.order}
-            WHERE route_id = #{route.routeId}
-        </foreach>
+    <update id="updateRoute">
+        UPDATE route
+        SET
+        day_index = #{route.dayIndex},
+        `order` = #{route.order}
+        WHERE route_id = #{route.routeId};
     </update>
 
     <!-- 경로의 상세 정보(방문 시간, 메모) 수정 -->

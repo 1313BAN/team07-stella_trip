@@ -72,7 +72,7 @@ public interface PlanDAO {
             @Param("memo") String memo
     );
 
-    int updateRoutes(@Param("routes") List<RouteDTO> routes);
+    int updateRoute(@Param("route") RouteDTO route);
 
     int deleteRoutes(@Param("routes") List<RouteDTO> routes);
 
