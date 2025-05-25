@@ -63,6 +63,9 @@ import {
   type UpdatePlanScheduleRequest,
 } from '@/services/api/domains/plan';
 import { ROUTES } from '@/router/routes';
+import { useAuthStore } from '@/stores/auth';
+
+const authStore = useAuthStore();
 
 const route = useRoute();
 /**
@@ -122,7 +125,7 @@ const handlePlanInfoSubmit = async (formData: CreatePlanRequest) => {
       // 일정 변경 시 락 확인
       const lockResponse = await checkLock(originalPlan.planId);
 
-      if (lockResponse.lockStatus && lockResponse.userId !== originalPlan.planWriters[0]?.userId) {
+      if (lockResponse.lockStatus && lockResponse.userId !== authStore.user?.id) {
         toast.error('다른 사용자가 수정 중입니다', {
           description: '잠시 후 다시 시도해주세요.',
           duration: 4000,
