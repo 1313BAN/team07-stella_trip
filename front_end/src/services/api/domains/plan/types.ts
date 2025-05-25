@@ -82,7 +82,6 @@ export type PlanDetail = {
 
 export type CreatePlanRequest = UpdatePlanInfoRequest & UpdatePlanScheduleRequest;
 
-//TODO: 타입 일관화 필요
 export type PlanWriter = {
   id: number;
   name: string;
@@ -117,4 +116,15 @@ export type LockResponse = {
   userId: number;
   planId: number;
   lockStatus: boolean;
+};
+
+export type UpdateRouteRequest = {
+  routes: RouteInfo[];
+};
+
+export type RouteInfo = {
+  routeId: number;
+  dayIndex: number;
+  order: number;
+  deleted: boolean;
 };

@@ -45,7 +45,7 @@
       </draggable>
 
       <button
-        v-if="isAttractionSearchPage"
+        v-if="isModifyPage"
         class="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-white/20 py-2 text-sm text-white transition-colors hover:cursor-pointer hover:border-purple-400/50 hover:bg-white/10"
         @click.stop="handleAddAttraction"
       >
@@ -58,14 +58,22 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
-import { useRoute } from 'vue-router';
 import { Calendar, Plus } from 'lucide-vue-next';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import AttractionItem from '@/components/common/AttractionItem/AttractionItem.vue';
 import type { RouteAttraction } from '@/services/api/domains/plan';
 import { usePlanStore } from '@/stores/plan';
-import { ROUTES } from '@/router/routes';
 import draggable from 'vuedraggable';
+import { ROUTES } from '@/router/routes';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
+/**
+ * 현재 라우트가 편집 화면인지 확인
+ */
+const isModifyPage = computed(() => {
+  return route.name === ROUTES.PLAN_MODIFY.name;
+});
 
 const props = defineProps<{
   date: string;
@@ -78,16 +86,8 @@ const emit = defineEmits<{
   (e: 'deleteAttraction', date: string, routeId: number): void;
 }>();
 
-const route = useRoute();
 const planStore = usePlanStore();
 const isDragging = ref(false);
-
-/**
- * 현재 라우트가 여행지 검색 페이지인지 확인
- */
-const isAttractionSearchPage = computed(() => {
-  return route.name === ROUTES.PLAN_MODIFY.name;
-});
 
 // 로컬 상태로 관리하는 attractions 배열
 const localAttractions = ref<RouteAttraction[]>([]);

@@ -1,6 +1,11 @@
 import { PLAN } from '../../endpoint';
 import api from '../../api';
-import type { ApiResponse, PagenationResponse, PagenationParams } from '../../types';
+import type {
+  ApiResponse,
+  PagenationResponse,
+  PagenationParams,
+  CommonSuccessBody,
+} from '../../types';
 import type {
   Plan,
   PlansParams,
@@ -11,6 +16,7 @@ import type {
   UpdatePlanInfoRequest,
   UpdatePlanScheduleRequest,
   LockResponse,
+  UpdateRouteRequest,
 } from './types';
 
 /**
@@ -86,12 +92,16 @@ export const updatePlanSchedule = async (
 };
 
 /**
- * 락 확인
+ * 여행 계획 경로 수정 (락 확인 필요)
  * @param planId planId
- * @returns LockResponse
+ * @param data 경로 데이터
+ * @returns 변경된 여행 계획 정보
  */
-export const checkLock = async (planId: number): Promise<LockResponse> => {
-  const response = await api.get<ApiResponse<LockResponse>>(PLAN.LOCK(planId));
+export const updateRoute = async (
+  planId: number,
+  data: UpdateRouteRequest
+): Promise<PlanDetail> => {
+  const response = await api.patch<ApiResponse<PlanDetail>>(PLAN.ATTRACTIONS(planId), data);
 
   return response.data.body;
 };
@@ -106,7 +116,42 @@ export const addAttractionToDate = async (
   planId: number,
   data: PlanAttractionRequest
 ): Promise<PlanDetail> => {
-  const response = await api.post<ApiResponse<PlanDetail>>(PLAN.ADD_ATTRACTIONS(planId), data);
+  const response = await api.post<ApiResponse<PlanDetail>>(PLAN.ATTRACTIONS(planId), data);
+
+  return response.data.body;
+};
+
+// --- 락 --- //
+
+/**
+ * 락 확인
+ * @param planId planId
+ * @returns LockResponse
+ */
+export const checkLock = async (planId: number): Promise<LockResponse> => {
+  const response = await api.get<ApiResponse<LockResponse>>(PLAN.LOCK_CHECK(planId));
+
+  return response.data.body;
+};
+
+/**
+ * 락 획득
+ * @param planId planId
+ * @returns LockResponse
+ */
+export const getLock = async (planId: number): Promise<CommonSuccessBody> => {
+  const response = await api.post<ApiResponse<CommonSuccessBody>>(PLAN.LOCK(planId));
+
+  return response.data.body;
+};
+
+/**
+ * 락 반환
+ * @param planId planId
+ * @returns LockResponse
+ */
+export const returnLock = async (planId: number): Promise<CommonSuccessBody> => {
+  const response = await api.post<ApiResponse<CommonSuccessBody>>(PLAN.UNLOCK(planId));
 
   return response.data.body;
 };
@@ -121,6 +166,28 @@ export const getMyPlans = async (params?: PagenationParams): Promise<PagenationR
   const response = await api.get<ApiResponse<PagenationResponse<Plan>>>(PLAN.MY_PLANS, {
     params,
   });
+
+  return response.data.body;
+};
+
+/**
+ * 여행에 이메일로 사용자 초대하기
+ * @param planId planId
+ * @returns
+ */
+export const inviteToMyPlan = async (planId: number, email: string): Promise<boolean> => {
+  const response = await api.post<ApiResponse<boolean>>(PLAN.INVITE(planId), { data: { email } });
+
+  return response.data.body;
+};
+
+/**
+ * 여행에서 나가기
+ * @param planId planId
+ * @returns
+ */
+export const leaveMyPlan = async (planId: number): Promise<boolean> => {
+  const response = await api.post<ApiResponse<boolean>>(PLAN.LEAVE(planId));
 
   return response.data.body;
 };
