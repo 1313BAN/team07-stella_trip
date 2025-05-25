@@ -13,7 +13,7 @@
         <h3 class="text-lg font-semibold text-white">여행 계획 상세</h3>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div v-if="isModifyPage" class="flex items-center gap-2">
         <!-- 공유 버튼 -->
         <Button
           variant="outline"
@@ -27,7 +27,6 @@
         </Button>
 
         <Button
-          v-if="isModifyPage"
           variant="outline"
           size="sm"
           class="border-purple-500/50 bg-purple-900/30 text-purple-300 hover:bg-purple-800/50 hover:text-purple-200"
