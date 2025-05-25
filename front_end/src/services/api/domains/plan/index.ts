@@ -1,4 +1,4 @@
-import { ATTRACTION, PLAN } from '../../endpoint';
+import { PLAN } from '../../endpoint';
 import api from '../../api';
 import type {
   ApiResponse,

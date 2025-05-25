@@ -96,9 +96,6 @@ export type PlanDetail = {
     nodes: Array<{
       x: number;
       y: number;
-      r: number;
-      brightness: number;
-      delay: number;
     }>;
     edges: Array<{
       from: number;
