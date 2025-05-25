@@ -1,19 +1,20 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import RowCardListContainer from '@/components/common/RowCardListContainer/RowCardListContainer.vue';
 import AttractionCard from '@/components/card/AttractionCard/AttractionCard.vue';
-import { getAttractions, type Attraction } from '@/services/api/domains/attraction';
-import type { AttractionsParams } from '@/services/api/domains/attraction';
+import { getFeaturedAttractions } from '@/services/api/domains/attraction';
+import { type Attraction } from '@/services/api/domains/attraction/types';
+import { ContentTypeId } from '@/constants/constant';
 
 interface Props {
   title: string;
-  apiParams?: AttractionsParams;
   showMoreButton?: boolean;
+  contentType?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  apiParams: () => ({ page: 1, size: 10 }),
   showMoreButton: true,
+  contentType: ContentTypeId.ACCOMMODATION,
 });
 
 const emit = defineEmits<{
@@ -26,17 +27,11 @@ const emit = defineEmits<{
 const attractions = ref<Attraction[]>([]);
 
 const fetchAttractions = async () => {
-  const response = await getAttractions(props.apiParams);
-  attractions.value = response.content;
+  const response = await getFeaturedAttractions(props.contentType);
+  attractions.value = response.featuredAttractions;
 };
 
 await fetchAttractions();
-
-watch(
-  () => props.apiParams,
-  () => fetchAttractions(),
-  { deep: true }
-);
 </script>
 
 <template>

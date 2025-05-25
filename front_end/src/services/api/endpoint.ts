@@ -1,3 +1,5 @@
+import { ContentTypeId } from '@/constants/constant';
+
 export const AUTH = {
   LOGIN: 'v1/user/login',
   LOGOUT: 'v1/user/logout',
@@ -28,4 +30,7 @@ export const ATTRACTION = {
   REVIEW_LIKE: (attractionId: number, reviewId: number) =>
     `v1/attractions/${attractionId}/reviews/${reviewId}/like`,
   SIGUNGU: 'v1/attractions/sigungu',
+  FEATRUED_TAGS: 'v1/featured/tags',
+  FEATURED_ATTRACTIONS: (contentTypeId: number) =>
+    `v1/featured/attraction/contentType/${contentTypeId}`,
 } as const;

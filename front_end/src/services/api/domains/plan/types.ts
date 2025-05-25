@@ -30,6 +30,10 @@ export type Tag = {
   count: number;
 };
 
+export type FeaturedTags = {
+  featuredTags: Tag[];
+};
+
 export type Writer = {
   userId: number;
   name: string;

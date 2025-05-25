@@ -59,4 +59,8 @@ export type ReviewRequest = {
   visitedDate: string;
 };
 
+export type FeaturedAttraction = {
+  featuredAttractions: Attraction[];
+};
+
 export type AttractionDetail = Attraction;
