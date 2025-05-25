@@ -32,7 +32,7 @@ public class FeaturedService {
         }
 
         // 캐시에서 값을 가져오지 못한 경우, DB에서 조회
-        List<AttractionDTO> attractions = featuredDAO.getFeatruedAttractionsByContentType(0, contentTypeId);
+        List<AttractionDTO> attractions = featuredDAO.getFeaturedAttractionsByContentType(contentTypeId);
         // 조회된 데이터를 FeaturedAttractionResponseDTO로 변환
         FeaturedAttractionResponseDTO response = new FeaturedAttractionResponseDTO();
         List<AttractionResponseDTO> responseList = attractions.stream().

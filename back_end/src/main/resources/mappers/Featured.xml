@@ -25,14 +25,14 @@
         <result property="isLiked" column="is_liked"/>
     </resultMap>
 
-    <resultMap id="TageResultMap" type="TagDTO">
+    <resultMap id="TagResultMap" type="TagDTO">
         <id property="tagId" column="tag_id"/>
         <result property="name" column="name"/>
         <result property="count" column="tag_count"/>
     </resultMap>
 
 
-    <select id="getFeatruedAttractionsByContentType" resultMap="AttractionResultMap">
+    <select id="getFeaturedAttractionsByContentType" resultMap="AttractionResultMap">
         SELECT
             a.attraction_id,
             a.sido_code,
@@ -51,12 +51,9 @@
             a.homepage,
             a.overview,
             a.like_count,
-            a.rating,
-            CASE WHEN l.user_id IS NOT NULL THEN 1 ELSE 0 END AS is_liked
+            a.rating
         FROM
             attraction AS a
-        LEFT JOIN
-            liked_attraction AS l ON a.attraction_id = l.attraction_id AND l.user_id = #{userId}
         WHERE
             a.content_type_id = #{contentTypeId}
         ORDER BY
@@ -64,7 +61,7 @@
         LIMIT 10;
     </select>
 
-    <select id="getFeaturedTags" resultMap="TageResultMap">
+    <select id="getFeaturedTags" resultMap="TagResultMap">
         SELECT
             t.tag_id,
             t.name,

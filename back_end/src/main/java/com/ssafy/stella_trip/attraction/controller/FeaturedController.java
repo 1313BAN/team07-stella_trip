@@ -21,8 +21,7 @@ public class FeaturedController {
     private final FeaturedService featuredService;
 
     @GetMapping("/attraction/contentType/{contentTypeId}")
-    public CommonResponse<FeaturedAttractionResponseDTO> getFeaturedAttractions(@PathVariable Integer contentTypeId,  @AuthenticationPrincipal JwtUserInfo user
-    ) {
+    public CommonResponse<FeaturedAttractionResponseDTO> getFeaturedAttractions(@PathVariable Integer contentTypeId) {
         return new CommonResponse<>(featuredService.getFeaturedAttractions(contentTypeId), HttpStatus.OK);
     }
 

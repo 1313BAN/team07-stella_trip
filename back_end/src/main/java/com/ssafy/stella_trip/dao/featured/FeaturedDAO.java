@@ -9,6 +9,6 @@ import java.util.List;
 
 @Mapper
 public interface FeaturedDAO {
-    public List<AttractionDTO> getFeatruedAttractionsByContentType(@Param("userId") int userId, @Param("contentTypeId") int contentTypeId);
+    public List<AttractionDTO> getFeaturedAttractionsByContentType(@Param("contentTypeId") int contentTypeId);
     public List<TagDTO> getFeaturedTags();
 }
