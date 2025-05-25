@@ -80,16 +80,8 @@ export type PlanDetail = {
   planWriters: Writer[];
 };
 
-export type CreatePlanRequest = {
-  title: string;
-  description: string;
-  tags: string[];
-  isPublic: boolean;
-  startDate: string;
-  endDate: string;
-};
+export type CreatePlanRequest = UpdatePlanInfoRequest & UpdatePlanScheduleRequest;
 
-//TODO: 타입 일관화 필요
 export type PlanWriter = {
   id: number;
   name: string;
@@ -101,23 +93,38 @@ export type PlanTag = {
   name: string;
 };
 
-export type CreatedPlanResponse = {
-  planId: number;
-  title: string;
-  description: string;
-  stella: string;
-  startDate: string;
-  endDate: string;
-  likeCount: number;
-  planWriters: PlanWriter[];
-  tags: PlanTag[];
-  isLiked: boolean;
-  isPublic: boolean;
-};
-
 export type PlanAttractionRequest = {
   dayIndex: number;
   attractionId: number;
   visitTime: string;
   memo: string;
+};
+
+export type UpdatePlanInfoRequest = {
+  title: string;
+  description: string;
+  isPublic: boolean;
+  tags: string[];
+};
+
+export type UpdatePlanScheduleRequest = {
+  startDate: string;
+  endDate: string;
+};
+
+export type LockResponse = {
+  userId: number;
+  planId: number;
+  lockStatus: boolean;
+};
+
+export type UpdateRouteRequest = {
+  routes: RouteInfo[];
+};
+
+export type RouteInfo = {
+  routeId: number;
+  dayIndex: number;
+  order: number;
+  deleted: boolean;
 };

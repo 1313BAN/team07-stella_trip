@@ -2,7 +2,7 @@
   <Card class="border-0 bg-slate-900/30 shadow-none">
     <CardContent class="space-y-3 p-3">
       <div class="flex items-center justify-between">
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <Tag
             v-for="tag in plan?.tags"
             :key="tag.tagId"
@@ -10,6 +10,7 @@
             class="rounded-md border-purple-400/50 bg-purple-900/20 text-purple-200"
           />
         </div>
+
         <Button
           variant="ghost"
           size="sm"
@@ -39,10 +40,20 @@
           <span
             v-for="writer in plan?.planWriters"
             :key="writer.userId"
-            class="inline-block rounded-full bg-purple-900/30 px-2 py-0.5"
+            class="flex items-center justify-center rounded-full bg-purple-900/30 px-2 py-0.5"
           >
             {{ writer.name }}
           </span>
+          <!-- 초대하기 버튼 -->
+          <Button
+            variant="ghost"
+            size="sm"
+            class="flex items-center gap-1.5 rounded-full border border-blue-500/30 px-3 py-1 text-blue-300 hover:bg-blue-900/30"
+            @click="handleInvite"
+          >
+            <UserPlus class="h-3 w-3" />
+            <span class="text-xs font-medium">초대하기</span>
+          </Button>
         </div>
       </div>
     </CardContent>
@@ -50,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { Heart, Calendar, Users } from 'lucide-vue-next';
+import { Heart, Calendar, Users, UserPlus } from 'lucide-vue-next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Tag from '@/components/common/Tag/Tag.vue';
@@ -61,7 +72,8 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  toggleLike: [];
+  toggleLike: [planId: number];
+  invite: [planId: number];
 }>();
 
 // 날짜 범위 표시 형식
@@ -79,5 +91,11 @@ const formatDateRange = (startDate?: string, endDate?: string) => {
 
 const handleLikeClick = () => {
   emit('toggleLike');
+};
+
+const handleInvite = () => {
+  if (props.plan?.planId) {
+    emit('invite', props.plan.planId);
+  }
 };
 </script>

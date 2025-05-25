@@ -67,8 +67,8 @@
   </section>
 </template>
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { ref, reactive, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { ArrowLeft } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -83,23 +83,16 @@ import type { Attraction, AttractionsParams } from '@/services/api/domains/attra
 import { getAttractions } from '@/services/api/domains/attraction';
 import { useScroll } from '@/composables/useScroll';
 import { useMapState } from '@/composables/useMapState';
-import { toast } from 'vue-sonner';
 
-const props = defineProps<{
+defineProps<{
   currentDate?: string | null;
 }>();
 
-// Emits
-const emit = defineEmits<{
-  addAttraction: [attraction: Attraction, date: string];
-}>();
 const filterComponentRef = ref<InstanceType<typeof AttractionFilter> | null>(null);
 
 const router = useRouter();
-const route = useRoute();
 
 // 쿼리에서 날짜 가져오기
-const selectedDate = computed(() => props.currentDate || (route.query.date as string) || null);
 const attractions = ref<Attraction[]>([]);
 const scrollContainerRef = ref<HTMLElement | null>(null);
 const { isScrollingDown, scrollY, handleScroll } = useScroll();
@@ -124,6 +117,10 @@ const handleFilterChange = (filters: AttractionsParams) => {
   filterParams.size = filters.size;
   fetchAttractions();
 };
+
+onUnmounted(() => {
+  closeFilterPanel();
+});
 
 const closeFilterPanel = () => {
   if (filterComponentRef.value) {

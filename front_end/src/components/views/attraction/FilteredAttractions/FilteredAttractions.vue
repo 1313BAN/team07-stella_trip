@@ -24,9 +24,6 @@ const emit = defineEmits<{
 }>();
 
 const handleCardClick = (attraction: Attraction) => {
-  if (props.showAddButton) {
-    return;
-  }
   emit('cardClick', attraction);
 };
 

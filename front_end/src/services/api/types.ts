@@ -24,3 +24,8 @@ export type PagenationResponse<T> = {
   first: boolean;
   last: boolean;
 };
+
+export type PaginationParams = {
+  page: number;
+  size: number;
+};

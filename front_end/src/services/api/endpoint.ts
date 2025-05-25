@@ -8,9 +8,16 @@ export const AUTH = {
 export const PLAN = {
   PLANS: 'v1/plans',
   TAGS: 'v1/plans/tags',
-  ADD_ATTRACTIONS: (planId: number) => `v1/plans/${planId}/attraction`,
+  MY_PLANS: 'v1/user/plans',
+  SCHEDULE: (planId: number) => `v1/plans/${planId}/schedule`,
+  ATTRACTIONS: (planId: number) => `v1/plans/${planId}/attraction`,
   DETAIL: (planId: number) => `v1/plans/${planId}`,
   LIKE: (planId: number) => `v1/plans/${planId}/like`,
+  LOCK_CHECK: (planId: number) => `v1/plans/${planId}/lock-check`,
+  LOCK: (planId: number) => `v1/plans/${planId}/lock`,
+  UNLOCK: (planId: number) => `v1/plans/${planId}/unlock`,
+  INVITE: (planId: number) => `v1/plans/${planId}/invite`,
+  LEAVE: (planId: number) => `v1/plans/${planId}/leave`,
 } as const;
 
 export const ATTRACTION = {
