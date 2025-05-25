@@ -318,4 +318,17 @@ public class PlanController {
     ) {
         return new CommonResponse<>(planService.getPopularTags(size), HttpStatus.OK);
     }
+
+    @GetMapping("/myPlans")
+    @Operation(
+            summary = "내 여행 계획 목록 조회"
+    )
+    public CommonResponse<PageDTO<PlanResponseDTO>> getMyPlans(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "20") int size,
+            @AuthenticationPrincipal JwtUserInfo user
+    ) {
+        return new CommonResponse<>(planService.getMyPlans(page, size, user), HttpStatus.OK);
+    }
+
 }

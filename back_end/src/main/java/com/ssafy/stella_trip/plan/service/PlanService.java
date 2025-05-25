@@ -428,6 +428,38 @@ public class PlanService {
         return convertRouteToResponse(planDAO.getRouteByRouteId(routeId));
     }
 
+    public PageDTO<PlanResponseDTO> getMyPlans(int page, int size, JwtUserInfo user) {
+        return PaginationUtils.getPagedResult(
+                page,
+                size,
+                () -> planDAO.countPlansByWriterId(user.getUserId()),
+                (offset, pageSize) -> planDAO.getPlansByWriterId(user.getUserId(), offset, pageSize),
+                this::convertPlanDTOtoPlanResponseDTO);
+    }
+
+    private PlanResponseDTO convertPlanDTOtoPlanResponseDTO(PlanDTO planDTO) {
+        // 태그 리스트
+        List<TagResponseDTO> tagResponseDTOList = convertTagsToResponse(planDTO.getTags());
+
+        // 작성자 리스트
+        List<WriterResponseDTO> writerResponseDTOList = convertWritersToResponse(planDTO.getWriters());
+
+        // PlanResponseDTO 생성
+        return PlanResponseDTO.builder()
+                .planId(planDTO.getPlanId())
+                .title(planDTO.getTitle())
+                .description(planDTO.getDescription())
+                .stella(planDTO.getStella())
+                .startDate(planDTO.getStartDate())
+                .endDate(planDTO.getEndDate())
+                .likeCount(planDTO.getLikeCount())
+                .isPublic(planDTO.isPublic())
+                .planWriters(writerResponseDTOList)
+                .tags(tagResponseDTOList)
+                .liked(planDTO.isLiked())
+                .build();
+    }
+
     private void checkPlanAuthority(int planId, JwtUserInfo user) throws PlanNotFoundException, UnauthorizedPlanAccessException{
         if(user == null) {
             throw new UnauthorizedPlanAccessException("로그인이 필요합니다.");
