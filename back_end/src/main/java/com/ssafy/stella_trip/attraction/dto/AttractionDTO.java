@@ -1,5 +1,6 @@
 package com.ssafy.stella_trip.attraction.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,4 +29,5 @@ public class AttractionDTO {
     private String overview;
     private double rating;
     private int likeCount;
+    private boolean isLiked;
 }
