@@ -1,13 +1,20 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive, computed } from 'vue';
 import ConstellationComponent from './ConstellationComponent.vue';
+import type { StellaData } from '@/services/api/domains/plan/types';
 
-// props 정의 (필요시 추가적인 props 설정 가능)
-const props = defineProps({
-  onComplete: {
-    type: Function,
-    default: () => {},
-  },
+// props 정의 (stella, title, subtitle 추가)
+interface Props {
+  stella?: StellaData | null;
+  title?: string;
+  subtitle?: string;
+  onComplete?: () => void;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  title: 'Stella Trip',
+  subtitle: 'Hunter',
+  onComplete: () => {},
 });
 
 const nameOpacity = ref(0);
@@ -372,7 +379,7 @@ onMounted(() => {
         ></div>
 
         <!-- 별자리 콘텐츠 -->
-        <ConstellationComponent />
+        <ConstellationComponent :stella="stella" />
 
         <!-- 수정된 파티클 템플릿 -->
 
@@ -428,7 +435,7 @@ onMounted(() => {
             zIndex: 20,
           }"
         >
-          Stella Trip
+          {{ title }}
         </div>
 
         <!-- 카드 하단 텍스트 - 마지막으로 나타남 -->
@@ -444,7 +451,7 @@ onMounted(() => {
             zIndex: 20,
           }"
         >
-          ✦ Hunter ✦
+          ✦ {{ subtitle }} ✦
         </div>
 
         <!-- 카드 필터 효과 -->
@@ -456,351 +463,3 @@ onMounted(() => {
     </div>
   </div>
 </template>
-
-<style scoped>
-/* 카드 컨테이너 */
-.card-container {
-  min-height: 300px;
-  margin: 0 auto;
-  color: white;
-  background: transparent;
-  transform-style: preserve-3d;
-  cursor: pointer;
-}
-
-/* 카드 필터 효과 */
-.card-filter {
-  background: rgba(10, 10, 26, 0.15);
-  filter: blur(0.5px);
-}
-
-/* 은하수 효과 */
-.milky-way {
-  background:
-    radial-gradient(
-      ellipse 400% 100% at 50% 30%,
-      rgba(139, 92, 246, 0.12) 0%,
-      rgba(219, 39, 119, 0.08) 30%,
-      rgba(59, 130, 246, 0.06) 50%,
-      transparent 80%
-    ),
-    linear-gradient(
-      45deg,
-      transparent 0%,
-      rgba(139, 92, 246, 0.04) 20%,
-      rgba(219, 39, 119, 0.06) 50%,
-      rgba(59, 130, 246, 0.04) 80%,
-      transparent 100%
-    );
-  transform: rotate(-20deg);
-  animation: milkyWayShift 12s ease-in-out infinite;
-}
-
-@keyframes milkyWayShift {
-  0%,
-  100% {
-    transform: rotate(-25deg) scale(0.95);
-  }
-  50% {
-    transform: rotate(-15deg) scale(1.1);
-  }
-}
-
-/* 오라 효과 */
-.aura {
-  background: radial-gradient(circle, rgba(79, 70, 229, 0.08) 0%, transparent 70%);
-  animation: pulse 5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 0.4;
-  }
-  50% {
-    transform: translate(-50%, -50%) scale(1.15);
-    opacity: 0.7;
-  }
-}
-
-/* 테두리 발광 효과 - 더 밝고 선명하게 */
-.card-border-container .border-top,
-.card-border-container .border-right,
-.card-border-container .border-bottom,
-.card-border-container .border-left {
-  box-shadow:
-    0 0 8px rgba(139, 92, 246, 0.6),
-    0 0 12px rgba(139, 92, 246, 0.4);
-}
-
-/* 파티클 - 자연스러운 움직임으로 개선 */
-.particle {
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
-  animation: gentleFloat 15s ease-in-out infinite;
-}
-
-.particle-tiny {
-  width: 2px;
-  height: 2px;
-  background: radial-gradient(circle, rgba(220, 210, 255, 0.7) 0%, transparent 70%);
-}
-
-.particle-small {
-  width: 3px;
-  height: 3px;
-}
-
-.particle-medium {
-  width: 5px;
-  height: 5px;
-  background: radial-gradient(circle, rgba(210, 200, 255, 0.8) 0%, transparent 70%);
-}
-
-.particle-large {
-  width: 6px;
-  height: 6px;
-  background: radial-gradient(circle, rgba(220, 210, 255, 0.8) 0%, transparent 70%);
-}
-
-/* 더 부드럽고 서서히 진행되는 애니메이션 */
-@keyframes gentleFloat {
-  0% {
-    opacity: 0;
-    transform: translateY(0) translateX(0);
-  }
-  20% {
-    opacity: 0.8;
-  }
-  80% {
-    opacity: 0.8;
-    transform: translateY(-20px) translateX(8px);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-30px) translateX(10px);
-  }
-}
-
-/* 드림 파티클 - 자연스러운 움직임으로 개선 */
-.dream-particle {
-  width: 1px;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.5);
-  animation: gentlePulse 20s ease-in-out infinite;
-}
-
-@keyframes gentlePulse {
-  0% {
-    opacity: 0;
-    transform: scale(1);
-  }
-  30% {
-    opacity: 0.7;
-    transform: scale(1.5);
-  }
-  70% {
-    opacity: 0.7;
-    transform: scale(1.2);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1);
-  }
-}
-
-/* 유성 효과 - 방향과 기울기 조정 */
-.shooting-star-1 {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.7) 0%,
-    rgba(255, 255, 255, 0.4) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  /* 왼쪽에서 오른쪽으로 이동하는 유성 */
-  animation: shootStarLeftToRight 8s linear infinite;
-  transform: rotate(310deg); /* 방향에 맞게 회전 각도 조정 */
-  transform-origin: left center;
-  top: 30%;
-  left: -50px;
-}
-
-.shooting-star-2 {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.6) 0%,
-    rgba(255, 255, 255, 0.3) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  /* 위에서 아래로 이동하는 유성 */
-  animation: shootStarTopToBottom 12s linear infinite;
-  transform: rotate(284deg); /* 방향에 맞게 회전 각도 조정 */
-  transform-origin: left center;
-  top: -30px;
-  left: 60%;
-}
-
-@keyframes shootStarLeftToRight {
-  0% {
-    left: calc(100% + 50px);
-    top: -50px;
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  30% {
-    opacity: 1;
-  }
-  40% {
-    opacity: 0;
-  }
-  100% {
-    left: -130px;
-    top: calc(100% + 80px);
-    opacity: 0;
-  }
-}
-
-@keyframes shootStarTopToBottom {
-  0% {
-    top: -30px;
-    left: 80%;
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.8;
-  }
-  70% {
-    opacity: 0.8;
-  }
-  90% {
-    opacity: 0;
-  }
-  100% {
-    top: calc(100% + 30px);
-    left: 40%;
-    opacity: 0;
-  }
-}
-
-/* 파티클 위치 - 왼쪽 아래 위치를 피하고 더 넓게 분포 */
-.particle:nth-child(1) {
-  top: 10%;
-  left: 20%;
-  animation-delay: 0s;
-  animation-duration: 18s;
-}
-.particle:nth-child(2) {
-  top: 15%;
-  left: 80%;
-  animation-delay: 2s;
-  animation-duration: 16s;
-}
-.particle:nth-child(3) {
-  top: 20%;
-  left: 50%;
-  animation-delay: 4s;
-  animation-duration: 20s;
-}
-.particle:nth-child(4) {
-  top: 30%;
-  left: 85%;
-  animation-delay: 1s;
-  animation-duration: 17s;
-}
-.particle:nth-child(5) {
-  top: 40%;
-  left: 30%;
-  animation-delay: 3s;
-  animation-duration: 19s;
-}
-.particle:nth-child(6) {
-  top: 45%;
-  left: 70%;
-  animation-delay: 6s;
-  animation-duration: 15s;
-}
-.particle:nth-child(7) {
-  top: 50%;
-  left: 15%;
-  animation-delay: 5s;
-  animation-duration: 18s;
-}
-.particle:nth-child(8) {
-  top: 60%;
-  left: 65%;
-  animation-delay: 2s;
-  animation-duration: 14s;
-}
-.particle:nth-child(9) {
-  top: 20%;
-  left: 40%;
-  animation-delay: 4s;
-  animation-duration: 16s;
-}
-.particle:nth-child(10) {
-  top: 35%;
-  left: 60%;
-  animation-delay: 1s;
-  animation-duration: 20s;
-}
-/* 나머지 파티클 위치는 중상단에 집중 */
-.particle:nth-child(11) {
-  top: 25%;
-  left: 25%;
-  animation-delay: 3s;
-  animation-duration: 17s;
-}
-.particle:nth-child(12) {
-  top: 35%;
-  left: 45%;
-  animation-delay: 0s;
-  animation-duration: 19s;
-}
-.particle:nth-child(13) {
-  top: 30%;
-  left: 55%;
-  animation-delay: 2s;
-  animation-duration: 15s;
-}
-.particle:nth-child(14) {
-  top: 40%;
-  left: 75%;
-  animation-delay: 5s;
-  animation-duration: 18s;
-}
-.particle:nth-child(15) {
-  top: 25%;
-  left: 65%;
-  animation-delay: 1s;
-  animation-duration: 16s;
-}
-
-/* 드림 파티클 위치 - 위쪽에 집중, 왼쪽 아래 제거 */
-.dream-particle:nth-child(1) {
-  top: 15%;
-  left: 20%;
-  animation-delay: 2s;
-}
-.dream-particle:nth-child(2) {
-  top: 70%;
-  left: 75%;
-  animation-delay: 6s;
-}
-.dream-particle:nth-child(3) {
-  top: 85%;
-  left: 35%;
-  animation-delay: 10s;
-}
-.dream-particle:nth-child(4) {
-  top: 30%;
-  left: 80%;
-  animation-delay: 4s;
-}
-.dream-particle:nth-child(5) {
-  top: 60%;
-  left: 25%;
-  animation-delay: 8s;
-}
-</style>

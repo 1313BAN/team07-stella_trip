@@ -1,38 +1,89 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
+import type { StellaData } from '@/services/api/domains/plan/types';
 
-// 별 데이터
-const stars = ref([
-  { x: 25, y: 30, size: 2.5, pulse: 1, delay: 0, opacity: 0, highlight: 0 },
-  { x: 40, y: 20, size: 3, pulse: 1.5, delay: 0.2, opacity: 0, highlight: 0 },
-  { x: 55, y: 25, size: 2, pulse: 2, delay: 0.4, opacity: 0, highlight: 0 },
-  { x: 70, y: 35, size: 3.5, pulse: 1.3, delay: 0.6, opacity: 0, highlight: 0 },
-  { x: 60, y: 50, size: 3, pulse: 1.8, delay: 0.8, opacity: 0, highlight: 0 },
-  { x: 40, y: 55, size: 2.5, pulse: 1.2, delay: 1.0, opacity: 0, highlight: 0 },
-  { x: 25, y: 65, size: 2, pulse: 1.7, delay: 1.2, opacity: 0, highlight: 0 },
-  { x: 35, y: 75, size: 3, pulse: 1.4, delay: 1.4, opacity: 0, highlight: 0 },
-  { x: 55, y: 80, size: 2.5, pulse: 1.6, delay: 1.6, opacity: 0, highlight: 0 },
-]);
+// Props 추가
+interface Props {
+  stella?: StellaData | null;
+}
 
-// 별자리 연결선 (연결선 그룹화 및 타이밍 설정)
-const connections = ref([
-  // 첫 번째 그룹 - 빠르게 시작
-  { from: 0, to: 1, progress: 0, group: 0, speed: 1.0 },
-  { from: 2, to: 3, progress: 0, group: 0, speed: 0.9 },
-  { from: 4, to: 5, progress: 0, group: 0, speed: 1.1 },
+const props = defineProps<Props>();
+// 북두칠성 기본 별 데이터
+const defaultStars = [
+  // 국자 왼쪽 아래 (두베) - 오른쪽으로 이동
+  { x: 18, y: 65, size: 2.9, pulse: 1.2, delay: 0, opacity: 0, highlight: 0 },
+  // 국자 오른쪽 아래 (메라크) - 왼쪽으로 이동
+  { x: 37, y: 70, size: 3.1, pulse: 1.0, delay: 0.2, opacity: 0, highlight: 0 },
+  // 국자 오른쪽 위 (페크다) - 왼쪽으로 이동
+  { x: 42, y: 45, size: 2.7, pulse: 1.8, delay: 0.4, opacity: 0, highlight: 0 },
+  // 국자 왼쪽 위 (메그레즈) - 오른쪽으로 이동
+  { x: 23, y: 45, size: 2.8, pulse: 1.5, delay: 0.6, opacity: 0, highlight: 0 },
+  // 손잡이 첫번째 (알리오트)
+  { x: 55, y: 25, size: 2.6, pulse: 1.3, delay: 0.8, opacity: 0, highlight: 0 },
+  // 손잡이 두번째 (미자르)
+  { x: 68, y: 12, size: 3.0, pulse: 1.7, delay: 1.0, opacity: 0, highlight: 0 },
+  // 손잡이 끝 (알카이드)
+  { x: 82, y: 5, size: 2.5, pulse: 1.4, delay: 1.2, opacity: 0, highlight: 0 },
+];
 
-  // 두 번째 그룹 - 약간 딜레이 후 시작
-  { from: 1, to: 2, progress: 0, group: 1, speed: 0.8 },
-  { from: 5, to: 0, progress: 0, group: 1, speed: 1.2 },
+// 북두칠성 기본 연결선 데이터
+const defaultConnections = [
+  // 국자 바닥 (사각형)
+  { from: 0, to: 1, progress: 0, group: 0, speed: 1.0 }, // 두베 → 메라크 (바닥)
+  { from: 1, to: 2, progress: 0, group: 0, speed: 0.9 }, // 메라크 → 페크다 (오른쪽 벽)
+  { from: 2, to: 3, progress: 0, group: 0, speed: 1.1 }, // 페크다 → 메그레즈 (윗면)
+  { from: 3, to: 0, progress: 0, group: 1, speed: 0.8 }, // 메그레즈 → 두베 (왼쪽 벽)
 
-  // 세 번째 그룹 - 추가 딜레이 후 시작
-  { from: 3, to: 4, progress: 0, group: 2, speed: 1.0 },
-  { from: 5, to: 6, progress: 0, group: 2, speed: 0.9 },
+  // 손잡이 (위쪽 곡선)
+  { from: 2, to: 4, progress: 0, group: 1, speed: 1.2 }, // 페크다 → 알리오트
+  { from: 4, to: 5, progress: 0, group: 2, speed: 1.0 }, // 알리오트 → 미자르 (바깥쪽 곡선)
+  { from: 5, to: 6, progress: 0, group: 2, speed: 0.9 }, // 미자르 → 알카이드 (곡선 마무리)
+];
+// 별 데이터 처리
+const stars = ref(defaultStars);
+const connections = ref(defaultConnections);
 
-  // 네 번째 그룹 - 마지막 연결
-  { from: 6, to: 7, progress: 0, group: 3, speed: 1.1 },
-  { from: 7, to: 8, progress: 0, group: 3, speed: 0.8 },
-]);
+// props에 따라 데이터 업데이트
+const updateStarsAndConnections = () => {
+  if (!props.stella?.nodes.length) {
+    stars.value = [...defaultStars];
+    connections.value = [...defaultConnections];
+    return;
+  }
+
+  // 좌표 정규화
+  const nodes = props.stella.nodes;
+  const xCoords = nodes.map(n => n.x);
+  const yCoords = nodes.map(n => n.y);
+
+  const maxX = Math.max(...xCoords);
+  const maxY = Math.max(...yCoords);
+  const minX = Math.min(...xCoords);
+  const minY = Math.min(...yCoords);
+
+  const xRange = maxX - minX || 1;
+  const yRange = maxY - minY || 1;
+
+  stars.value = nodes.map((node, index) => ({
+    x: ((node.x - minX) / xRange) * 60 + 20, // 20-80 범위로 정규화
+    y: ((node.y - minY) / yRange) * 60 + 20,
+    size: 2 + Math.random() * 1.5, // 2-3.5 범위
+    pulse: 1 + Math.random() * 1, // 1-2 범위
+    delay: index * 0.2,
+    opacity: 0,
+    highlight: 0,
+  }));
+
+  if (props.stella.edges.length) {
+    connections.value = props.stella.edges.map((edge, index) => ({
+      from: edge.from,
+      to: edge.to,
+      progress: 0,
+      group: Math.floor(index / 3), // 3개씩 그룹화
+      speed: 0.8 + Math.random() * 0.4, // 0.8-1.2 범위
+    }));
+  }
+};
 
 // 마우스 위치 추적
 const mouseX = ref(0);
@@ -123,9 +174,12 @@ const bgStars = ref<
 
 // 초기화 및 애니메이션 로직
 const constellationRef = ref<HTMLElement | null>(null);
-let connectionAnimationTimeouts: number[] = [];
+const connectionAnimationTimeouts: number[] = [];
 
 onMounted(() => {
+  // props에 따라 데이터 업데이트
+  updateStarsAndConnections();
+
   // 배경 별 무작위 생성 (더 많은 별)
   for (let i = 0; i < 200; i++) {
     bgStars.value.push({
@@ -165,7 +219,7 @@ const startConnectionAnimation = () => {
   connections.value.forEach(connection => {
     // 그룹에 따른 기본 딜레이 + 약간의 무작위성
     const randomOffset = Math.random() * 150;
-    const baseDelay = groupDelays[connection.group];
+    const baseDelay = groupDelays[connection.group] || 800;
     const totalDelay = baseDelay + randomOffset;
 
     connectionAnimationTimeouts.push(
@@ -271,9 +325,9 @@ onUnmounted(() => {
         <path
           v-for="(conn, idx) in connections"
           :key="`conn-${idx}`"
-          :d="`M${stars[conn.from].x} ${stars[conn.from].y} 
-              L${stars[conn.from].x + (stars[conn.to].x - stars[conn.from].x) * conn.progress} 
-               ${stars[conn.from].y + (stars[conn.to].y - stars[conn.from].y) * conn.progress}`"
+          :d="`M${stars[conn.from]?.x || 0} ${stars[conn.from]?.y || 0} 
+              L${(stars[conn.from]?.x || 0) + ((stars[conn.to]?.x || 0) - (stars[conn.from]?.x || 0)) * conn.progress} 
+               ${(stars[conn.from]?.y || 0) + ((stars[conn.to]?.y || 0) - (stars[conn.from]?.y || 0)) * conn.progress}`"
           stroke="rgba(220, 210, 255, 0.75)"
           stroke-width="0.5"
           fill="none"
@@ -380,7 +434,7 @@ onUnmounted(() => {
         background: 'radial-gradient(circle, rgba(100, 80, 180, 0.1) 0%, transparent 70%)',
         animation: 'pulse 6s ease-in-out infinite',
       }"
-    ></div>
+    />
   </div>
 </template>
 
