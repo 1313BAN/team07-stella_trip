@@ -67,7 +67,7 @@
   </section>
 </template>
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { ref, reactive, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ArrowLeft } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
@@ -117,6 +117,10 @@ const handleFilterChange = (filters: AttractionsParams) => {
   filterParams.size = filters.size;
   fetchAttractions();
 };
+
+onUnmounted(() => {
+  closeFilterPanel();
+});
 
 const closeFilterPanel = () => {
   if (filterComponentRef.value) {
