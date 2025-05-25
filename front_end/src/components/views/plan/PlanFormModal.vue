@@ -119,9 +119,8 @@
               <FormItem class="flex flex-row items-start space-y-0 space-x-3">
                 <FormControl>
                   <Checkbox
-                    :checked="form.isPublic"
+                    v-model="form.isPublic"
                     class="border-white/20 bg-white/10 text-purple-400 focus:ring-purple-400/30 data-[state=checked]:border-purple-500 data-[state=checked]:bg-purple-500"
-                    @update:checked="form.isPublic = $event"
                   />
                 </FormControl>
                 <div class="space-y-1 leading-none">
