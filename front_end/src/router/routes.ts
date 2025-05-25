@@ -12,4 +12,5 @@ export const ROUTES = {
   },
   PLAN_DETAIL: { path: '/plans/:planId', name: 'plan-detail', title: '여행 계획 상세' },
   NOT_FOUND: { path: '/:pathMatch(.*)*', name: 'not-found', title: '존재하지 않는 페이지' },
+  MY_PAGE: { path: '/my-page', name: 'my-page', title: '마이 페이지' },
 } as const;
