@@ -33,7 +33,7 @@
             class="absolute top-8 left-1/2 z-10 -translate-x-1/2 transform font-semibold text-slate-100 uppercase"
             :style="titleStyle"
           >
-            CONSTELLATION
+            {{ cardData.frontTitle }}
           </div>
 
           <!-- Shooting Star -->
@@ -85,7 +85,7 @@
             >
               <!-- Constellation Lines -->
               <line
-                v-for="(line, i) in constellationLines"
+                v-for="(line, i) in processedLines"
                 :key="`line-${i}`"
                 class="constellation-line"
                 :x1="line.x1"
@@ -95,7 +95,7 @@
               />
 
               <!-- Stars -->
-              <g v-for="(star, i) in stars" :key="`star-${i}`" class="star-group">
+              <g v-for="(star, i) in processedStars" :key="`star-${i}`" class="star-group">
                 <circle
                   v-for="(circle, j) in getStarCircles(star)"
                   :key="`circle-${j}`"
@@ -114,7 +114,7 @@
             class="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 transform text-center font-medium text-slate-100"
             :style="bottomTextStyle"
           >
-            ✦ HUNTER ✦
+            ✦ {{ cardData.constellation }} ✦
           </div>
 
           <!-- Card Filter -->
@@ -150,7 +150,7 @@
             class="absolute top-8 left-1/2 z-10 -translate-x-1/2 transform font-semibold text-slate-100 uppercase"
             :style="titleStyle"
           >
-            HUNTER
+            {{ cardData.backTitle }}
           </div>
 
           <!-- Description Content -->
@@ -158,19 +158,23 @@
             <div class="text-sm leading-relaxed text-slate-100" :style="descriptionStyle">
               <p class="mb-4">
                 <strong class="text-indigo-300">키워드:</strong>
-                목표, 추적, 집중, 인내
+                {{ cardData.keywords }}
               </p>
 
               <p class="mb-4">
-                사냥꾼자리는 강인한 의지와 명확한 목표를 상징합니다. 이 카드가 나타났다면, 당신이
-                추구하는 것을 향해 꾸준히 나아가야 할 때임을 의미합니다.
+                {{ cardData.description }}
               </p>
 
               <p class="mb-4">
                 <strong class="text-violet-300">정위치:</strong>
                 <br />
-                목표 달성, 성공적인 추적, 집중력과 인내심이 결실을 맺는 시기입니다. 당신의 노력이 곧
-                보상받을 것입니다.
+                {{ cardData.uprightMeaning }}
+              </p>
+
+              <p v-if="cardData.reversedMeaning" class="mb-4">
+                <strong class="text-rose-300">역위치:</strong>
+                <br />
+                {{ cardData.reversedMeaning }}
               </p>
             </div>
           </div>
@@ -195,14 +199,25 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, type CSSProperties } from 'vue';
+import type { StellaData } from '@/services/api/domains/plan/types';
 
-interface Star {
+interface TarotCardData {
+  frontTitle: string;
+  backTitle: string;
+  constellation: string;
+  keywords: string;
+  description: string;
+  uprightMeaning: string;
+  reversedMeaning?: string;
+}
+
+interface ProcessedStar {
   cx: number;
   cy: number;
   size: 'small' | 'medium' | 'large';
 }
 
-interface Line {
+interface ProcessedLine {
   x1: number;
   y1: number;
   x2: number;
@@ -215,8 +230,88 @@ interface Circle {
   opacity: number;
 }
 
+interface Props {
+  stella?: StellaData | null;
+  cardData: TarotCardData;
+}
+
+const props = defineProps<Props>();
+
 const cardRef = ref<HTMLDivElement>();
 const isFlipped = ref(false);
+
+// 별자리 데이터를 타로 카드 스타일로 변환
+const processedStars = computed((): ProcessedStar[] => {
+  if (!props.stella?.nodes.length) {
+    // 기본 별자리 패턴 (Hunter) - 중앙에 더 집중
+    return [
+      { cx: 150, cy: 120, size: 'small' },
+      { cx: 270, cy: 120, size: 'small' },
+      { cx: 150, cy: 280, size: 'small' },
+      { cx: 270, cy: 280, size: 'small' },
+      { cx: 180, cy: 150, size: 'medium' },
+      { cx: 240, cy: 140, size: 'medium' },
+      { cx: 170, cy: 210, size: 'medium' },
+      { cx: 250, cy: 210, size: 'medium' },
+      { cx: 210, cy: 240, size: 'large' },
+      { cx: 200, cy: 300, size: 'large' },
+    ];
+  }
+
+  // 좌표를 420x420 SVG 좌표계로 정규화
+  const nodes = props.stella.nodes;
+  const xCoords = nodes.map(n => n.x);
+  const yCoords = nodes.map(n => n.y);
+
+  const maxX = Math.max(...xCoords);
+  const maxY = Math.max(...yCoords);
+  const minX = Math.min(...xCoords);
+  const minY = Math.min(...yCoords);
+
+  const xRange = maxX - minX || 1;
+  const yRange = maxY - minY || 1;
+
+  return nodes.map((node, index): ProcessedStar => {
+    const cx = ((node.x - minX) / xRange) * 200 + 110; // 110-310 범위로 정규화 (중앙에 더 집중)
+    const cy = ((node.y - minY) / yRange) * 200 + 110;
+
+    // 별 크기를 인덱스나 위치에 따라 결정
+    let size: 'small' | 'medium' | 'large';
+    if (index % 3 === 0) size = 'large';
+    else if (index % 2 === 0) size = 'medium';
+    else size = 'small';
+
+    return { cx, cy, size };
+  });
+});
+
+const processedLines = computed((): ProcessedLine[] => {
+  if (!props.stella?.edges.length || !props.stella?.nodes.length) {
+    // 기본 연결선 패턴 - 중앙 집중형
+    return [
+      { x1: 150, y1: 120, x2: 180, y2: 150 },
+      { x1: 180, y1: 150, x2: 240, y2: 140 },
+      { x1: 240, y1: 140, x2: 270, y2: 120 },
+      { x1: 180, y1: 150, x2: 170, y2: 210 },
+      { x1: 240, y1: 140, x2: 250, y2: 210 },
+      { x1: 170, y1: 210, x2: 210, y2: 240 },
+      { x1: 210, y1: 240, x2: 250, y2: 210 },
+      { x1: 170, y1: 210, x2: 150, y2: 280 },
+      { x1: 210, y1: 240, x2: 200, y2: 300 },
+      { x1: 250, y1: 210, x2: 270, y2: 280 },
+    ];
+  }
+
+  const stars = processedStars.value;
+  return props.stella.edges
+    .filter(edge => edge.from < stars.length && edge.to < stars.length)
+    .map(edge => ({
+      x1: stars[edge.from].cx,
+      y1: stars[edge.from].cy,
+      x2: stars[edge.to].cx,
+      y2: stars[edge.to].cy,
+    }));
+});
 
 const cardStyle = computed(
   (): CSSProperties => ({
@@ -308,32 +403,6 @@ const descriptionStyle = computed(
 const particles = ref(Array(30).fill(null));
 const dreamParticles = ref(Array(10).fill(null));
 
-const constellationLines: Line[] = [
-  { x1: 120, y1: 90, x2: 160, y2: 120 },
-  { x1: 160, y1: 120, x2: 200, y2: 110 },
-  { x1: 200, y1: 110, x2: 260, y2: 90 },
-  { x1: 160, y1: 120, x2: 140, y2: 180 },
-  { x1: 200, y1: 110, x2: 230, y2: 180 },
-  { x1: 140, y1: 180, x2: 190, y2: 210 },
-  { x1: 190, y1: 210, x2: 230, y2: 180 },
-  { x1: 140, y1: 180, x2: 120, y2: 250 },
-  { x1: 190, y1: 210, x2: 170, y2: 280 },
-  { x1: 230, y1: 180, x2: 250, y2: 250 },
-];
-
-const stars: Star[] = [
-  { cx: 120, cy: 90, size: 'small' },
-  { cx: 260, cy: 90, size: 'small' },
-  { cx: 120, cy: 250, size: 'small' },
-  { cx: 250, cy: 250, size: 'small' },
-  { cx: 160, cy: 120, size: 'medium' },
-  { cx: 200, cy: 110, size: 'medium' },
-  { cx: 140, cy: 180, size: 'medium' },
-  { cx: 230, cy: 180, size: 'medium' },
-  { cx: 190, cy: 210, size: 'large' },
-  { cx: 170, cy: 280, size: 'large' },
-];
-
 const getParticleClass = (index: number): string => {
   const classes = [
     'particle-tiny',
@@ -346,7 +415,7 @@ const getParticleClass = (index: number): string => {
   return classes[index % classes.length];
 };
 
-const getStarCircles = (star: Star): Circle[] => {
+const getStarCircles = (star: ProcessedStar): Circle[] => {
   if (star.size === 'small') {
     return [
       { radius: 15, color: 'rgba(139, 92, 246, 0.1)', opacity: 0.4 },
