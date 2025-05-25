@@ -24,6 +24,7 @@ public class PlanResponseDTO {
     private LocalDate startDate;
     private LocalDate endDate;
     private int likeCount;
+    @JsonProperty("isPublic")
     private boolean isPublic;
     private List<WriterResponseDTO> planWriters;
     private List<TagResponseDTO> tags;

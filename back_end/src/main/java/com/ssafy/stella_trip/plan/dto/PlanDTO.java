@@ -1,5 +1,6 @@
 package com.ssafy.stella_trip.plan.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ssafy.stella_trip.user.dto.UserDTO;
 import lombok.*;
 
@@ -24,7 +25,9 @@ public class PlanDTO {
     private int likeCount;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+    @JsonProperty("isPublic")
     private boolean isPublic;
     private String stella;
+    @JsonProperty("isLiked")
     private boolean isLiked;
 }

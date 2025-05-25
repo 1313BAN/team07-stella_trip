@@ -29,5 +29,6 @@ public class AttractionDTO {
     private String overview;
     private double rating;
     private int likeCount;
+    @JsonProperty("isLiked")
     private boolean isLiked;
 }
