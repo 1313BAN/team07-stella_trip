@@ -1,11 +1,18 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { PlanDetail, RouteAttraction } from '@/services/api/domains/plan';
+import type { PlanDetail, RouteAttraction, RouteInfo } from '@/services/api/domains/plan';
 import { fillPlanDetails } from '@/utils/planUtils';
 
 export const usePlanStore = defineStore('plan', () => {
   const currentPlan = ref<PlanDetail | null>(null);
   const isModifying = ref<boolean>(false);
+  const hasLock = ref<boolean>(false);
+
+  // 변경된 날짜들을 추적
+  const modifiedDates = ref<Set<string>>(new Set());
+
+  // 삭제된 routeId들을 추적 (routeId -> { dayIndex, order })
+  const deletedRoutes = ref<Map<number, { dayIndex: number; order: number }>>(new Map());
 
   /**
    * 플랜 데이터를 설정하고 모든 초기화 작업을 수행합니다.
@@ -30,6 +37,11 @@ export const usePlanStore = defineStore('plan', () => {
    */
   const setModifying = (modifying: boolean) => {
     isModifying.value = modifying;
+    if (!modifying) {
+      // 수정 모드 종료 시 변경사항 초기화
+      clearModifiedDates();
+      clearDeletedRoutes();
+    }
   };
 
   /**
@@ -37,6 +49,104 @@ export const usePlanStore = defineStore('plan', () => {
    */
   const toggleModifying = () => {
     isModifying.value = !isModifying.value;
+    if (!isModifying.value) {
+      clearModifiedDates();
+      clearDeletedRoutes();
+    }
+  };
+
+  /**
+   * 락 상태를 설정합니다.
+   * @param locked - 락 보유 여부
+   */
+  const setLock = (locked: boolean) => {
+    hasLock.value = locked;
+  };
+
+  /**
+   * 변경된 날짜 목록을 초기화합니다.
+   */
+  const clearModifiedDates = () => {
+    modifiedDates.value.clear();
+  };
+
+  /**
+   * 삭제된 routes 목록을 초기화합니다.
+   */
+  const clearDeletedRoutes = () => {
+    deletedRoutes.value.clear();
+  };
+
+  /**
+   * 날짜를 수정된 것으로 표시합니다.
+   * @param date - 수정된 날짜
+   */
+  const markDateAsModified = (date: string) => {
+    modifiedDates.value.add(date);
+  };
+
+  /**
+   * route를 삭제된 것으로 표시합니다.
+   * @param routeId - 삭제된 route ID
+   * @param date - 삭제된 날짜 (dayIndex 계산용)
+   * @param order - 삭제 당시 order
+   */
+  const markRouteAsDeleted = (routeId: number, date: string, order: number) => {
+    const dayIndex = calculateDayIndex(date);
+    deletedRoutes.value.set(routeId, { dayIndex, order });
+  };
+
+  /**
+   * 변경된 날짜들의 경로 정보를 RouteInfo 배열로 변환합니다.
+   * @returns RouteInfo 배열
+   */
+  const getModifiedRoutes = (): RouteInfo[] => {
+    if (!currentPlan.value?.details) return [];
+
+    const routes: RouteInfo[] = [];
+
+    // 1. 현재 존재하는 항목들 (수정/순서변경된 항목들)
+    modifiedDates.value.forEach(date => {
+      const attractions = currentPlan.value!.details![date] || [];
+      const dayIndex = calculateDayIndex(date);
+
+      attractions.forEach(attraction => {
+        routes.push({
+          routeId: attraction.routeId,
+          dayIndex,
+          order: attraction.order,
+          deleted: false,
+        });
+      });
+    });
+
+    // 2. 삭제된 항목들
+    deletedRoutes.value.forEach(({ dayIndex, order }, routeId) => {
+      routes.push({
+        routeId,
+        dayIndex,
+        order,
+        deleted: true,
+      });
+    });
+
+    return routes;
+  };
+
+  /**
+   * 날짜를 dayIndex로 변환합니다.
+   * @param date - 변환할 날짜 (YYYY-MM-DD)
+   * @returns dayIndex (1부터 시작)
+   */
+  const calculateDayIndex = (date: string): number => {
+    if (!currentPlan.value?.startDate) return 1;
+
+    const targetDate = new Date(date);
+    const startDate = new Date(currentPlan.value.startDate);
+    const diffTime = targetDate.getTime() - startDate.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return diffDays + 1;
   };
 
   /**
@@ -61,6 +171,7 @@ export const usePlanStore = defineStore('plan', () => {
       };
 
       currentPlan.value.details[date].push(newAttraction);
+      markDateAsModified(date);
     }
   };
 
@@ -71,6 +182,17 @@ export const usePlanStore = defineStore('plan', () => {
    */
   const removeAttractionFromDate = (date: string, routeId: number) => {
     if (currentPlan.value?.details?.[date]) {
+      // 삭제할 항목 찾기
+      const targetAttraction = currentPlan.value.details[date].find(
+        attraction => attraction.routeId === routeId
+      );
+
+      if (targetAttraction) {
+        // 삭제 추적에 추가
+        markRouteAsDeleted(routeId, date, targetAttraction.order);
+      }
+
+      // 실제 데이터에서 제거
       const filteredAttractions = currentPlan.value.details[date].filter(
         attraction => attraction.routeId !== routeId
       );
@@ -82,6 +204,7 @@ export const usePlanStore = defineStore('plan', () => {
       }));
 
       currentPlan.value.details[date] = reorderedAttractions;
+      markDateAsModified(date);
     }
   };
 
@@ -99,6 +222,7 @@ export const usePlanStore = defineStore('plan', () => {
       }));
 
       currentPlan.value.details[date] = reorderedAttractions;
+      markDateAsModified(date);
     }
   };
 
@@ -137,22 +261,43 @@ export const usePlanStore = defineStore('plan', () => {
   const clearPlan = () => {
     currentPlan.value = null;
     isModifying.value = false;
+    hasLock.value = false;
+    clearModifiedDates();
+    clearDeletedRoutes();
+  };
+
+  /**
+   * 수정사항이 있는지 확인합니다.
+   * @returns 수정사항 존재 여부
+   */
+  const hasModifications = (): boolean => {
+    return modifiedDates.value.size > 0 || deletedRoutes.value.size > 0;
   };
 
   return {
     // State
     currentPlan,
     isModifying,
+    hasLock,
+    modifiedDates,
+    deletedRoutes,
 
     // Actions
     setPlanDetail,
     setModifying,
     toggleModifying,
+    setLock,
+    clearModifiedDates,
+    clearDeletedRoutes,
+    markDateAsModified,
+    markRouteAsDeleted,
+    getModifiedRoutes,
     addAttractionToDate,
     removeAttractionFromDate,
     reorderAttractions,
     sortAttractionsByOrder,
     normalizeAllOrders,
     clearPlan,
+    hasModifications,
   };
 });
