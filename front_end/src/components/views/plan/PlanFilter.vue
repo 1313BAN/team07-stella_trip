@@ -32,7 +32,7 @@
           <Label class="text-sm font-medium text-purple-200/80">여행 기간</Label>
           <DualSlider
             v-model="rangeValue"
-            :min="1"
+            :min="0"
             :max="30"
             :step="1"
             :minStepsBetweenThumbs="1"
@@ -112,6 +112,10 @@ import { type PlansParams } from '@/services/api/domains/plan';
 import { type PlansSortOption } from '@/services/api/domains/plan/types';
 
 const props = defineProps({
+  filters: {
+    type: Object as PropType<PlansParams>,
+    default: () => ({}),
+  },
   parentScrollContainer: {
     type: Object as PropType<HTMLElement | null>,
     default: null,
@@ -137,12 +141,13 @@ const sortOptions = {
 
 const isSearchFocused = ref(false);
 const containerRef = ref<HTMLElement | null>(null);
-const searchQuery = ref('');
-const userName = ref('');
-const selectedSort = ref<PlansSortOption>('recent');
-const rangeValue = ref([1, 30]);
+const searchQuery = ref(props.filters.search || '');
+const userName = ref(props.filters.userName || '');
+const selectedSort = ref<PlansSortOption>(props.filters.sort || 'recent');
+const rangeValue = ref([props.filters.minDuration || 0, props.filters.maxDuration || 30]);
 const emit = defineEmits<{
   (e: 'filter', filters: PlansParams): void;
+  (e: 'clearFilter'): void;
 }>();
 
 // 스크롤 상태 변화 감지
@@ -174,9 +179,16 @@ onBeforeUnmount(() => {
   document.removeEventListener('mousedown', handleClickOutside);
 });
 
+watch(props.filters, newFilters => {
+  searchQuery.value = newFilters.search || '';
+  userName.value = newFilters.userName || '';
+  selectedSort.value = newFilters.sort || 'recent';
+  rangeValue.value = [newFilters.minDuration || 0, newFilters.maxDuration || 30];
+});
+
 // 여행 기간 포맷
 const formatDurationLabel = (days: number) => {
-  if (days === 1) return '당일치기';
+  if (days === 0) return '당일치기';
   return `${days}박 ${days + 1}일`;
 };
 
@@ -185,7 +197,8 @@ const resetFilters = () => {
   searchQuery.value = '';
   userName.value = '';
   selectedSort.value = 'recent';
-  rangeValue.value = [1, 30];
+  rangeValue.value = [0, 30];
+  emit('clearFilter');
 };
 
 // 검색 핸들러
