@@ -148,7 +148,7 @@ export const deleteReviewLike = async (
  * @returns 여행 계획 태그 리스트
  */
 export const getPopularTags = async (): Promise<FeaturedTags> => {
-  const response = await api.get<ApiResponse<FeaturedTags>>(ATTRACTION.FEATRUED_TAGS);
+  const response = await api.get<ApiResponse<FeaturedTags>>(ATTRACTION.FEATURED_TAGS);
 
   return response.data.body;
 };
