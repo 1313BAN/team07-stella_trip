@@ -325,8 +325,22 @@ const handleModalOpen = (value: '' | 'login' | 'register') => {
     </div>
   </Modal>
   <Toaster
+    :expand="true"
     :toastOptions="{
-      style: { background: 'black', color: 'white' },
+      style: {
+        background: 'rgba(15, 23, 42, 0.95)',
+        backdropFilter: 'blur(16px)',
+        border: '1px solid rgba(148, 163, 184, 0.2)',
+        borderRadius: '12px',
+        color: '#f1f5f9',
+        boxShadow:
+          '0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.05)',
+        fontSize: '14px',
+        fontWeight: '500',
+        padding: '16px 20px',
+        minWidth: '320px',
+      },
+      duration: 4000,
     }"
   />
 </template>
