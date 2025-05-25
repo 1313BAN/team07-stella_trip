@@ -1,53 +1,63 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-
-interface Star {
-  x: number;
-  y: number;
-  r?: number;
-  brightness?: number;
-  delay?: number;
-  duration?: number;
-}
-
-interface Connection {
-  from: number;
-  to: number;
-}
+import type {
+  RawNode,
+  StellaEdge,
+  StellaNode,
+  BackgroundStar,
+} from '@/services/api/domains/plan/types';
 
 interface Props {
-  stars: Star[];
-  connections: Connection[];
-  backgroundStars: Star[];
-  isHovered: boolean;
+  nodes?: RawNode[];
+  edges?: StellaEdge[];
+  backgroundStars?: BackgroundStar[];
+  isHovered?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  stars: () => [],
-  connections: () => [],
+  nodes: () => [],
+  edges: () => [],
   backgroundStars: () => [],
   isHovered: false,
 });
 
-// Star 객체의 기본값을 처리하는 computed
-const processedStars = computed(() =>
-  props.stars.map(star => ({
-    ...star,
-    r: star.r ?? 1,
-    brightness: star.brightness ?? 1,
-    delay: star.delay ?? 1,
-    duration: star.duration ?? 1,
-  }))
-);
+// 노드를 정규화하고 랜덤값을 추가하여 별로 변환
+const processedStars = computed((): StellaNode[] => {
+  if (props.nodes.length === 0) return [];
 
-const processedBackgroundStars = computed(() =>
-  props.backgroundStars.map(star => ({
-    ...star,
-    r: star.r ?? 1,
-    brightness: star.brightness ?? 1,
-    delay: star.delay ?? 1,
-    duration: star.duration ?? 1,
-  }))
+  // 좌표의 최대값을 구해서 0-100 범위로 정규화
+  const xCoords = props.nodes.map(n => n.x);
+  const yCoords = props.nodes.map(n => n.y);
+
+  const maxX = Math.max(...xCoords);
+  const maxY = Math.max(...yCoords);
+  const minX = Math.min(...xCoords);
+  const minY = Math.min(...yCoords);
+
+  // 0으로 나누는 것을 방지
+  const xRange = maxX - minX || 1;
+  const yRange = maxY - minY || 1;
+
+  return props.nodes.map(
+    (node): StellaNode => ({
+      x: ((node.x - minX) / xRange) * 80 + 10, // 10-90 범위로 정규화
+      y: ((node.y - minY) / yRange) * 80 + 10,
+      r: Math.random() * 1.5 + 1, // 1-2.5 범위
+      brightness: Math.random() * 0.3 + 0.7, // 0.7-1.0 범위
+      delay: Math.random() * 2, // 0-2초 범위
+    })
+  );
+});
+
+// 유효한 연결만 필터링
+const validConnections = computed(() =>
+  props.edges.filter(
+    connection =>
+      connection.from < props.nodes.length &&
+      connection.to < props.nodes.length &&
+      connection.from >= 0 &&
+      connection.to >= 0
+  )
 );
 </script>
 
@@ -81,7 +91,7 @@ const processedBackgroundStars = computed(() =>
     <!-- 우주 배경별들 -->
     <g opacity="0.7">
       <circle
-        v-for="(star, index) in processedBackgroundStars"
+        v-for="(star, index) in backgroundStars"
         :key="`bg-star-${index}`"
         :cx="star.x"
         :cy="star.y"
@@ -91,21 +101,20 @@ const processedBackgroundStars = computed(() =>
         filter="url(#backgroundGlow)"
         class="animate-pulse"
         :style="{
-          animationDelay: `${star.delay}s`,
           animationDuration: `${star.duration}s`,
         }"
       />
     </g>
 
     <!-- 연결선들 -->
-    <g>
+    <g v-if="validConnections.length > 0">
       <line
-        v-for="(connection, index) in connections"
+        v-for="(connection, index) in validConnections"
         :key="`connection-${index}`"
-        :x1="processedStars[connection.from].x ?? 0"
-        :y1="processedStars[connection.from].y ?? 0"
-        :x2="processedStars[connection.to].x ?? 0"
-        :y2="processedStars[connection.to].y ?? 0"
+        :x1="processedStars[connection.from]?.x ?? 0"
+        :y1="processedStars[connection.from]?.y ?? 0"
+        :x2="processedStars[connection.to]?.x ?? 0"
+        :y2="processedStars[connection.to]?.y ?? 0"
         stroke="currentColor"
         stroke-width="1"
         opacity="0.7"
