@@ -3,7 +3,7 @@ import api from '../../api';
 import type {
   ApiResponse,
   PagenationResponse,
-  PagenationParams,
+  PaginationParams,
   CommonSuccessBody,
 } from '../../types';
 import type {
@@ -162,7 +162,7 @@ export const returnLock = async (planId: number): Promise<CommonSuccessBody> => 
  * query parameter를 바탕으로 여행 계획 리스트 조회
  * @returns 여행 계획 리스트
  */
-export const getMyPlans = async (params?: PagenationParams): Promise<PagenationResponse<Plan>> => {
+export const getMyPlans = async (params?: PaginationParams): Promise<PagenationResponse<Plan>> => {
   const response = await api.get<ApiResponse<PagenationResponse<Plan>>>(PLAN.MY_PLANS, {
     params,
   });
@@ -176,8 +176,7 @@ export const getMyPlans = async (params?: PagenationParams): Promise<PagenationR
  * @returns
  */
 export const inviteToMyPlan = async (planId: number, email: string): Promise<boolean> => {
-  const response = await api.post<ApiResponse<boolean>>(PLAN.INVITE(planId), { data: { email } });
-
+  const response = await api.post<ApiResponse<boolean>>(PLAN.INVITE(planId), { email });
   return response.data.body;
 };
 

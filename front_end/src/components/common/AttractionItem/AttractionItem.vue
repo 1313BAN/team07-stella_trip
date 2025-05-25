@@ -64,7 +64,6 @@ const props = defineProps<{
   visitTime?: string;
   address: string;
   memo?: string;
-  isModifying?: boolean;
 }>();
 
 const emit = defineEmits<{

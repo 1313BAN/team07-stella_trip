@@ -129,7 +129,6 @@ const showRouteOnMap = () => {
  * 새로운 여행지 추가 이벤트를 emit합니다.
  */
 const handleAddAttraction = () => {
-  console.log(props.date);
   emit('addAttraction', props.date);
 };
 

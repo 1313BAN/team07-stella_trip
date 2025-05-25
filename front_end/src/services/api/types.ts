@@ -25,7 +25,7 @@ export type PagenationResponse<T> = {
   last: boolean;
 };
 
-export type PagenationParams = {
+export type PaginationParams = {
   page: number;
   size: number;
 };
