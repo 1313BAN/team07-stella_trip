@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @PreAuthorize("permitAll()")
-@RequestMapping("/api/featured")
+@RequestMapping("/v1/featured")
 public class FeaturedController {
 
     private final FeaturedService featuredService;
