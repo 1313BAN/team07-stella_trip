@@ -9,11 +9,11 @@ interface Props {
 defineProps<Props>();
 
 const emit = defineEmits<{
-  click: [];
+  tagClick: [];
 }>();
 
 const handleClick = () => {
-  emit('click');
+  emit('tagClick');
 };
 </script>
 

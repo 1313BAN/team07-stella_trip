@@ -1,42 +1,53 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
 import AttractionCard from '@/components/card/AttractionCard/AttractionCard.vue';
-import { getAttractions, type Attraction } from '@/services/api/domains/attraction';
-import type { AttractionsParams } from '@/services/api/domains/attraction';
+import type { AttractionsParams, Attraction } from '@/services/api/domains/attraction/types';
+import { ContentTypeId } from '@/constants/constant';
 import GridCardListContainer from '@/components/common/GridCardListContainer/GridCardListContainer.vue';
 
 interface Props {
   apiParams?: AttractionsParams;
+  attractions?: Attraction[];
+  showAddButton?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   apiParams: () => ({ page: 1, size: 10 }),
+  attractions: () => [],
+  showAddButton: false,
 });
 
 const emit = defineEmits<{
   (e: 'cardClick', attraction: Attraction): void;
   (e: 'likeClick', attraction: Attraction): void;
   (e: 'tagClick', contentType: number): void;
+  (e: 'filteredSearch', filters: Attraction[]): void;
 }>();
 
-const attractions = ref<Attraction[]>([]);
-
-const fetchAttractions = async () => {
-  const response = await getAttractions(props.apiParams);
-  attractions.value = response.content;
+const handleCardClick = (attraction: Attraction) => {
+  if (props.showAddButton) {
+    return;
+  }
+  emit('cardClick', attraction);
 };
 
-await fetchAttractions();
+const handleLikeClick = (attraction: Attraction) => {
+  emit('likeClick', attraction);
+  // if (attraction.isLiked) {
+  //   attraction.isLiked = false;
+  //   attraction.likeCount = attraction.likeCount == 0 ? 0 : attraction.likeCount - 1;
+  // } else {
+  //   attraction.isLiked = true;
+  //   attraction.likeCount += 1;
+  // }
+};
 
-watch(
-  () => props.apiParams,
-  () => fetchAttractions(),
-  { deep: true }
-);
+const handleTagClick = (contentType: ContentTypeId) => {
+  emit('tagClick', contentType);
+};
 </script>
 
 <template>
-  <template v-if="attractions.length === 0">
+  <template v-if="props.attractions.length === 0">
     <div class="h-full w-full pt-16 text-center">
       <p class="text-lg text-gray-200">검색 결과가 없습니다.</p>
     </div>
@@ -44,13 +55,13 @@ watch(
   <template v-else>
     <GridCardListContainer :showTitle="false">
       <AttractionCard
-        v-for="attraction in attractions"
+        v-for="attraction in props.attractions"
         :key="attraction.attractionId"
         :attraction="attraction"
         :showRating="true"
-        @cardClick="emit('cardClick', attraction)"
-        @likeClick="emit('likeClick', attraction)"
-        @tagClick="emit('tagClick', attraction.contentType)"
+        @cardClick="handleCardClick(attraction)"
+        @likeClick="handleLikeClick(attraction)"
+        @tagClick="handleTagClick(attraction.contentType)"
       />
     </GridCardListContainer>
   </template>

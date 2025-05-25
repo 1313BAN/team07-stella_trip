@@ -13,7 +13,7 @@
     </div>
 
     <AsyncContainer :loadingComponent="PlanDetailSkeleton" :errorComponent="PlanDetailError">
-      <PlanDetail :planId="planId" />
+      <PlanDetailContent :planId="planId" />
     </AsyncContainer>
   </div>
 </template>
@@ -27,7 +27,7 @@ import { Button } from '@/components/ui/button';
 import {
   PlanDetailError,
   PlanDetailSkeleton,
-  PlanDetail,
+  PlanDetailContent,
 } from '@/components/views/plan/PlanDetail';
 import { ROUTES } from '@/router/routes';
 

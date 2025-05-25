@@ -45,6 +45,24 @@ export const getPlanDetail = async (planId: number): Promise<PlanDetail> => {
 };
 
 /**
+ * 여행 계획 좋아요
+ * @param planId planId
+ * @returns
+ */
+export const postPlanLike = async (planId: number): Promise<void> => {
+  await api.post<ApiResponse<void>>(PLAN.LIKE(planId));
+};
+
+/**
+ * 여행 계획 좋아요 취소
+ * @param planId planId
+ * @returns
+ */
+export const deletePlanLike = async (planId: number): Promise<void> => {
+  await api.delete<ApiResponse<void>>(PLAN.LIKE(planId));
+};
+
+/**
  * 여행 계획 추가
  * @param data 여행 계획 데이터
  * @returns 생성된 여행 계획 정보
@@ -55,6 +73,12 @@ export const createPlan = async (data: CreatePlanRequest): Promise<CreatedPlanRe
   return response.data.body;
 };
 
+/**
+ * 여행 계획에 명소 추가
+ * @param planId planId
+ * @param data 명소 추가 데이터
+ * @returns 여행 계획 상세 정보
+ */
 export const addAttractionToDate = async (
   planId: number,
   data: PlanAttractionRequest

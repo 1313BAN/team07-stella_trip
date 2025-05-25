@@ -8,7 +8,7 @@
           :class="{ '-translate-y-full': isScrollingDown && scrollY > 100 }"
         >
           <AttractionFilter
-            ref="filterComponentRef"
+            :filterParams="filterParams"
             :isScrollingDown="isScrollingDown"
             :scrollY="scrollY"
             @filter="handleFilterChange"
@@ -25,8 +25,9 @@
             :errorComponent="FilteredAttractionsError"
           >
             <FilteredAttractions
+              :attractions="attractions"
               :parentScrollContainer="scrollContainerRef"
-              :apiParams="{ page: 1, size: 100 }"
+              :apiParams="filterParams"
               @cardClick="handleAttractionCardClick"
               @likeClick="handleAttractionLikeClick"
               @tagClick="handleAttractionTagClick"
@@ -45,7 +46,7 @@
             ref="mapRef"
             :center="mapCenter"
             :level="mapLevel"
-            :showCenterMarker="true"
+            :showCenterMarker="false"
           />
         </AsyncContainer>
 
@@ -64,6 +65,8 @@
               :attractionName="selectedAttractionRef.name"
               :attraction="selectedAttractionRef"
               @close="closeReview"
+              @toggleLike="handleAttractionLikeClick"
+              @reloadCards="fetchAttractions"
             />
           </AsyncContainer>
         </div>
@@ -73,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, reactive, watch } from 'vue';
 import AsyncContainer from '@/components/AsyncContainer/AsyncContainer.vue';
 import MapContainer from '@/components/map/MapContainer.vue';
 import MapError from '@/components/map/MapError.vue';
@@ -89,16 +92,24 @@ import {
   AttractionDetailSkeleton,
 } from '@/components/views/attraction/AttractionDetail';
 import CommonSkeleton from '@/components/skeleton/CommonSkeleton/CommonSkeleton.vue';
-import type { Attraction } from '@/services/api/domains/attraction';
+import type { Attraction } from '@/services/api/domains/attraction/types';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { useMapState } from '@/composables/useMapState';
 import { useScroll } from '@/composables/useScroll';
-import { useAttractionFilter } from '@/composables/useAttractionFilter';
+import type { AttractionsParams } from '@/services/api/domains/attraction/types';
+import { getAttractions } from '@/services/api/domains/attraction';
+import { postAttractionLike, deleteAttractionLike } from '@/services/api/domains/attraction/index';
+import { toast } from 'vue-sonner';
+import { useAuthStore } from '@/stores/auth';
 
 const scrollContainerRef = ref<HTMLElement | null>(null);
-const { mapRef, mapLevel, mapCenter, selectedAttraction, selectAttraction } = useMapState();
-const { filterComponentRef, handleFilterChange, closeFilterPanel } = useAttractionFilter();
+const { mapRef, mapLevel, mapCenter, selectedAttraction, selectAttraction, clearMarkers } =
+  useMapState();
 const { isScrollingDown, scrollY, handleScroll } = useScroll();
+const filterParams = reactive<AttractionsParams>({
+  page: 1,
+  size: 100,
+});
 
 // 지도 리사이즈 핸들러
 const handleMapResize = () => {
@@ -107,27 +118,108 @@ const handleMapResize = () => {
   }
 };
 
+const authStore = useAuthStore();
+watch(
+  () => authStore.isAuthenticated,
+  () => {
+    fetchAttractions();
+  }
+);
+
 // 선택된 여행지 상태 관리
 const selectedAttractionRef = ref<Attraction | null>(selectedAttraction.value ?? null);
+const filterComponentRef = ref<InstanceType<typeof AttractionFilter> | null>(null);
+
+const attractions = ref<Attraction[]>([]);
+
+const fetchAttractions = async () => {
+  const response = await getAttractions(filterParams);
+  attractions.value = response.content;
+};
+
+await fetchAttractions();
 
 // 관광지 카드 클릭 핸들러
 const handleAttractionCardClick = (attraction: Attraction) => {
   selectAttraction(attraction);
   selectedAttractionRef.value = attraction;
+
+  // 별도의 라우팅 없이 현재 화면에서 상세 정보 표시
+  // 라우터로 인한 컴포넌트 리셋 방지
 };
 
 // 리뷰 닫기 핸들러
 const closeReview = () => {
   selectedAttractionRef.value = null;
+  clearMarkers();
+};
+
+const closeFilterPanel = () => {
+  if (filterComponentRef.value) {
+    filterComponentRef.value.closeFilterPanel();
+  }
+};
+
+const handleFilterChange = (filters: AttractionsParams) => {
+  // 필터 변경 시 처리 로직
+  filterParams.sidoCode = filters.sidoCode;
+  filterParams.gugunCode = filters.gugunCode;
+  filterParams.contentTypeIds = filters.contentTypeIds;
+  filterParams.keyword = filters.keyword;
+  filterParams.page = filters.page;
+  filterParams.size = filters.size;
+  fetchAttractions();
 };
 
 // 남은 이벤트 핸들러들
 const handleAttractionLikeClick = (attraction: Attraction) => {
-  console.log('관광지 좋아요 클릭:', attraction.name);
+  if (!authStore.isAuthenticated) {
+    toast('로그인이 필요합니다.');
+    return;
+  }
+
+  if (attraction.isLiked) {
+    attraction.isLiked = false;
+    attraction.likeCount = attraction.likeCount == 0 ? 0 : attraction.likeCount - 1;
+    deleteAttractionLike(attraction.attractionId)
+      .then(() => {
+        toast('관광지 좋아요 취소 성공');
+      })
+      .catch(() => {
+        toast('관광지 좋아요 취소 실패');
+        // 원래 상태로 롤백
+        attraction.isLiked = !attraction.isLiked;
+        attraction.likeCount = attraction.isLiked
+          ? attraction.likeCount + 1
+          : attraction.likeCount - 1;
+      });
+  } else {
+    attraction.isLiked = true;
+    attraction.likeCount += 1;
+    // API 호출 및 상태 업데이트
+    postAttractionLike(attraction.attractionId)
+      .then(() => {
+        toast('관광지 좋아요 상태 업데이트 성공');
+      })
+      .catch(() => {
+        toast('관광지 좋아요 상태 업데이트 실패:');
+        // 원래 상태로 롤백
+        attraction.isLiked = !attraction.isLiked;
+        attraction.likeCount = attraction.isLiked
+          ? attraction.likeCount + 1
+          : attraction.likeCount - 1;
+      });
+  }
 };
 
 const handleAttractionTagClick = (contentType: number) => {
-  console.log('관광지 태그(컨텐츠 타입) 클릭:', contentType);
+  filterParams.contentTypeIds = [contentType];
+  filterParams.page = 1;
+  filterParams.size = 10;
+  filterParams.keyword = '';
+  filterParams.sidoCode = undefined;
+  filterParams.gugunCode = undefined;
+  fetchAttractions();
 };
 
 const handleMoreClick = (contentType: number) => {
