@@ -429,6 +429,9 @@ public class PlanService {
     }
 
     public PageDTO<PlanResponseDTO> getMyPlans(int page, int size, JwtUserInfo user) {
+        if (size < 1) {
+            size = 20;
+        }
         return PaginationUtils.getPagedResult(
                 page,
                 size,

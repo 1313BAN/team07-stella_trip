@@ -172,6 +172,8 @@
         FROM plan_writer pw2
         WHERE pw2.plan_id = p.plan_id AND pw2.user_id = #{userId}
         )
+        ORDER BY p.created_at DESC
+        LIMIT #{size} OFFSET #{offset}
     </select>
 
     <!-- 검색 조건에 맞는 여행 계획 목록 조회 -->
