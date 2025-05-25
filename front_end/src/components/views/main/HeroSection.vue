@@ -1,37 +1,35 @@
 <script setup lang="ts">
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  type CarouselApi,
-} from '@/components/ui/carousel';
-import StellaCard from '@/components/card/StellaCard/StellaCard.vue';
 import Constellation from '@/components/MainConstellationCard/MainConstellationCard.vue';
 import { ref, onMounted, reactive, watch, onUnmounted } from 'vue';
+import { useAnimationStore } from '@/stores/animation'; // 스토어 import
+
+// Pinia 스토어 사용
+const animationStore = useAnimationStore();
 
 // 애니메이션 상태
-const isCenter = ref(true);
+const isCenter = ref(false);
+const showOverlay = ref(false); // 오버레이 상태를 별도로 관리
 const constellationRef = ref<HTMLDivElement | null>(null);
 const containerRef = ref<HTMLDivElement | null>(null);
-const isPositioned = ref(false); // 위치 설정 완료 상태
+const isPositioned = ref(false);
 const transformStyle = reactive({
   '--translate-x': '0px',
   '--translate-y': '0px',
 });
 
-// isCenter 상태가 변경될 때마다 body의 overflow 속성 조절
-watch(isCenter, newVal => {
+// showOverlay 상태가 변경될 때마다 body의 overflow 속성 조절
+watch(showOverlay, newVal => {
   if (newVal) {
-    // 중앙 위치일 때 스크롤 막기
     document.body.style.overflow = 'hidden';
   } else {
-    // 중앙 위치가 아닐 때 스크롤 허용
     document.body.style.overflow = '';
   }
 });
 
-onMounted(() => {
-  // 초기 상태에서도 스크롤 막기 적용
+// 애니메이션 실행 함수
+const startIntroAnimation = () => {
+  // 처음부터 어두운 배경과 스크롤 막기
+  showOverlay.value = true;
   document.body.style.overflow = 'hidden';
 
   // DOM이 완전히 로드된 후 위치 계산
@@ -56,32 +54,56 @@ onMounted(() => {
       transformStyle['--translate-x'] = `${deltaX}px`;
       transformStyle['--translate-y'] = `${deltaY}px`;
 
-      // 위치 설정이 완료되었으므로 플래그 설정
-      // 약간의 지연 후 설정하여 초기 이동이 보이지 않게 함
+      // 즉시 중앙 위치로 설정 (애니메이션 없이)
+      isCenter.value = true;
+
+      // 잠깐 후 transition 활성화
       setTimeout(() => {
         isPositioned.value = true;
-      }, 50);
+      }, 100);
     }
-  }, 100); // 약간의 지연으로 정확한 계산 보장
+  }, 50);
 
-  // 5초 후 원래 위치로 애니메이션
+  // 4초 후 원래 위치로 애니메이션 (이때부터 transition 적용)
   setTimeout(() => {
     isCenter.value = false;
-  }, 4500);
+    showOverlay.value = false; // 배경도 함께 사라짐
+    // 애니메이션 완료 후 상태를 "본 적 있음"으로 설정
+    setTimeout(() => {
+      animationStore.setIntroAnimationSeen();
+    }, 2500); // transition 완료 후
+  }, 4000);
+};
+
+onMounted(() => {
+  // 처음 보는 사용자인지 확인
+  if (!animationStore.hasSeenIntroAnimation) {
+    // 처음 보는 사용자라면 애니메이션 실행
+    startIntroAnimation();
+  } else {
+    // 이미 본 사용자라면 애니메이션 없이 바로 일반 상태
+    document.body.style.overflow = '';
+  }
 });
 
-// 컴포넌트가 언마운트될 때 스크롤 제한 해제 (안전장치)
+// 컴포넌트가 언마운트될 때 스크롤 제한 해제
 onUnmounted(() => {
   document.body.style.overflow = '';
 });
+
+// 개발용: 애니메이션 리셋 함수 (필요시 사용)
+const resetAnimation = () => {
+  animationStore.resetIntroAnimation();
+  location.reload(); // 페이지 새로고침으로 애니메이션 다시 확인
+};
 </script>
 
 <template>
   <section class="relative flex min-h-[calc(100vh-5rem)] items-center px-4 py-10 sm:px-6 lg:px-8">
     <!-- 배경 오버레이 -->
     <div
-      class="bg-opacity-90 fixed inset-0 z-10 bg-black transition-opacity duration-1000"
-      :class="{ 'opacity-100': isCenter, 'pointer-events-none opacity-0': !isCenter }"
+      class="bg-opacity-90 fixed inset-0 z-50 bg-black transition-opacity duration-1000"
+      :class="{ 'opacity-100': showOverlay, 'pointer-events-none opacity-0': !showOverlay }"
     ></div>
 
     <div class="relative container mx-auto">
@@ -113,6 +135,14 @@ onUnmounted(() => {
             >
               별자리 불러오기
             </button>
+
+            <!-- 개발용 버튼 (프로덕션에서는 제거) -->
+            <!-- <button
+              @click="resetAnimation"
+              class="rounded-full border border-red-400 bg-transparent px-4 py-2 text-sm font-medium text-red-400 transition-all hover:bg-red-500/10"
+            >
+              애니메이션 리셋
+            </button> -->
           </div>
         </div>
 
@@ -124,10 +154,11 @@ onUnmounted(() => {
           <div
             ref="constellationRef"
             :style="transformStyle"
-            class="constellation-wrapper z-10 w-full"
+            class="constellation-wrapper z-50 w-full"
             :class="{
               'center-position': isCenter,
               'with-transition': isPositioned,
+              'no-transition': isCenter && !isPositioned,
             }"
           >
             <Constellation />
@@ -142,24 +173,32 @@ onUnmounted(() => {
 .constellation-wrapper {
   transform-origin: center;
   position: relative;
-  /* 기본 상태에서는 transition 없음 */
 }
 
-/* isPositioned가 true일 때만 transition 적용 */
 .with-transition {
   transition: all 2.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.center-position {
-  /* 계산된 transform 값을 변수로 사용 */
+/* 애니메이션 없이 즉시 중앙으로 이동 */
+.center-position.no-transition {
   transform: translate(var(--translate-x), var(--translate-y)) scale(1.2);
+  transition: none;
+}
+
+/* transition이 활성화된 후의 중앙 위치 */
+.center-position.with-transition {
+  transform: translate(var(--translate-x), var(--translate-y)) scale(1.2);
+}
+
+/* 원래 위치로 돌아갈 때 */
+.with-transition:not(.center-position) {
+  transform: translate(0, 0) scale(1);
 }
 
 .overflow-visible {
   overflow: visible;
 }
 
-/* 반응형 조정 */
 @media (max-width: 768px) {
   .flex {
     flex-direction: column;
