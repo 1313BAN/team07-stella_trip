@@ -1,17 +1,23 @@
 <script setup lang="ts">
+import { ROUTES } from '@/router/routes';
+import { useRouter } from 'vue-router';
+
 interface Props {
   label: string;
   labelCount: number;
 }
 
-defineProps<Props>();
+const router = useRouter();
 
-const emit = defineEmits<{
-  click: [];
-}>();
+const props = defineProps<Props>();
 
 const handleClick = () => {
-  emit('click');
+  router.push({
+    path: ROUTES.PLANS.path,
+    query: {
+      search: props.label,
+    },
+  });
 };
 </script>
 
