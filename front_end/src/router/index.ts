@@ -7,7 +7,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: ROUTES.HOME.path,
     name: ROUTES.HOME.name,
-    component: () => import('@/views/Chat.vue'),
+    component: () => import('@/views/Home.vue'),
     meta: {
       title: ROUTES.HOME.title,
     },
@@ -49,6 +49,15 @@ const routes: Array<RouteRecordRaw> = [
           title: ROUTES.MY_PAGE.title,
         },
         children: [],
+      },
+      {
+        path: '/chats/:roomId?',
+        name: 'chat',
+        component: () => import('@/views/Chat.vue'),
+        meta: {
+          title: '지역별 채팅',
+        },
+        props: true,
       },
       {
         path: ROUTES.PLAN_MODIFY.path,
