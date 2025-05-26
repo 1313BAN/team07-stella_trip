@@ -105,6 +105,11 @@ const routes: Array<RouteRecordRaw> = [
           },
         ],
       },
+      {
+        path: '/constellation/edit/:planId',
+        name: 'ConstellationEditor',
+        component: () => import('@/views/ConstellationEditor.vue'),
+      },
     ],
   },
 

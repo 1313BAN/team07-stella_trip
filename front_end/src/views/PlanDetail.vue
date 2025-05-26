@@ -51,6 +51,147 @@
       @submit="handlePlanInfoSubmit"
     />
 
+    <!-- 별자리 커스텀 선택 다이얼로그 -->
+    <Dialog :open="isConstellationChoiceOpen" @update:open="isConstellationChoiceOpen = $event">
+      <DialogContent
+        class="border-slate-700/50 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-2xl sm:max-w-lg"
+      >
+        <DialogHeader class="pb-6 text-center">
+          <div
+            class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 ring-1 ring-blue-500/30"
+          >
+            <svg
+              class="h-8 w-8 text-blue-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+              />
+            </svg>
+          </div>
+          <DialogTitle class="mb-2 text-2xl font-bold text-white">별자리 설정</DialogTitle>
+          <DialogDescription class="text-base leading-relaxed text-gray-300">
+            공유할 여행 계획을 나만의 별자리로 꾸며보세요.
+            <br />
+            특별한 추억을 더욱 아름답게 표현할 수 있습니다.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div class="space-y-4 py-6">
+          <!-- 커스텀 옵션 -->
+          <div
+            class="group relative cursor-pointer overflow-hidden rounded-xl border border-blue-500/30 bg-gradient-to-r from-blue-900/40 via-blue-800/30 to-purple-900/40 p-6 transition-all duration-300 hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/25"
+            @click="handleCustomConstellation"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            ></div>
+            <div class="relative flex items-center">
+              <div
+                class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500/20 ring-1 ring-blue-400/30 transition-colors group-hover:bg-blue-500/30"
+              >
+                <svg
+                  class="h-6 w-6 text-blue-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 011-1h1a2 2 0 100-4H7a1 1 0 01-1-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"
+                  />
+                </svg>
+              </div>
+              <div class="ml-4 flex-1">
+                <h3
+                  class="text-lg font-semibold text-white transition-colors group-hover:text-blue-100"
+                >
+                  별자리 커스텀하기
+                </h3>
+                <p class="text-sm text-blue-200/80 transition-colors group-hover:text-blue-100/90">
+                  여행지를 별로 연결하여 나만의 별자리 만들기
+                </p>
+              </div>
+              <div class="ml-4">
+                <div
+                  class="rounded-full bg-blue-500/20 px-3 py-1 text-xs font-medium text-blue-300 transition-colors group-hover:bg-blue-500/30"
+                >
+                  편집 모드
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 기본 옵션 -->
+          <div
+            class="group relative cursor-pointer overflow-hidden rounded-xl border border-slate-600/50 bg-gradient-to-r from-slate-800/50 to-slate-700/50 p-6 transition-all duration-300 hover:border-slate-500/70 hover:shadow-lg hover:shadow-slate-500/20"
+            @click="handleDefaultConstellation"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-slate-600/10 to-slate-500/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            ></div>
+            <div class="relative flex items-center">
+              <div
+                class="flex h-12 w-12 items-center justify-center rounded-full bg-slate-500/20 ring-1 ring-slate-400/30 transition-colors group-hover:bg-slate-500/30"
+              >
+                <svg
+                  class="h-6 w-6 text-slate-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
+              </div>
+              <div class="ml-4 flex-1">
+                <h3
+                  class="text-lg font-semibold text-white transition-colors group-hover:text-slate-100"
+                >
+                  기본 별자리 사용
+                </h3>
+                <p
+                  class="text-sm text-slate-300/80 transition-colors group-hover:text-slate-200/90"
+                >
+                  여행지를 기반으로 자동 생성된 별자리 사용
+                </p>
+              </div>
+              <div class="ml-4">
+                <div
+                  class="rounded-full bg-slate-500/20 px-3 py-1 text-xs font-medium text-slate-300 transition-colors group-hover:bg-slate-500/30"
+                >
+                  바로 공유
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter class="border-t border-slate-700/50 pt-6">
+          <DialogClose asChild>
+            <Button
+              type="button"
+              variant="secondary"
+              class="border-slate-600/50 bg-slate-700/50 text-slate-200 hover:bg-slate-600/50"
+            >
+              취소
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
     <!-- 공유 링크 모달 -->
     <Dialog :open="isShareModalOpen" @update:open="isShareModalOpen = $event">
       <DialogContent class="sm:max-w-md">
@@ -144,6 +285,7 @@ const isPlanInfoEditOpen = ref(false);
 const isSubmittingEdit = ref(false);
 const isGeneratingShare = ref(false);
 const isShareModalOpen = ref(false);
+const isConstellationChoiceOpen = ref(false); // 별자리 선택 다이얼로그 상태
 const shareLink = ref('');
 
 const emit = defineEmits<{
@@ -166,12 +308,38 @@ const handleTogglePlanInfoEdit = () => {
 };
 
 /**
- * 공유 링크 생성 핸들러
+ * 공유 버튼 클릭 핸들러 - 별자리 커스텀 선택 다이얼로그 열기
  */
-const handleSharePlan = async () => {
+const handleSharePlan = () => {
+  if (!planStore.currentPlan || isGeneratingShare.value) return;
+  isConstellationChoiceOpen.value = true;
+};
+
+/**
+ * 별자리 커스텀하기 선택 - 편집 모드로 이동
+ */
+const handleCustomConstellation = () => {
+  if (!planStore.currentPlan) return;
+
+  isConstellationChoiceOpen.value = false;
+
+  // 별자리 편집 페이지로 이동 (planId를 파라미터로 전달)
+  router.push({
+    name: 'ConstellationEditor', // 라우터에서 정의한 별자리 편집 페이지 라우트명
+    params: {
+      planId: planStore.currentPlan.planId.toString(),
+    },
+  });
+};
+
+/**
+ * 기본 별자리 사용 - 바로 공유 링크 생성
+ */
+const handleDefaultConstellation = async () => {
   if (!planStore.currentPlan || isGeneratingShare.value) return;
 
   try {
+    isConstellationChoiceOpen.value = false;
     isGeneratingShare.value = true;
 
     // currentPlan을 JSON 문자열로 변환
