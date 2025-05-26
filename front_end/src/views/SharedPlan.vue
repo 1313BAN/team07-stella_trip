@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { toast } from 'vue-sonner';
 import { Badge } from '@/components/ui/badge';
 import MainConstellationCard from '@/components/MainConstellationCard/MainConstellationCard.vue';
@@ -8,8 +8,11 @@ import { getSharedData } from '@/services/api/domains/stella';
 import { HeroBackground } from '@/components/background';
 import { useConstellationAnimation } from '@/composables/useConstellationAnimation';
 import type { PlanDetail } from '@/services/api/domains/plan';
+import type { StellaAI } from '@/services/api/domains/stella/types';
+import { ROUTES } from '@/router/routes';
 
 const route = useRoute();
+const router = useRouter();
 // const router = useRouter();
 
 // 상태 관리
@@ -33,6 +36,8 @@ const {
   transitionDelay: 100,
 });
 
+const stellaAI = ref<StellaAI | null>(null);
+
 /**
  * 공유된 계획 데이터 로드
  */
@@ -46,6 +51,7 @@ const loadSharedPlan = async (): Promise<void> => {
     // JSON 문자열을 파싱하여 PlanDetail 객체로 변환
     const planData = JSON.parse(response.stellaData) as PlanDetail;
     sharedPlan.value = planData;
+    stellaAI.value = response.stellaAI;
 
     // 데이터 로딩 완료 후 애니메이션 시작
     await startAnimation();
@@ -68,7 +74,8 @@ onMounted(loadSharedPlan);
 <template>
   <div class="h-full overflow-y-auto">
     <HeroBackground />
-    <!-- 애니메이션 섹션만 표시 -->
+
+    <!-- 히어로 섹션 -->
     <section
       class="relative flex min-h-screen items-center justify-center px-4 py-10 sm:px-6 lg:px-8"
     >
@@ -78,63 +85,108 @@ onMounted(loadSharedPlan);
         :class="{ 'opacity-100': showOverlay, 'pointer-events-none opacity-0': !showOverlay }"
       ></div>
 
-      <div class="relative mx-auto max-w-4xl text-center">
-        <!-- 제목 -->
-        <h1 class="mb-6 text-4xl font-bold tracking-tight text-white md:text-5xl lg:text-6xl">
-          {{ sharedPlan?.title || '특별한 여행 계획이' }}
-          <span class="text-purple-400">공유</span>
-          되었습니다
-        </h1>
+      <div class="relative mx-auto max-w-6xl">
+        <div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+          <!-- 왼쪽: 텍스트 콘텐츠 -->
+          <div class="space-y-8 text-center lg:text-left">
+            <!-- AI 카드 이름 -->
+            <div v-if="stellaAI" class="inline-block">
+              <span
+                class="rounded-full border border-purple-400/30 bg-gradient-to-r from-purple-500/20 to-pink-500/20 px-4 py-2 text-sm font-medium text-purple-300"
+              >
+                {{ stellaAI.cardName }}
+              </span>
+            </div>
 
-        <!-- 설명 -->
-        <p class="mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-slate-300">
-          {{
-            sharedPlan?.description ||
-            '여행지를 별로, 이동경로를 별자리로 표현한 아름다운 여행 계획을 만나보세요. 누군가의 소중한 추억과 계획이 별자리가 되어 당신에게 전해집니다.'
-          }}
-        </p>
+            <!-- 메인 제목 -->
+            <h1
+              class="text-4xl leading-tight font-bold tracking-tight text-white md:text-5xl lg:text-6xl"
+            >
+              별자리가 전하는
+              <span
+                class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"
+              >
+                여행의 메시지
+              </span>
+            </h1>
 
-        <!-- 여행 정보 -->
-        <div v-if="sharedPlan" class="mb-8 flex flex-wrap justify-center gap-6 text-slate-400">
-          <div class="flex items-center gap-2">
-            <span>📅</span>
-            <span>{{ Object.keys(sharedPlan.details).length }}일간의 여행</span>
+            <!-- AI 메시지 -->
+            <div v-if="stellaAI" class="relative">
+              <div class="absolute -top-2 -left-2 font-serif text-6xl text-purple-400/60">"</div>
+              <p class="pl-8 text-lg leading-relaxed font-light text-slate-300 italic md:text-xl">
+                {{ stellaAI.message }}
+              </p>
+              <div
+                class="absolute -right-2 -bottom-4 rotate-180 font-serif text-6xl text-purple-400/60"
+              >
+                "
+              </div>
+            </div>
+
+            <!-- 키워드 태그 -->
+            <div
+              v-if="stellaAI?.keywords?.length"
+              class="flex flex-wrap justify-center gap-3 lg:justify-start"
+            >
+              <Badge
+                v-for="keyword in stellaAI.keywords"
+                :key="keyword"
+                variant="outline"
+                class="border-purple-400/50 bg-purple-500/10 px-4 py-2 text-purple-300 transition-colors hover:bg-purple-500/20"
+              >
+                ✨ {{ keyword }}
+              </Badge>
+            </div>
           </div>
-          <div class="flex items-center gap-2">
-            <span>👤</span>
-            <span>{{ sharedPlan.planWriters.map(w => w.name).join(', ') }} 님의 추천</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span>❤️</span>
-            <span>{{ sharedPlan.likeCount }}명이 좋아함</span>
+
+          <!-- 오른쪽: 별자리 카드 -->
+          <div ref="containerRef" class="relative flex items-center justify-center">
+            <div
+              v-if="sharedPlan?.stella"
+              ref="constellationRef"
+              :style="transformStyle"
+              class="constellation-wrapper z-50"
+              :class="constellationClasses"
+            >
+              <MainConstellationCard :stella="sharedPlan.stella" :subtitle="stellaAI?.cardName" />
+            </div>
+            <!-- 로딩 중일 때 표시할 플레이스홀더 -->
+            <div
+              v-else
+              class="flex h-96 w-96 items-center justify-center rounded-2xl border border-purple-400/20 bg-gradient-to-br from-purple-900/20 to-pink-900/20"
+            >
+              <div class="animate-pulse text-purple-400">
+                <svg class="h-16 w-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                  ></path>
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
+      </div>
+    </section>
 
-        <!-- 태그 -->
-        <div v-if="sharedPlan?.tags?.length" class="mb-12 flex flex-wrap justify-center gap-2">
-          <Badge
-            v-for="tag in sharedPlan.tags"
-            :key="tag.tagId"
-            variant="outline"
-            class="border-purple-400/50 text-xs text-purple-300"
+    <!-- 하단 CTA 섹션 -->
+    <section class="relative px-4 py-20 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-4xl text-center">
+        <div
+          class="rounded-3xl border border-purple-400/30 bg-gradient-to-r from-purple-600/20 to-pink-600/20 p-12 backdrop-blur-lg"
+        >
+          <h3 class="mb-6 text-3xl font-bold text-white">당신만의 별자리 여행을 시작하세요</h3>
+          <p class="mx-auto mb-8 max-w-2xl text-lg text-slate-300">
+            AI가 분석한 당신의 여행 성향으로 특별한 별자리 여행 계획을 만들어보세요
+          </p>
+          <button
+            class="transform rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-8 py-4 font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:from-purple-600 hover:to-pink-600 hover:shadow-xl"
+            @click="router.push(ROUTES.MAIN.path)"
           >
-            {{ tag.name }}
-          </Badge>
-        </div>
-
-        <!-- 별자리 컴포넌트 -->
-        <div ref="containerRef" class="relative flex items-center justify-center overflow-visible">
-          <div
-            v-if="sharedPlan?.stella"
-            ref="constellationRef"
-            :style="transformStyle"
-            class="constellation-wrapper z-50"
-            :class="constellationClasses"
-          >
-            <MainConstellationCard :stella="sharedPlan.stella" />
-          </div>
-          <!-- 로딩 중일 때 표시할 플레이스홀더 -->
-          <div v-else class="fixed inset-0 z-50 h-screen w-screen bg-black"></div>
+            나만의 별자리 만들기 ✨
+          </button>
         </div>
       </div>
     </section>
@@ -171,14 +223,49 @@ onMounted(loadSharedPlan);
   overflow: visible;
 }
 
-@media (max-width: 768px) {
-  .flex {
-    flex-direction: column;
+/* 그라데이션 텍스트 애니메이션 */
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.bg-gradient-to-r {
+  background-size: 200% 200%;
+  animation: gradient-shift 6s ease infinite;
+}
+
+/* 반응형 개선 */
+@media (max-width: 1024px) {
+  .grid-cols-1.lg\\:grid-cols-2 {
+    gap: 2rem;
   }
 
-  .flex-1 {
-    flex: none;
-    width: 100%;
+  .lg\\:text-left {
+    text-align: center;
+  }
+
+  .lg\\:justify-start {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .text-4xl.md\\:text-5xl.lg\\:text-6xl {
+    font-size: 2.5rem;
+    line-height: 1.2;
+  }
+
+  .text-lg.md\\:text-xl {
+    font-size: 1.1rem;
+  }
+
+  .grid-cols-1.md\\:grid-cols-3 {
+    gap: 1rem;
   }
 }
 </style>

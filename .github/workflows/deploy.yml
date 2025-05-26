@@ -61,4 +61,5 @@ jobs:
               -e REDIS_HOST=${{ secrets.REDIS_HOST }} \
               -e REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }} \
               -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
+              -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
               -p 8080:8080 $IMAGE_NAME:latest_stellatrip

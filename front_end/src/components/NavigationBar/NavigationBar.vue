@@ -156,6 +156,18 @@ const handleModalOpen = (value: '' | 'login' | 'register') => {
             <!-- <component :is="item.icon" class="h-5 w-5" /> -->
             <span>내여행계획</span>
           </button>
+          <button
+            class="group relative flex items-center gap-3 text-sm font-medium tracking-widest uppercase transition-all duration-300"
+            :class="[
+              isActiveRoute(ROUTES.CHAT.path)
+                ? 'text-purple-400'
+                : 'text-gray-300 hover:text-purple-200',
+            ]"
+            @click="handleRoute(ROUTES.CHAT.path)"
+          >
+            <!-- <component :is="item.icon" class="h-5 w-5" /> -->
+            <span>지역별채팅</span>
+          </button>
         </template>
         <!-- User Account Dropdown -->
         <DropdownMenu>

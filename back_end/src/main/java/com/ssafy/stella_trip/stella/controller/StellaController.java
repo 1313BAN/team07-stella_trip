@@ -1,5 +1,6 @@
 package com.ssafy.stella_trip.stella.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ssafy.stella_trip.common.response.CommonResponse;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
 import com.ssafy.stella_trip.stella.dto.request.StellaRequestDTO;
@@ -27,7 +28,7 @@ public class StellaController {
                     "사용자는 인증된 사용자여야 하며, 요청 본문에 별자리 데이터와 계획 ID를 포함해야 합니다."
     )
     @PreAuthorize("isAuthenticated()")
-    public CommonResponse<StellaResponseDTO> createStellaLink(@RequestBody StellaRequestDTO stella, @AuthenticationPrincipal JwtUserInfo user) {
+    public CommonResponse<StellaResponseDTO> createStellaLink(@RequestBody StellaRequestDTO stella, @AuthenticationPrincipal JwtUserInfo user) throws JsonProcessingException {
         return new CommonResponse<>(stellaService.createStellaLink(stella, user), HttpStatus.OK);
     }
 

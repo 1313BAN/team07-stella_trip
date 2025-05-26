@@ -11,6 +11,8 @@ export const ROUTES = {
     title: '여행 계획 수정',
   },
   PLAN_DETAIL: { path: '/plans/:planId', name: 'plan-detail', title: '여행 계획 상세' },
+  CHAT: { path: '/chats', name: 'chat', title: '지역별 채팅' },
+  CHAT_ROOM: { path: '/chats/:roomId', name: 'chatRoom', title: '지역별 채팅' },
   SHARED: { path: '/shared/:link', name: 'shared-plan', title: '공유된 여행 계획' },
   NOT_FOUND: { path: '/:pathMatch(.*)*', name: 'not-found', title: '존재하지 않는 페이지' },
   MY_PAGE: { path: '/my-page', name: 'my-page', title: '마이 페이지' },

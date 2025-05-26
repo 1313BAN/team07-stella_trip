@@ -12,4 +12,5 @@ public class StellaDTO {
     private int planId;
     private String stellaData;
     private String stellaLink;
+    private String stellaAI;
 }

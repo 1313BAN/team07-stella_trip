@@ -1,5 +1,9 @@
 package com.ssafy.stella_trip.stella.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssafy.stella_trip.ai.dto.TarotResult;
+import com.ssafy.stella_trip.ai.service.OpenAIService;
 import com.ssafy.stella_trip.dao.plan.PlanDAO;
 import com.ssafy.stella_trip.dao.stella.StellaDAO;
 import com.ssafy.stella_trip.plan.dto.PlanDTO;
@@ -24,8 +28,11 @@ public class StellaService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final PlanDAO planDAO;
     private final StellaDAO stellaDAO;
+    private final OpenAIService openAIService;
+    private final ObjectMapper objectMapper;
 
-    public StellaResponseDTO createStellaLink(StellaRequestDTO stella, JwtUserInfo user) {
+
+    public StellaResponseDTO createStellaLink(StellaRequestDTO stella, JwtUserInfo user) throws JsonProcessingException {
         PlanDTO planDTO = planDAO.getPlanById(stella.getPlanId(), 0);
         if (planDTO == null) {
             throw new PlanNotFoundException("해당 플랜이 존재하지 않습니다.:" + stella.getPlanId());
@@ -37,8 +44,13 @@ public class StellaService {
         String randomLink = UUID.randomUUID().toString();
         for (int i = 0; i < 10; i++) {
             if (stellaDAO.getStellaLinkByStellaLink(randomLink) == null) {
-                stellaDAO.createStellaLink(stella.getStellaData(), randomLink, stella.getPlanId());
-                StellaResponseDTO responseDTO = new StellaResponseDTO(stella.getPlanId(), stella.getStellaData(), randomLink);
+                // AI 응답 생성
+                TarotResult aiResponse = openAIService.sendMessageToGpt(planDTO);
+                String jsonString = objectMapper.writeValueAsString(aiResponse);
+
+                stellaDAO.createStellaLink(stella.getStellaData(), randomLink, stella.getPlanId(), jsonString);
+
+                StellaResponseDTO responseDTO = new StellaResponseDTO(stella.getPlanId(), stella.getStellaData(), randomLink, aiResponse);
                 redisTemplate.opsForValue().set(randomLink, responseDTO, 7, TimeUnit.DAYS); // 1 day expiration
                 return responseDTO;
             }
@@ -57,9 +69,14 @@ public class StellaService {
             throw new StellaNotFoundException("해당 Stella 링크가 존재하지 않습니다: " + link);
         }
         // 캐시가 없으면 StellaDTO를 StellaResponseDTO로 변환
-        StellaResponseDTO responseDTO = new StellaResponseDTO(stella.getPlanId(), stella.getStellaData(), stella.getStellaLink());
-        redisTemplate.opsForValue().set(responseDTO.getStellaLink(), responseDTO, 7, TimeUnit.DAYS); // 1 day expiration
-        return responseDTO;
+        try {
+            TarotResult aiResponse = objectMapper.readValue(stella.getStellaAI(), TarotResult.class);
+            StellaResponseDTO responseDTO = new StellaResponseDTO(stella.getPlanId(), stella.getStellaData(), stella.getStellaLink(), aiResponse);
+            redisTemplate.opsForValue().set(responseDTO.getStellaLink(), responseDTO, 7, TimeUnit.DAYS); // 1 day expiration
+            return responseDTO;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("AI 응답 변환에 실패했습니다.", e);
+        }
     }
 
 }

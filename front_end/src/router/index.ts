@@ -51,6 +51,23 @@ const routes: Array<RouteRecordRaw> = [
         children: [],
       },
       {
+        path: ROUTES.CHAT.path,
+        name: ROUTES.CHAT.name,
+        component: () => import('@/views/Chat.vue'),
+        meta: {
+          title: ROUTES.CHAT.title,
+        },
+      },
+      {
+        path: ROUTES.CHAT_ROOM.path,
+        name: ROUTES.CHAT_ROOM.name,
+        component: () => import('@/views/Chat.vue'),
+        meta: {
+          title: ROUTES.CHAT_ROOM.title,
+        },
+        props: true,
+      },
+      {
         path: ROUTES.PLAN_MODIFY.path,
         name: ROUTES.PLAN_MODIFY.name,
         component: () => import('@/views/PlanModify.vue'),

@@ -8,6 +8,9 @@ import { defineConfig } from 'vite';
 //https://vite.dev/config/
 export default defineConfig({
   plugins: [vue(), tailwindcss(), vueDevTools(), createHtmlPlugin()],
+  define: {
+    global: 'globalThis',
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
