@@ -75,7 +75,7 @@
 
     <update id="updateTagCount">
         UPDATE tag t
-            SET t.count = (
+            SET t.tag_count = (
             SELECT COUNT(*)
             FROM tag_plan tp
             WHERE tp.tag_id = t.tag_id
