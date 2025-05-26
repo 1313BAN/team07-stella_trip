@@ -32,3 +32,8 @@ export const ATTRACTION = {
   FEATURED_ATTRACTIONS: (contentTypeId: number) =>
     `v1/featured/attraction/contentType/${contentTypeId}`,
 } as const;
+
+export const STELLA = {
+  SHARE: 'v1/stella/create',
+  LINK: (link: string) => `v1/stella/${link}`,
+} as const;

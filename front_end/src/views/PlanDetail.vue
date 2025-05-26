@@ -13,15 +13,28 @@
         <h3 class="text-lg font-semibold text-white">여행 계획 상세</h3>
       </div>
 
-      <Button
-        v-if="isModifyPage"
-        variant="outline"
-        size="sm"
-        class="border-purple-500/50 bg-purple-900/30 text-purple-300 hover:bg-purple-800/50 hover:text-purple-200"
-        @click="handleTogglePlanInfoEdit"
-      >
-        계획 정보 수정
-      </Button>
+      <div v-if="isModifyPage" class="flex items-center gap-2">
+        <!-- 공유 버튼 -->
+        <Button
+          variant="outline"
+          size="sm"
+          class="border-blue-500/50 bg-blue-900/30 text-blue-300 hover:bg-blue-800/50 hover:text-blue-200"
+          :disabled="isGeneratingShare"
+          @click="handleSharePlan"
+        >
+          <Share2 class="mr-1 h-4 w-4" />
+          {{ isGeneratingShare ? '생성 중...' : '공유하기' }}
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          class="border-purple-500/50 bg-purple-900/30 text-purple-300 hover:bg-purple-800/50 hover:text-purple-200"
+          @click="handleTogglePlanInfoEdit"
+        >
+          계획 정보 수정
+        </Button>
+      </div>
     </div>
 
     <AsyncContainer :loadingComponent="PlanDetailSkeleton" :errorComponent="PlanDetailError">
@@ -37,6 +50,38 @@
       @update:open="isPlanInfoEditOpen = $event"
       @submit="handlePlanInfoSubmit"
     />
+
+    <!-- 공유 링크 모달 -->
+    <Dialog :open="isShareModalOpen" @update:open="isShareModalOpen = $event">
+      <DialogContent class="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle class="text-white">여행 계획 공유</DialogTitle>
+          <DialogDescription class="text-gray-400">
+            아래 링크를 복사하여 다른 사람들과 여행 계획을 공유하세요.
+          </DialogDescription>
+        </DialogHeader>
+        <div class="flex items-center space-x-2">
+          <div class="grid flex-1 gap-2">
+            <Label for="link" class="sr-only">링크</Label>
+            <Input
+              id="link"
+              :value="shareLink"
+              readonly
+              class="border-slate-600 bg-slate-800 text-white"
+            />
+          </div>
+          <Button type="submit" size="sm" class="px-3" @click="copyShareLink">
+            <span class="sr-only">복사</span>
+            <Copy class="h-4 w-4" />
+          </Button>
+        </div>
+        <DialogFooter class="sm:justify-start">
+          <DialogClose asChild>
+            <Button type="button" variant="secondary">닫기</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>
 
@@ -44,9 +89,20 @@
 import { computed, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { toast } from 'vue-sonner';
-import { ChevronLeft } from 'lucide-vue-next';
+import { ChevronLeft, Share2, Copy } from 'lucide-vue-next';
 import AsyncContainer from '@/components/AsyncContainer/AsyncContainer.vue';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   PlanDetailError,
   PlanDetailSkeleton,
@@ -62,6 +118,7 @@ import {
   type UpdatePlanInfoRequest,
   type UpdatePlanScheduleRequest,
 } from '@/services/api/domains/plan';
+import { getShareLink } from '@/services/api/domains/stella';
 import { ROUTES } from '@/router/routes';
 import { useAuthStore } from '@/stores/auth';
 
@@ -85,6 +142,9 @@ const planId = computed(() => Number(route.params.planId));
 // 상태 관리
 const isPlanInfoEditOpen = ref(false);
 const isSubmittingEdit = ref(false);
+const isGeneratingShare = ref(false);
+const isShareModalOpen = ref(false);
+const shareLink = ref('');
 
 const emit = defineEmits<{
   (e: 'moveToAttractionSearch', date: string): void;
@@ -103,6 +163,51 @@ const handleMoveToAttractionSearch = (date: string) => {
  */
 const handleTogglePlanInfoEdit = () => {
   isPlanInfoEditOpen.value = true;
+};
+
+/**
+ * 공유 링크 생성 핸들러
+ */
+const handleSharePlan = async () => {
+  if (!planStore.currentPlan || isGeneratingShare.value) return;
+
+  try {
+    isGeneratingShare.value = true;
+
+    // currentPlan을 JSON 문자열로 변환
+    const stellaData = JSON.stringify(planStore.currentPlan);
+
+    const response = await getShareLink({
+      planId: planStore.currentPlan.planId,
+      stellaData,
+    });
+
+    shareLink.value = `${window.location.origin}/shared/${response.stellaLink}`;
+    isShareModalOpen.value = true;
+
+    toast.success('공유 링크가 생성되었습니다!');
+  } catch (error) {
+    console.error('공유 링크 생성 실패:', error);
+    toast.error('공유 링크 생성에 실패했습니다', {
+      description: '잠시 후 다시 시도해주세요.',
+      duration: 4000,
+    });
+  } finally {
+    isGeneratingShare.value = false;
+  }
+};
+
+/**
+ * 공유 링크 복사
+ */
+const copyShareLink = async () => {
+  try {
+    await navigator.clipboard.writeText(shareLink.value);
+    toast.success('링크가 클립보드에 복사되었습니다!');
+  } catch (error) {
+    console.error('링크 복사 실패:', error);
+    toast.error('링크 복사에 실패했습니다');
+  }
 };
 
 /**

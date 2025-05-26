@@ -46,6 +46,7 @@
           </span>
           <!-- 초대하기 버튼 -->
           <Button
+            v-if="isModifyPage"
             variant="ghost"
             size="sm"
             class="flex items-center gap-1.5 rounded-full border border-blue-500/30 px-3 py-1 text-blue-300 hover:bg-blue-900/30"
@@ -61,14 +62,19 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { Heart, Calendar, Users, UserPlus } from 'lucide-vue-next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Tag from '@/components/common/Tag/Tag.vue';
 import { type PlanDetail } from '@/services/api/domains/plan';
+import { ROUTES } from '@/router/routes';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
 
 const props = defineProps<{
-  plan?: PlanDetail | null;
+  plan: PlanDetail;
 }>();
 
 const emit = defineEmits<{
@@ -89,8 +95,15 @@ const formatDateRange = (startDate?: string, endDate?: string) => {
   return `${startStr} ~ ${endStr}`;
 };
 
+/**
+ * 현재 라우트가 편집 화면인지 확인
+ */
+const isModifyPage = computed(() => {
+  return route.name === ROUTES.PLAN_MODIFY.name;
+});
+
 const handleLikeClick = () => {
-  emit('toggleLike');
+  emit('toggleLike', props.plan.planId);
 };
 
 const handleInvite = () => {

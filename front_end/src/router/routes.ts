@@ -11,5 +11,6 @@ export const ROUTES = {
     title: '여행 계획 수정',
   },
   PLAN_DETAIL: { path: '/plans/:planId', name: 'plan-detail', title: '여행 계획 상세' },
+  SHARED: { path: '/shared/:link', name: 'shared-plan', title: '공유된 여행 계획' },
   NOT_FOUND: { path: '/:pathMatch(.*)*', name: 'not-found', title: '존재하지 않는 페이지' },
 } as const;

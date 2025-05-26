@@ -160,7 +160,7 @@ const constellations = [
                   : 'brightness(0.8) contrast(0.9)',
               }"
             >
-              <StellaCard />
+              <!-- <StellaCard /> -->
             </div>
 
             <!-- 중앙 글로우 효과 -->

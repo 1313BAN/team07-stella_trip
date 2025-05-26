@@ -83,6 +83,15 @@ const routes: Array<RouteRecordRaw> = [
   },
 
   {
+    path: ROUTES.SHARED.path,
+    name: ROUTES.SHARED.name,
+    component: () => import('@/views/SharedPlan.vue'),
+    meta: {
+      title: ROUTES.SHARED.title,
+    },
+  },
+
+  {
     path: ROUTES.NOT_FOUND.path,
     name: ROUTES.NOT_FOUND.name,
     component: () => import('@/views/NotFound.vue'),

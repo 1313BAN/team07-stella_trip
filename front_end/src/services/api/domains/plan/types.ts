@@ -10,10 +10,41 @@ export type PlansParams = {
 
 export type PlansSortOption = 'recent' | 'like' | '';
 
+export type RawNode = {
+  x: number;
+  y: number;
+};
+
+export type StellaNode = {
+  x: number;
+  y: number;
+  r: number;
+  brightness: number;
+  delay: number;
+};
+
+export type StellaEdge = {
+  from: number;
+  to: number;
+};
+
+export type StellaData = {
+  nodes: StellaNode[];
+  edges: StellaEdge[];
+};
+
+export type BackgroundStar = {
+  x: number;
+  y: number;
+  r: number;
+  brightness: number;
+  duration: number;
+};
+
 export type Plan = {
   title: string;
   description: string;
-  stella: null;
+  stella: StellaData | null;
   tags: Tag[];
   planId: number;
   isLiked: boolean;
@@ -62,14 +93,11 @@ export type PlanDetail = {
   title: string;
   description: string | null;
   stella: {
-    stars: Array<{
+    nodes: Array<{
       x: number;
       y: number;
-      r: number;
-      brightness: number;
-      delay: number;
     }>;
-    connections: Array<{
+    edges: Array<{
       from: number;
       to: number;
     }>;
