@@ -174,7 +174,7 @@ watch(
 
 // showCenterMarker prop 변경 감지
 watch(
-  () => props.showCenterMarker,
+  () => props.center,
   newShowMarker => {
     if (!mapInstance.value) return;
 
@@ -183,7 +183,8 @@ watch(
     } else {
       hideSingleMarker();
     }
-  }
+  },
+  { immediate: false, deep: true }
 );
 
 //TODO: getCurrentInstance 미사용으로 mapRef 주입 실패
@@ -206,6 +207,7 @@ onBeforeUnmount(() => {
 });
 
 // 외부에서 사용할 수 있는 메서드들 노출
+// eslint-disable-next-line vue/no-expose-after-await
 defineExpose({
   map: mapInstance,
   panTo,

@@ -3,12 +3,7 @@ import type { Attraction } from '@/services/api/domains/attraction/types';
 import type { Plan, PlanDetail } from '@/services/api/domains/plan';
 import type { MarkerInfo, MarkerInstance, PolylineInstance } from '@/types/kakao';
 import type MapContainer from '@/components/map/MapContainer.vue';
-import {
-  createPolyline,
-  checkKakaoMapsAPI,
-  SingleMarkerManager,
-  MultiMarkerManager,
-} from '@/utils/mapUtils';
+import { createPolyline, SingleMarkerManager, MultiMarkerManager } from '@/utils/mapUtils';
 
 interface UseMapStateReturn {
   // 지도 관련
@@ -72,7 +67,7 @@ const initializeManagers = () => {
  * 단일 마커 표시
  */
 const showSingleMarker = (lat: number, lng: number): void => {
-  if (!mapRef.value?.map || !checkKakaoMapsAPI()) {
+  if (!mapRef.value?.map) {
     throw new Error('지도가 초기화되지 않았거나 카카오맵 API를 사용할 수 없습니다.');
   }
 
@@ -201,7 +196,7 @@ const selectPlanDetail = (planDetail: PlanDetail): void => {
  * 다중 마커 표시
  */
 const showAllMarkers = (): boolean => {
-  if (!mapRef.value?.map || markers.value.length === 0 || !checkKakaoMapsAPI()) {
+  if (!mapRef.value?.map || markers.value.length === 0) {
     return false;
   }
 
@@ -222,7 +217,7 @@ const showAllMarkers = (): boolean => {
  * 경로를 폴리라인으로 표시
  */
 const showRoute = (dateAttractions: MarkerInfo[]): boolean => {
-  if (!mapRef.value?.map || !checkKakaoMapsAPI()) {
+  if (!mapRef.value?.map) {
     return false;
   }
 

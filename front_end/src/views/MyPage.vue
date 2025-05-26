@@ -154,7 +154,7 @@
 <script setup lang="ts">
 import placeholder from '@/assets/vue.svg';
 import { ref, reactive, onMounted } from 'vue';
-import { User, Settings, Heart } from 'lucide-vue-next';
+import { User, Heart } from 'lucide-vue-next';
 import type { UserInfo } from '@/services/api/domains/user/types';
 import { toast } from 'vue-sonner';
 import { getUserInfo, putBasicUserInfo, putPasswordChange } from '@/services/api/domains/user';

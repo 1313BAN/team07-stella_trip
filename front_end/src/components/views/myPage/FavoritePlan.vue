@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import PlanCard from '@/components/card/PlanCard/PlanCard.vue';
-import type { Attraction } from '@/services/api/domains/attraction/types';
 import GridCardListContainer from '@/components/common/GridCardListContainer/GridCardListContainer.vue';
 import { computed, onMounted, ref } from 'vue';
 import type { Plan } from '@/services/api/domains/plan/types';
-import { getLikedAttractions, getLikedPlans } from '@/services/api/domains/user';
+import { getLikedPlans } from '@/services/api/domains/user';
 import router from '@/router';
 import { ROUTES } from '@/router/routes';
 import type { Tag } from '@/services/api/domains/plan/types';

@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import AttractionCard from '@/components/card/AttractionCard/AttractionCard.vue';
-import PlanCard from '@/components/card/PlanCard/PlanCard.vue';
 import type { Attraction } from '@/services/api/domains/attraction/types';
 import { ContentTypeId } from '@/constants/constant';
 import GridCardListContainer from '@/components/common/GridCardListContainer/GridCardListContainer.vue';
 import { onMounted, ref } from 'vue';
-import type { Plan } from '@/services/api/domains/plan/types';
-import { getLikedAttractions, getLikedPlans } from '@/services/api/domains/user';
+import { getLikedAttractions } from '@/services/api/domains/user';
 import router from '@/router';
 import { ROUTES } from '@/router/routes';
-import type { Tag } from '@/services/api/domains/plan/types';
 import { toast } from 'vue-sonner';
 import { deleteAttractionLike, postAttractionLike } from '@/services/api/domains/attraction';
 import { useAuthStore } from '@/stores/auth';
