@@ -50,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import AsyncContainer from '@/components/AsyncContainer/AsyncContainer.vue';
 import MapContainer from '@/components/map/MapContainer.vue';
@@ -75,10 +75,6 @@ const { mapRef, mapLevel, mapCenter, selectedAttraction } = useMapState();
 
 const planId = computed(() => Number(route.params.planId));
 const selectedDate = ref<string | null>(null);
-
-onUnmounted(() => {
-  planStore.clearPlan();
-});
 
 /**
  * 지도 리사이즈 처리

@@ -14,6 +14,11 @@ export const ROUTES = {
   CHAT: { path: '/chats', name: 'chat', title: '지역별 채팅' },
   CHAT_ROOM: { path: '/chats/:roomId', name: 'chatRoom', title: '지역별 채팅' },
   SHARED: { path: '/shared/:link', name: 'shared-plan', title: '공유된 여행 계획' },
+  STELLA: {
+    path: '/stella/edit/:planId',
+    name: 'stella-edit',
+    title: '별자리 수정',
+  },
   NOT_FOUND: { path: '/:pathMatch(.*)*', name: 'not-found', title: '존재하지 않는 페이지' },
   MY_PAGE: { path: '/my-page', name: 'my-page', title: '마이 페이지' },
 } as const;
