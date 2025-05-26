@@ -323,9 +323,8 @@ const handleCustomConstellation = () => {
 
   isConstellationChoiceOpen.value = false;
 
-  // 별자리 편집 페이지로 이동 (planId를 파라미터로 전달)
   router.push({
-    name: 'ConstellationEditor', // 라우터에서 정의한 별자리 편집 페이지 라우트명
+    name: ROUTES.STELLA.name,
     params: {
       planId: planStore.currentPlan.planId.toString(),
     },
