@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
@@ -31,27 +32,37 @@ public class OpenAIService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public TarotResult sendMessageToGpt(PlanDTO planDTO) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(config.getApiKey());
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(config.getApiKey());
 
-        String prompt = generate(planDTO);
-        GPTMessageDTO userMessage = new GPTMessageDTO("user", prompt);
-        GPTRequestDTO request = new GPTRequestDTO(config.getModel(), List.of(userMessage));
+            String prompt = generate(planDTO);
+            GPTMessageDTO userMessage = new GPTMessageDTO("user", prompt);
+            GPTRequestDTO request = new GPTRequestDTO(config.getModel(), List.of(userMessage));
 
-        HttpEntity<GPTRequestDTO> httpEntity = new HttpEntity<>(request, headers);
+            HttpEntity<GPTRequestDTO> httpEntity = new HttpEntity<>(request, headers);
 
-        ResponseEntity<GPTResponseDTO> response = restTemplate.postForEntity(
-                config.getUrl(),
-                httpEntity,
-                GPTResponseDTO.class
-        );
+            ResponseEntity<GPTResponseDTO> response = restTemplate.postForEntity(
+                    config.getUrl(),
+                    httpEntity,
+                    GPTResponseDTO.class
+            );
 
-        return parse(response.getBody()
-                .getChoices()
-                .get(0)
-                .getMessage()
-                .getContent());
+            if (response.getBody() == null ||
+                    response.getBody().getChoices() == null ||
+                    response.getBody().getChoices().isEmpty()) {
+                throw new RuntimeException("OpenAI API로부터 유효하지 않은 응답을 받았습니다");
+            }
+
+            return parse(response.getBody()
+                    .getChoices()
+                    .get(0)
+                    .getMessage()
+                    .getContent());
+        } catch (RestClientException e) {
+            throw new RuntimeException("OpenAI API 호출 중 오류가 발생했습니다: " + e.getMessage(), e);
+        }
     }
 
     private String generate(PlanDTO plan) {
@@ -70,7 +81,7 @@ public class OpenAIService {
                 .filter(e -> e.getValue() >= 2)
                 .forEach(e -> sb.append("- ").append(e.getKey())
                         .append(" ").append(e.getValue())
-                        .append("회 방문 (유일한 재방문 = 운명적 인연)\n"));
+                        .append("회 방문\n"));
 
         long areaCount = plan.getRoutes().stream()
                 .map(RouteDTO::getAttraction)
