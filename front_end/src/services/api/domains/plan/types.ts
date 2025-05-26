@@ -16,11 +16,12 @@ export type RawNode = {
 };
 
 export type StellaNode = {
+  name: string;
   x: number;
   y: number;
-  r: number;
-  brightness: number;
-  delay: number;
+  r?: number;
+  brightness?: number;
+  delay?: number;
 };
 
 export type StellaEdge = {
