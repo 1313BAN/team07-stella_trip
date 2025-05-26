@@ -53,7 +53,6 @@ class SocketService {
     } catch {
       return false;
     }
-    return true;
   }
 
   // 연결 해제
