@@ -59,6 +59,7 @@ public class ChatRoomService {
                             .chatId(chat.getChatId())
                             .content(chat.getContent())
                             .userName(chat.getUserName())
+                            .createdAt(chat.getCreatedAt())
                             .build()
             );
         });
