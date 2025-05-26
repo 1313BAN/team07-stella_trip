@@ -181,6 +181,7 @@ import { getRoomChats } from '@/services/api/domains/chat';
 import type { ChatMessage } from '@/services/socket/types';
 import type { ChatResponse } from '@/services/api/domains/chat/types';
 import { RotateCcw, AlertTriangle, MessageCircle, Send } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 
 interface Props {
   roomId: number;
@@ -382,15 +383,10 @@ const subscribeToRoom = async (roomId: number) => {
 const sendMessage = () => {
   if (!newMessage.value.trim()) return;
 
-  console.log('메시지 전송 시도:', newMessage.value);
-  console.log('연결 상태:', connected.value);
-
   if (socketService.sendMessage(props.roomId, newMessage.value)) {
-    console.log('메시지 전송 성공');
     newMessage.value = '';
   } else {
-    console.error('메시지 전송 실패 - 소켓이 연결되지 않음');
-    // 사용자에게 알림 표시 또는 재연결 시도
+    toast.error('메시지 전송에 실패했습니다. 연결 상태를 확인해주세요.');
   }
 };
 

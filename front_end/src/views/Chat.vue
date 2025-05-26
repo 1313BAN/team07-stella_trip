@@ -234,6 +234,7 @@ import {
 import { getRoomList } from '@/services/api/domains/chat';
 import type { SidoWithRooms, ChatRoom as ChatRoomType } from '@/services/api/domains/chat/types';
 import ChatRoom from './ChatRoom.vue';
+import { toast } from 'vue-sonner';
 
 const route = useRoute();
 const router = useRouter();
@@ -343,8 +344,8 @@ const loadRoomList = async () => {
         }
       }
     }
-  } catch (error) {
-    console.log(error);
+  } catch {
+    toast.error('채팅방 목록을 불러올 수 없습니다.');
     roomsError.value = true;
   } finally {
     isLoadingRooms.value = false;
