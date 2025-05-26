@@ -9,7 +9,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173", "https://stellatrip.duckdns.org/api")
+                .allowedOrigins("http://localhost:5173", "https://stellatrip.duckdns.org")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                 .allowedHeaders("*")  // 옵션 요청 시 필요
                 .allowCredentials(true);
