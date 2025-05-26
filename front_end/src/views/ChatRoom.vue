@@ -89,9 +89,23 @@
           </div>
         </div>
 
+        <!-- 이전 메시지 로딩 버튼 -->
+        <div v-if="hasMoreMessages && !isLoading" class="flex justify-center py-2">
+          <button @click="loadMoreMessages" class="text-sm text-purple-400 hover:text-purple-300">
+            이전 메시지 불러오기
+          </button>
+        </div>
+
+        <!-- 추가 로딩 (스크롤 위로 당겨서 더 보기) -->
+        <div v-if="isLoading && messages.length > 0" class="flex justify-center py-2">
+          <div
+            class="h-4 w-4 animate-spin rounded-full border-2 border-purple-400 border-t-transparent"
+          ></div>
+        </div>
+
         <!-- 메시지 리스트 -->
         <div
-          v-for="msg in messages"
+          v-for="msg in sortedMessages"
           :key="msg.chatId"
           :class="['mb-4 flex', msg.username === currentUser ? 'justify-end' : 'justify-start']"
         >
@@ -135,13 +149,6 @@
           </div>
         </div>
       </template>
-
-      <!-- 추가 로딩 (스크롤 위로 당겨서 더 보기) -->
-      <div v-if="isLoading && messages.length > 0" class="flex justify-center py-2">
-        <div
-          class="h-4 w-4 animate-spin rounded-full border-2 border-purple-400 border-t-transparent"
-        ></div>
-      </div>
     </div>
 
     <!-- 메시지 입력 영역 -->
@@ -167,7 +174,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick, watch, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import socketService from '@/services/socket';
 import { getRoomChats } from '@/services/api/domains/chat';
@@ -199,9 +206,19 @@ const currentUser = ref('');
 const messageContainer = ref<HTMLElement>();
 const isLoading = ref(false);
 const messagesError = ref(false);
+const hasMoreMessages = ref(true);
 
 let subscription: SocketSubscription | null = null;
-let lastChatId = -1;
+let oldestChatId: number | null = null;
+
+// 메시지를 시간순으로 정렬 (오래된 것이 위, 최신이 아래)
+const sortedMessages = computed(() => {
+  return [...messages.value].sort((a, b) => {
+    const timeA = new Date(a.createdAt || 0).getTime();
+    const timeB = new Date(b.createdAt || 0).getTime();
+    return timeA - timeB;
+  });
+});
 
 // roomId 변경 감지
 watch(
@@ -211,9 +228,11 @@ watch(
       // 이전 구독 해제
       subscription?.unsubscribe();
 
-      // 새 채팅방 데이터 로드
+      // 새 채팅방 데이터 리셋
       messages.value = [];
-      lastChatId = -1;
+      oldestChatId = null;
+      hasMoreMessages.value = true;
+
       await loadChatHistory();
 
       // 새 채팅방 구독
@@ -254,7 +273,7 @@ const loadChatHistory = async () => {
     messagesError.value = false;
 
     const chatHistory = await getRoomChats(props.roomId, {
-      lastChatId: lastChatId,
+      lastChatId: oldestChatId || undefined,
       size: 50,
     });
 
@@ -267,28 +286,59 @@ const loadChatHistory = async () => {
         createdAt: chat.createdAt || new Date().toISOString(),
       }));
 
-      // 새 메시지를 기존 메시지 앞에 추가 (오래된 메시지가 위에)
-      messages.value = [...newMessages, ...messages.value];
+      // 중복 제거를 위해 기존 메시지 ID 체크
+      const existingIds = new Set(messages.value.map(msg => msg.chatId));
+      const filteredNewMessages = newMessages.filter(msg => !existingIds.has(msg.chatId));
 
-      // lastChatId 업데이트 (가장 오래된 메시지의 ID)
-      if (newMessages.length > 0) {
-        const chatIds = newMessages
+      // 새 메시지 추가
+      messages.value = [...messages.value, ...filteredNewMessages];
+
+      // oldestChatId 업데이트 (가장 오래된 메시지의 ID로)
+      if (filteredNewMessages.length > 0) {
+        const chatIds = filteredNewMessages
           .map(m => m.chatId)
           .filter((id): id is number => id !== undefined);
 
         if (chatIds.length > 0) {
-          lastChatId = Math.min(...chatIds);
+          // API가 최신순으로 반환한다면 마지막이 가장 오래된 것
+          oldestChatId = Math.min(...chatIds);
         }
       }
 
+      // 더 이상 불러올 메시지가 없는지 체크
+      if (chatHistory.chats.length < 50) {
+        hasMoreMessages.value = false;
+      }
+
       await nextTick();
-      scrollToBottom();
+      // 처음 로드시에만 맨 아래로 스크롤
+      if (oldestChatId === null || messages.value.length <= 50) {
+        scrollToBottom();
+      }
+    } else {
+      hasMoreMessages.value = false;
     }
   } catch (error) {
     console.error('채팅 히스토리 로드 실패:', error);
     messagesError.value = true;
   } finally {
     isLoading.value = false;
+  }
+};
+
+const loadMoreMessages = async () => {
+  if (isLoading.value || !hasMoreMessages.value) return;
+
+  const scrollHeight = messageContainer.value?.scrollHeight || 0;
+  const scrollTop = messageContainer.value?.scrollTop || 0;
+
+  await loadChatHistory();
+
+  // 스크롤 위치 조정 (새로 로드된 메시지로 인한 스크롤 점프 방지)
+  await nextTick();
+  if (messageContainer.value) {
+    const newScrollHeight = messageContainer.value.scrollHeight;
+    messageContainer.value.scrollTop = scrollTop + (newScrollHeight - scrollHeight);
   }
 };
 
@@ -305,18 +355,27 @@ const connectSocket = async (token: string) => {
 
 const subscribeToRoom = async (roomId: number) => {
   subscription = socketService.subscribeRoom(roomId, (message: ChatMessage) => {
-    messages.value.push(message);
+    // 중복 메시지 체크
+    const exists = messages.value.some(msg => msg.chatId === message.chatId);
+    if (!exists) {
+      // 새 메시지는 현재 시간으로 설정 (서버 시간이 없을 경우)
+      if (!message.createdAt) {
+        message.createdAt = new Date().toISOString();
+      }
 
-    // 부모 컴포넌트에 메시지 수신 알림
-    emit(
-      'messageReceived',
-      roomId,
-      message.message,
-      message.createdAt || new Date().toISOString(),
-      message.username === currentUser.value
-    );
+      messages.value.push(message);
 
-    nextTick(() => scrollToBottom());
+      // 부모 컴포넌트에 메시지 수신 알림
+      emit(
+        'messageReceived',
+        roomId,
+        message.message,
+        message.createdAt,
+        message.username === currentUser.value
+      );
+
+      nextTick(() => scrollToBottom());
+    }
   });
 };
 
@@ -337,8 +396,9 @@ const sendMessage = () => {
 
 const refreshMessages = async () => {
   if (!isLoading.value) {
-    lastChatId = -1;
+    oldestChatId = null;
     messages.value = [];
+    hasMoreMessages.value = true;
     await loadChatHistory();
   }
 };
@@ -352,23 +412,65 @@ const scrollToBottom = () => {
 const formatTime = (dateString?: string) => {
   if (!dateString) return '';
 
-  const now = new Date();
-  const date = new Date(dateString);
+  try {
+    // 서버에서 오는 시간을 Date 객체로 변환
+    const date = new Date(dateString);
 
-  const isToday = now.toDateString() === date.toDateString();
+    // 유효하지 않은 날짜 체크
+    if (isNaN(date.getTime())) {
+      return '';
+    }
 
-  if (isToday) {
-    return date.toLocaleTimeString('ko-KR', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  } else {
-    return date.toLocaleDateString('ko-KR', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    // 현재 시간 (한국 시간)
+    const now = new Date();
+
+    // 서버 시간을 한국 시간으로 변환 (UTC라고 가정하고 9시간 추가)
+    const koreaDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+
+    // 현재 한국 시간
+    const nowKorea = new Date(
+      now.getTime() + now.getTimezoneOffset() * 60 * 1000 + 9 * 60 * 60 * 1000
+    );
+
+    // 날짜 비교를 위한 문자열 (YYYY-MM-DD 형식)
+    const nowDateStr = nowKorea.toISOString().split('T')[0];
+    const msgDateStr = koreaDate.toISOString().split('T')[0];
+
+    const isToday = nowDateStr === msgDateStr;
+
+    // 어제 확인
+    const yesterday = new Date(nowKorea.getTime() - 24 * 60 * 60 * 1000);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    const isYesterday = msgDateStr === yesterdayStr;
+
+    // 한국 시간 기준 시:분 추출
+    const hours = koreaDate.getHours().toString().padStart(2, '0');
+    const minutes = koreaDate.getMinutes().toString().padStart(2, '0');
+    const timeStr = `${hours}:${minutes}`;
+
+    if (isToday) {
+      return timeStr;
+    } else if (isYesterday) {
+      return `어제 ${timeStr}`;
+    } else {
+      // 1주일 이내인지 확인
+      const diffTime = nowKorea.getTime() - koreaDate.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays >= 0 && diffDays <= 7) {
+        const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+        const dayOfWeek = weekdays[koreaDate.getDay()];
+        return `${dayOfWeek} ${timeStr}`;
+      } else {
+        // 1주일 이상 전
+        const month = koreaDate.getMonth() + 1;
+        const day = koreaDate.getDate();
+        return `${month}월 ${day}일 ${timeStr}`;
+      }
+    }
+  } catch (error) {
+    console.error('시간 포맷 에러:', error, 'Input:', dateString);
+    return '';
   }
 };
 </script>

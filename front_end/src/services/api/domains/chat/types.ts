@@ -1,4 +1,5 @@
 export interface ChatResponse {
+  createdAt: string;
   chatId: number;
   userName: string;
   content: string;
