@@ -89,7 +89,7 @@
           <Button
             size="sm"
             class="bg-purple-600 text-white hover:bg-purple-500"
-            @click="applyFilters"
+            @click="handleSearch"
           >
             필터 적용
           </Button>
