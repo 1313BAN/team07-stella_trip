@@ -51,11 +51,19 @@ const routes: Array<RouteRecordRaw> = [
         children: [],
       },
       {
-        path: '/chats/:roomId?',
-        name: 'chat',
+        path: ROUTES.CHAT.path,
+        name: ROUTES.CHAT.name,
         component: () => import('@/views/Chat.vue'),
         meta: {
-          title: '지역별 채팅',
+          title: ROUTES.CHAT.title,
+        },
+      },
+      {
+        path: ROUTES.CHAT_ROOM.path,
+        name: ROUTES.CHAT_ROOM.name,
+        component: () => import('@/views/Chat.vue'),
+        meta: {
+          title: ROUTES.CHAT_ROOM.title,
         },
         props: true,
       },
