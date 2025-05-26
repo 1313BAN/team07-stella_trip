@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ssafy.stella_trip.common.response.CommonResponse;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
 import com.ssafy.stella_trip.stella.dto.request.StellaRequestDTO;
+import com.ssafy.stella_trip.stella.dto.response.StellaListResponseDTO;
 import com.ssafy.stella_trip.stella.dto.response.StellaResponseDTO;
 import com.ssafy.stella_trip.stella.service.StellaService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,6 +31,17 @@ public class StellaController {
     @PreAuthorize("isAuthenticated()")
     public CommonResponse<StellaResponseDTO> createStellaLink(@RequestBody StellaRequestDTO stella, @AuthenticationPrincipal JwtUserInfo user) throws JsonProcessingException {
         return new CommonResponse<>(stellaService.createStellaLink(stella, user), HttpStatus.OK);
+    }
+
+    @GetMapping("/myStella")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(
+            summary = "내 별자리 링크 조회",
+            description = "사용자가 자신의 별자리 링크를 조회합니다. " +
+                    "인증된 사용자만 접근할 수 있으며, 사용자 ID를 기반으로 별자리 링크를 반환합니다."
+    )
+    public CommonResponse<StellaListResponseDTO> getMyStella(@AuthenticationPrincipal JwtUserInfo user) {
+        return new CommonResponse<>(stellaService.getStellaByUserId(user.getUserId()), HttpStatus.OK);
     }
 
     @GetMapping("/{link}")

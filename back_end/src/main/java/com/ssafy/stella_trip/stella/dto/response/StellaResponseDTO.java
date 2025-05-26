@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class StellaResponseDTO {
     private int planId;
+    private int userId;
     private String stellaData;
     private String stellaLink;
     private TarotResult stellaAI;

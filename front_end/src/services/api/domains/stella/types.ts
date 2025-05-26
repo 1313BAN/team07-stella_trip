@@ -3,8 +3,13 @@ export type StellaParams = {
   stellaData: string;
 };
 
+export type StellaResponseList = {
+  stellaList: StellaResponse[];
+};
+
 export type StellaResponse = {
   planId: number;
+  userId: number;
   stellaData: string;
   stellaLink: string;
   stellaAI: StellaAI;
