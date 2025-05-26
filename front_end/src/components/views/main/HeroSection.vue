@@ -1,101 +1,36 @@
 <script setup lang="ts">
-import Constellation from '@/components/MainConstellationCard/MainConstellationCard.vue';
-import { ref, onMounted, reactive, watch, onUnmounted } from 'vue';
-import { useAnimationStore } from '@/stores/animation'; // 스토어 import
+import MainConstellationCard from '@/components/MainConstellationCard/MainConstellationCard.vue';
+import { onMounted } from 'vue';
+import { useAnimationStore } from '@/stores/animation';
+import { useConstellationAnimation } from '@/composables/useConstellationAnimation';
 
 // Pinia 스토어 사용
 const animationStore = useAnimationStore();
 
-// 애니메이션 상태
-const isCenter = ref(false);
-const showOverlay = ref(false); // 오버레이 상태를 별도로 관리
-const constellationRef = ref<HTMLDivElement | null>(null);
-const containerRef = ref<HTMLDivElement | null>(null);
-const isPositioned = ref(false);
-const transformStyle = reactive({
-  '--translate-x': '0px',
-  '--translate-y': '0px',
-});
-
-// showOverlay 상태가 변경될 때마다 body의 overflow 속성 조절
-watch(showOverlay, newVal => {
-  if (newVal) {
-    document.body.style.overflow = 'hidden';
-  } else {
-    document.body.style.overflow = '';
-  }
-});
-
-// 애니메이션 실행 함수
-const startIntroAnimation = () => {
-  // 처음부터 어두운 배경과 스크롤 막기
-  showOverlay.value = true;
-  document.body.style.overflow = 'hidden';
-
-  // DOM이 완전히 로드된 후 위치 계산
-  setTimeout(() => {
-    if (constellationRef.value && containerRef.value) {
-      // 컴포넌트의 현재 위치 계산
-      const rect = constellationRef.value.getBoundingClientRect();
-
-      // 화면 중앙 계산
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
-
-      // 컴포넌트 중심점 계산
-      const componentCenterX = rect.left + rect.width / 2;
-      const componentCenterY = rect.top + rect.height / 2;
-
-      // 중앙으로 이동하기 위한 transform 오프셋 계산
-      const deltaX = centerX - componentCenterX;
-      const deltaY = centerY - componentCenterY;
-
-      // CSS 변수에 적용
-      transformStyle['--translate-x'] = `${deltaX}px`;
-      transformStyle['--translate-y'] = `${deltaY}px`;
-
-      // 즉시 중앙 위치로 설정 (애니메이션 없이)
-      isCenter.value = true;
-
-      // 잠깐 후 transition 활성화
-      setTimeout(() => {
-        isPositioned.value = true;
-      }, 100);
-    }
-  }, 50);
-
-  // 4초 후 원래 위치로 애니메이션 (이때부터 transition 적용)
-  setTimeout(() => {
-    isCenter.value = false;
-    showOverlay.value = false; // 배경도 함께 사라짐
+// 별자리 애니메이션 컴포저블 사용
+const {
+  showOverlay,
+  transformStyle,
+  constellationRef,
+  containerRef,
+  startAnimation,
+  constellationClasses,
+} = useConstellationAnimation({
+  duration: 4000,
+  loadDelay: 50,
+  transitionDelay: 100,
+  onComplete: () => {
     // 애니메이션 완료 후 상태를 "본 적 있음"으로 설정
-    setTimeout(() => {
-      animationStore.setIntroAnimationSeen();
-    }, 2500); // transition 완료 후
-  }, 4000);
-};
+    animationStore.setIntroAnimationSeen();
+  },
+});
 
 onMounted(() => {
-  // 처음 보는 사용자인지 확인
   if (!animationStore.hasSeenIntroAnimation) {
     // 처음 보는 사용자라면 애니메이션 실행
-    startIntroAnimation();
-  } else {
-    // 이미 본 사용자라면 애니메이션 없이 바로 일반 상태
-    document.body.style.overflow = '';
+    startAnimation();
   }
 });
-
-// 컴포넌트가 언마운트될 때 스크롤 제한 해제
-onUnmounted(() => {
-  document.body.style.overflow = '';
-});
-
-// 개발용: 애니메이션 리셋 함수 (필요시 사용)
-const resetAnimation = () => {
-  animationStore.resetIntroAnimation();
-  location.reload(); // 페이지 새로고침으로 애니메이션 다시 확인
-};
 </script>
 
 <template>
@@ -135,14 +70,6 @@ const resetAnimation = () => {
             >
               별자리 불러오기
             </button>
-
-            <!-- 개발용 버튼 (프로덕션에서는 제거) -->
-            <!-- <button
-              @click="resetAnimation"
-              class="rounded-full border border-red-400 bg-transparent px-4 py-2 text-sm font-medium text-red-400 transition-all hover:bg-red-500/10"
-            >
-              애니메이션 리셋
-            </button> -->
           </div>
         </div>
 
@@ -155,13 +82,9 @@ const resetAnimation = () => {
             ref="constellationRef"
             :style="transformStyle"
             class="constellation-wrapper z-50 w-full"
-            :class="{
-              'center-position': isCenter,
-              'with-transition': isPositioned,
-              'no-transition': isCenter && !isPositioned,
-            }"
+            :class="constellationClasses"
           >
-            <Constellation />
+            <MainConstellationCard />
           </div>
         </div>
       </div>
