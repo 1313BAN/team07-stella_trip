@@ -175,18 +175,18 @@ const handleModalOpen = (value: '' | 'login' | 'register') => {
             <div class="pointer-events-none px-2 py-1 text-xs text-gray-400">계정</div>
             <template v-if="isLoggedIn">
               <DropdownMenuItem asChild>
-                <a
-                  href="/mypage"
-                  class="flex w-full items-center gap-3 px-3 py-3 text-sm font-medium tracking-widest uppercase"
+                <Button
+                  class="flex w-full items-center justify-start gap-3 px-3 py-3 text-left text-sm font-medium tracking-widest uppercase"
                   :class="[
                     currentRoute === '/mypage'
                       ? 'text-purple-400'
                       : 'text-gray-300 hover:text-purple-200',
                   ]"
+                  @click="handleRoute(ROUTES.MY_PAGE.path)"
                 >
                   <User class="h-5 w-5" />
                   <span>마이페이지</span>
-                </a>
+                </Button>
               </DropdownMenuItem>
               <DropdownMenuItem
                 class="flex items-center gap-3 px-3 py-3 text-sm font-medium tracking-widest text-gray-300 uppercase hover:text-purple-200"

@@ -11,7 +11,6 @@ import type {
   FeaturedAttraction,
 } from './types';
 import type { FeaturedTags } from '../plan';
-import type { ContentTypeId } from '@/constants/constant';
 
 /**
  * query parameter를 바탕으로 여행지 리스트 조회
