@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import StellaCard from '@/components/card/StellaCard/StellaCard.vue';
 import useInView from '@/composables/useInView';
 import { useStaggeredAnimation } from '@/composables/useStaggeredAnimation';
 import { ref } from 'vue';

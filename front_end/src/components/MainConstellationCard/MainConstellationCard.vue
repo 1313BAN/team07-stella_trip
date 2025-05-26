@@ -5,7 +5,7 @@ import type { StellaData } from '@/services/api/domains/plan/types';
 
 // props 정의 (stella, title, subtitle 추가)
 interface Props {
-  stella: StellaData | null;
+  stella?: StellaData;
   title?: string;
   subtitle?: string;
   onComplete?: () => void;

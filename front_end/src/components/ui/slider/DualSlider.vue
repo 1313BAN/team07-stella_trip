@@ -70,7 +70,6 @@ const forwardedProps = useForwardPropsEmits(delegatedProps, emits);
 
 <template>
   <SliderRoot
-    v-slot="slotProps"
     data-slot="dual-slider"
     :class="
       cn(

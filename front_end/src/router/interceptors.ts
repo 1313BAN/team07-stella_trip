@@ -7,7 +7,7 @@ import { ROUTES } from './routes';
  * @param router router
  */
 const setupTitleInterceptor = (router: Router) => {
-  router.beforeEach((to, from, next) => {
+  router.beforeEach((to, _, next) => {
     if (to.meta.title) {
       document.title = to.meta.title;
     }
@@ -20,7 +20,7 @@ const setupTitleInterceptor = (router: Router) => {
  * @param router router
  */
 const setupAuthInterceptor = (router: Router) => {
-  router.beforeEach((to, from, next) => {
+  router.beforeEach((to, _, next) => {
     if (to.meta.requiresAuth) {
       const authStore = useAuthStore();
 
@@ -40,14 +40,14 @@ const setupAuthInterceptor = (router: Router) => {
  * 페이지 전환 애니메이션 처리
  * @param router router
  */
-const setupTransitionInterceptor = (router: Router) => {
-  router.beforeEach((to, from, next) => {
-    next();
-  });
-};
+// const setupTransitionInterceptor = (router: Router) => {
+//   router.beforeEach((to, from, next) => {
+//     next();
+//   });
+// };
 
 export const setupInterceptors = (router: Router) => {
   setupTitleInterceptor(router);
   setupAuthInterceptor(router);
-  setupTransitionInterceptor(router);
+  // setupTransitionInterceptor(router);
 };

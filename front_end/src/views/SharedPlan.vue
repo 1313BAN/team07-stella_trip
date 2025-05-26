@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { toast } from 'vue-sonner';
 import { Badge } from '@/components/ui/badge';
 import MainConstellationCard from '@/components/MainConstellationCard/MainConstellationCard.vue';
@@ -10,7 +10,7 @@ import { useConstellationAnimation } from '@/composables/useConstellationAnimati
 import type { PlanDetail } from '@/services/api/domains/plan';
 
 const route = useRoute();
-const router = useRouter();
+// const router = useRouter();
 
 // 상태 관리
 const isLoading = ref(true);
@@ -134,12 +134,7 @@ onMounted(loadSharedPlan);
             <MainConstellationCard :stella="sharedPlan.stella" />
           </div>
           <!-- 로딩 중일 때 표시할 플레이스홀더 -->
-          <div
-            v-else-if="isLoading"
-            class="flex h-64 w-64 items-center justify-center rounded-lg border-2 border-dashed border-gray-400"
-          >
-            <span class="text-gray-400">로딩 중...</span>
-          </div>
+          <div v-else class="fixed inset-0 z-50 h-screen w-screen bg-black"></div>
         </div>
       </div>
     </section>

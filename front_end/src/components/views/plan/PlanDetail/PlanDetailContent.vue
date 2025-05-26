@@ -4,7 +4,12 @@
     <StellaHeader :stella="planDetail?.stella" :backgroundStars="backgroundStars" />
 
     <!-- 기본 정보 섹션 -->
-    <PlanInfo class="px-2" :plan="planDetail" @toggleLike="toggleLike" @invite="handleInvite" />
+    <PlanInfo
+      class="px-2"
+      :plan="planDetail as PlanDetail"
+      @toggleLike="toggleLike"
+      @invite="handleInvite"
+    />
 
     <!-- 일정 섹션 -->
     <div class="flex-1 bg-slate-900/20 p-3">
@@ -234,7 +239,7 @@ const handleDeleteAttraction = (date: string, routeId: number) => {
  * 초대하기 버튼 클릭 핸들러
  * @param planId - 플랜 ID
  */
-const handleInvite = (planId: number) => {
+const handleInvite = () => {
   isInviteModalOpen.value = true;
 };
 

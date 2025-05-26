@@ -22,7 +22,7 @@ export const contentTypeNameKR: Record<ContentTypeId, string> = {
 };
 
 export const contentTypeList = Object.entries(ContentTypeId)
-  .filter(([key, value]) => typeof value === 'number') // 숫자 key만
+  .filter(([, value]) => typeof value === 'number') // 숫자 key만
   .map(([key, value]) => ({
     label: key,
     value: value,

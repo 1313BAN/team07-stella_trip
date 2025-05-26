@@ -4,7 +4,8 @@ import RowCardListContainer from './RowCardListContainer.vue';
 import PlanCard from '@/components/card/PlanCard/PlanCard.vue';
 import AttractionCard from '@/components/card/AttractionCard/AttractionCard.vue';
 import type { Plan } from '@/services/api/domains/plan';
-import type { Attraction } from '@/services/api/domains/attraction';
+import type { Attraction } from '@/services/api/domains/attraction/types';
+import { ContentTypeId } from '@/constants/constant';
 
 const examplePlans: Plan[] = [
   {
@@ -53,7 +54,7 @@ const exampleAttractions: Attraction[] = [
     attractionId: 1,
     name: '서울 남산타워',
     address: '서울특별시 용산구 남산공원길 105',
-    contentType: 10,
+    contentType: ContentTypeId.TOURIST_SPOT,
     image: 'https://example.com/image1.jpg',
     rating: 4.7,
     likeCount: 345,
@@ -66,7 +67,7 @@ const exampleAttractions: Attraction[] = [
     attractionId: 2,
     name: '경복궁',
     address: '서울특별시 종로구 사직로 161',
-    contentType: 10,
+    contentType: ContentTypeId.TOURIST_SPOT,
     image: 'https://example.com/image2.jpg',
     rating: 4.8,
     likeCount: 298,
@@ -79,7 +80,7 @@ const exampleAttractions: Attraction[] = [
     attractionId: 3,
     name: '해운대 해수욕장',
     address: '부산광역시 해운대구 해운대해변로 264',
-    contentType: 10,
+    contentType: ContentTypeId.TOURIST_SPOT,
     image: 'https://example.com/image3.jpg',
     rating: 4.6,
     likeCount: 421,
@@ -92,7 +93,7 @@ const exampleAttractions: Attraction[] = [
     attractionId: 4,
     name: '제주 성산일출봉',
     address: '제주특별자치도 서귀포시 성산읍 일출로 284-12',
-    contentType: 10,
+    contentType: ContentTypeId.TOURIST_SPOT,
     image: 'https://example.com/image4.jpg',
     rating: 4.9,
     likeCount: 567,
@@ -105,7 +106,7 @@ const exampleAttractions: Attraction[] = [
     attractionId: 5,
     name: '홍대 거리',
     address: '서울특별시 마포구 와우산로 29',
-    contentType: 11,
+    contentType: ContentTypeId.TOURIST_SPOT,
     image: 'https://example.com/image5.jpg',
     rating: 4.5,
     likeCount: 231,

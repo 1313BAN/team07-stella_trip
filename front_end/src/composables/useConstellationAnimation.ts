@@ -29,7 +29,7 @@ export const useConstellationAnimation = (options: ConstellationAnimationOptions
   const { duration = 4000, loadDelay = 200, transitionDelay = 100, onComplete } = options;
 
   // 애니메이션 상태
-  const isCenter = ref(false);
+  const isCenter = ref(true);
   const showOverlay = ref(false);
   const isPositioned = ref(false);
   const constellationRef = ref<HTMLDivElement | null>(null);

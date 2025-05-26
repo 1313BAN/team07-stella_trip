@@ -92,16 +92,7 @@ export type PlanDetail = {
   planId: number;
   title: string;
   description: string | null;
-  stella: {
-    nodes: Array<{
-      x: number;
-      y: number;
-    }>;
-    edges: Array<{
-      from: number;
-      to: number;
-    }>;
-  } | null;
+  stella: StellaData;
   likeCount: number;
   tags: Tag[];
   isLiked: boolean;
