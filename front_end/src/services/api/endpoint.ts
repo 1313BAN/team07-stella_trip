@@ -4,7 +4,6 @@ export const AUTH = {
   SIGNUP: 'v1/user/signup',
   SIGNOUT: 'v1/user/signout',
   PROFILE: 'v1/user/profile',
-  BASIC_PROFILE: 'v1/user/profile',
   PASSWORD_CHANGE: 'v1/user/password',
   LIKED_ATTRACTIONS: 'v1/user/liked/attractions',
   LIKED_PLANS: 'v1/user/liked/plans',

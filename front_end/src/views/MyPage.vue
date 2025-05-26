@@ -14,7 +14,7 @@
                   class="mb-4 h-20 w-20 overflow-hidden rounded-full border-4 border-purple-400/50"
                 >
                   <img
-                    :src="userProfile.image || placholder"
+                    :src="userProfile.image || placeholder"
                     :alt="userProfile.name"
                     class="h-full w-full object-cover"
                   />
@@ -152,7 +152,7 @@
 </template>
 
 <script setup lang="ts">
-import placholder from '@/assets/vue.svg';
+import placeholder from '@/assets/vue.svg';
 import { ref, reactive, onMounted } from 'vue';
 import { User, Settings, Heart } from 'lucide-vue-next';
 import type { UserInfo } from '@/services/api/domains/user/types';
@@ -221,7 +221,7 @@ const updateProfile = () => {
 // 비밀번호 변경
 const changePassword = () => {
   if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-    alert('새 비밀번호가 일치하지 않습니다.');
+    toast.error('새 비밀번호가 일치하지 않습니다.');
     return;
   }
   // API 호출 로직
@@ -240,6 +240,3 @@ const changePassword = () => {
     });
 };
 </script>
-
-function UserInfo(arg0: { name: string; email: string; phone: string; birthDate: string;
-profileImage: null; }) { throw new Error('Function not implemented.'); }

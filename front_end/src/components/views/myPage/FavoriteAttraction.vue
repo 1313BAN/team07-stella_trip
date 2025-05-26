@@ -70,7 +70,6 @@ const handleAttractionLikeClick = async (attraction: Attraction) => {
           : attraction.likeCount - 1;
       });
   }
-  attractions.value = (await getLikedAttractions()).content;
 };
 
 const handleAttractionTagClick = (contentType: ContentTypeId) => {

@@ -46,7 +46,7 @@ const routes: Array<RouteRecordRaw> = [
         name: ROUTES.MY_PAGE.name,
         component: () => import('@/views/MyPage.vue'),
         meta: {
-          title: ROUTES.PLAN_MODIFY.title,
+          title: ROUTES.MY_PAGE.title,
         },
         children: [],
       },

@@ -16,7 +16,7 @@ export const getUserInfo = async (): Promise<UserInfo> => {
 };
 
 export const putBasicUserInfo = async (userInfo: BasicUserInfo): Promise<UserInfo> => {
-  const response = await api.put<ApiResponse<UserInfo>>(AUTH.BASIC_PROFILE, userInfo);
+  const response = await api.put<ApiResponse<UserInfo>>(AUTH.PROFILE, userInfo);
   return response.data.body;
 };
 
