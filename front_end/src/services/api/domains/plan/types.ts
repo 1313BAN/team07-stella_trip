@@ -3,14 +3,48 @@ export type PlansParams = {
   size?: number;
   search?: string;
   userName?: string;
-  duration?: number;
-  sort?: 'RECENT' | 'POPULAR';
+  minDuration?: number;
+  maxDuration?: number;
+  sort?: PlansSortOption;
+};
+
+export type PlansSortOption = 'recent' | 'like' | '';
+
+export type RawNode = {
+  x: number;
+  y: number;
+};
+
+export type StellaNode = {
+  x: number;
+  y: number;
+  r: number;
+  brightness: number;
+  delay: number;
+};
+
+export type StellaEdge = {
+  from: number;
+  to: number;
+};
+
+export type StellaData = {
+  nodes: StellaNode[];
+  edges: StellaEdge[];
+};
+
+export type BackgroundStar = {
+  x: number;
+  y: number;
+  r: number;
+  brightness: number;
+  duration: number;
 };
 
 export type Plan = {
   title: string;
   description: string;
-  stella: null;
+  stella: StellaData | null;
   tags: Tag[];
   planId: number;
   isLiked: boolean;
@@ -25,6 +59,10 @@ export type Tag = {
   tagId: number;
   name: string;
   count: number;
+};
+
+export type FeaturedTags = {
+  featuredTags: Tag[];
 };
 
 export type Writer = {
@@ -54,19 +92,7 @@ export type PlanDetail = {
   planId: number;
   title: string;
   description: string | null;
-  stella: {
-    stars: Array<{
-      x: number;
-      y: number;
-      r: number;
-      brightness: number;
-      delay: number;
-    }>;
-    connections: Array<{
-      from: number;
-      to: number;
-    }>;
-  } | null;
+  stella: StellaData;
   likeCount: number;
   tags: Tag[];
   isLiked: boolean;
@@ -77,16 +103,8 @@ export type PlanDetail = {
   planWriters: Writer[];
 };
 
-export type CreatePlanRequest = {
-  title: string;
-  description: string;
-  tags: string[];
-  isPublic: boolean;
-  startDate: string;
-  endDate: string;
-};
+export type CreatePlanRequest = UpdatePlanInfoRequest & UpdatePlanScheduleRequest;
 
-//TODO: 타입 일관화 필요
 export type PlanWriter = {
   id: number;
   name: string;
@@ -98,23 +116,38 @@ export type PlanTag = {
   name: string;
 };
 
-export type CreatedPlanResponse = {
-  planId: number;
-  title: string;
-  description: string;
-  stella: string;
-  startDate: string;
-  endDate: string;
-  likeCount: number;
-  planWriters: PlanWriter[];
-  tags: PlanTag[];
-  isLiked: boolean;
-  isPublic: boolean;
-};
-
 export type PlanAttractionRequest = {
   dayIndex: number;
   attractionId: number;
   visitTime: string;
   memo: string;
+};
+
+export type UpdatePlanInfoRequest = {
+  title: string;
+  description: string;
+  isPublic: boolean;
+  tags: string[];
+};
+
+export type UpdatePlanScheduleRequest = {
+  startDate: string;
+  endDate: string;
+};
+
+export type LockResponse = {
+  userId: number;
+  planId: number;
+  lockStatus: boolean;
+};
+
+export type UpdateRouteRequest = {
+  routes: RouteInfo[];
+};
+
+export type RouteInfo = {
+  routeId: number;
+  dayIndex: number;
+  order: number;
+  deleted: boolean;
 };

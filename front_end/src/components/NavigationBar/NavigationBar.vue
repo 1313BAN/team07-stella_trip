@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive } from 'vue';
 import { ROUTES } from '@/router/routes';
-import { useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -18,6 +18,7 @@ import { toast } from 'vue-sonner';
 import Modal from '@/components/Modal/Modal.vue';
 import LoginForm from '@/components/Modal/content/LoginForm.vue';
 import SignupForm from '@/components/Modal/content/SignupForm.vue';
+import router from '@/router';
 
 // Props for controlling auth state from parent
 interface Props {
@@ -34,13 +35,13 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 // Try to use router, but fallback if not available (for Storybook)
-let router;
+let route;
 try {
-  router = useRouter();
+  route = useRoute();
 } catch {
   // Router not available (likely in Storybook)
   // Silent fallback for Storybook environments
-  router = undefined;
+  route = undefined;
 }
 
 const modalState = reactive<ModalState>({
@@ -56,9 +57,8 @@ const isLoggedIn = computed(() => {
 // Navigation items - separate regular and auth items
 const menuItems = computed(() => {
   const navigationItems = [
-    { name: '여행계획', icon: Map, route: '/plans' },
-    { name: '여행지', icon: Compass, route: '/attractions' },
-    { name: '내여행계획', icon: Compass, route: '/my-plans' },
+    { name: '여행계획', icon: Map, route: ROUTES.PLANS.path },
+    { name: '여행지', icon: Compass, route: ROUTES.ATTRACTION.path },
   ];
 
   return navigationItems;
@@ -66,11 +66,29 @@ const menuItems = computed(() => {
 
 // Active link tracking - use router if available, otherwise use the activeRoute prop
 const currentRoute = computed(() => {
-  if (router) {
-    return router.currentRoute.value.path;
+  if (route) {
+    return route.path; // route에서 직접 path 가져오기
   }
   return props.activeRoute;
 });
+
+// 현재 경로가 메뉴 항목과 일치하는지 확인하는 함수
+const isActiveRoute = (menuRoute: string) => {
+  if (!currentRoute.value) return false;
+
+  // 정확히 일치하는 경우
+  if (currentRoute.value === menuRoute) return true;
+
+  // 부분 경로 매칭 (예: /attractions가 /attractions/123과 일치)
+  if (menuRoute !== '/' && currentRoute.value.startsWith(menuRoute)) return true;
+
+  return false;
+};
+
+const handleRoute = (route: string) => {
+  if (route === currentRoute.value) return; // Prevent unnecessary navigation
+  router.push(route);
+};
 
 const handleLogout = () => {
   const authStore = useAuthStore();
@@ -104,6 +122,7 @@ const handleModalOpen = (value: '' | 'login' | 'register') => {
       <!-- Logo -->
       <div
         class="flex h-full items-center justify-center bg-gradient-to-r from-white via-purple-200 to-purple-300 bg-clip-text text-center text-3xl leading-tight font-black tracking-tight text-transparent md:text-3xl"
+        @click="handleRoute(ROUTES.MAIN.path)"
       >
         <span class="block">Stella Trip</span>
       </div>
@@ -112,18 +131,31 @@ const handleModalOpen = (value: '' | 'login' | 'register') => {
       <div class="hidden md:flex md:items-center md:gap-12">
         <!-- Regular Navigation Items -->
         <template v-for="item in menuItems" :key="item.name">
-          <a
-            :href="item.route"
+          <button
             class="group relative flex items-center gap-3 text-sm font-medium tracking-widest uppercase transition-all duration-300"
             :class="[
-              currentRoute === item.route
-                ? 'text-purple-400'
-                : 'text-gray-300 hover:text-purple-200',
+              isActiveRoute(item.route) ? 'text-purple-400' : 'text-gray-300 hover:text-purple-200',
             ]"
+            @click="handleRoute(item.route)"
           >
             <!-- <component :is="item.icon" class="h-5 w-5" /> -->
             <span>{{ item.name }}</span>
-          </a>
+          </button>
+        </template>
+
+        <template v-if="isLoggedIn">
+          <button
+            class="group relative flex items-center gap-3 text-sm font-medium tracking-widest uppercase transition-all duration-300"
+            :class="[
+              isActiveRoute(ROUTES.MY_PLANS.path)
+                ? 'text-purple-400'
+                : 'text-gray-300 hover:text-purple-200',
+            ]"
+            @click="handleRoute(ROUTES.MY_PLANS.path)"
+          >
+            <!-- <component :is="item.icon" class="h-5 w-5" /> -->
+            <span>내여행계획</span>
+          </button>
         </template>
         <!-- User Account Dropdown -->
         <DropdownMenu>
@@ -143,18 +175,18 @@ const handleModalOpen = (value: '' | 'login' | 'register') => {
             <div class="pointer-events-none px-2 py-1 text-xs text-gray-400">계정</div>
             <template v-if="isLoggedIn">
               <DropdownMenuItem asChild>
-                <a
-                  href="/mypage"
-                  class="flex w-full items-center gap-3 px-3 py-3 text-sm font-medium tracking-widest uppercase"
+                <Button
+                  class="flex w-full items-center justify-start gap-3 px-3 py-3 text-left text-sm font-medium tracking-widest uppercase"
                   :class="[
                     currentRoute === '/mypage'
                       ? 'text-purple-400'
                       : 'text-gray-300 hover:text-purple-200',
                   ]"
+                  @click="handleRoute(ROUTES.MY_PAGE.path)"
                 >
                   <User class="h-5 w-5" />
                   <span>마이페이지</span>
-                </a>
+                </Button>
               </DropdownMenuItem>
               <DropdownMenuItem
                 class="flex items-center gap-3 px-3 py-3 text-sm font-medium tracking-widest text-gray-300 uppercase hover:text-purple-200"
@@ -209,7 +241,7 @@ const handleModalOpen = (value: '' | 'login' | 'register') => {
                 :href="item.route"
                 class="flex w-full items-center gap-3 px-3 py-3 text-sm font-medium tracking-widest uppercase"
                 :class="[
-                  currentRoute === item.route
+                  isActiveRoute(item.route)
                     ? 'text-purple-400'
                     : 'text-gray-300 hover:text-purple-200',
                 ]"
@@ -293,8 +325,22 @@ const handleModalOpen = (value: '' | 'login' | 'register') => {
     </div>
   </Modal>
   <Toaster
+    :expand="true"
     :toastOptions="{
-      style: { background: 'black', color: 'white' },
+      style: {
+        background: 'rgba(15, 23, 42, 0.95)',
+        backdropFilter: 'blur(16px)',
+        border: '1px solid rgba(148, 163, 184, 0.2)',
+        borderRadius: '12px',
+        color: '#f1f5f9',
+        boxShadow:
+          '0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.05)',
+        fontSize: '14px',
+        fontWeight: '500',
+        padding: '16px 20px',
+        minWidth: '320px',
+      },
+      duration: 4000,
     }"
   />
 </template>

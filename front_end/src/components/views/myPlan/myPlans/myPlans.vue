@@ -3,7 +3,7 @@ import { ref, watch } from 'vue';
 import PlanCard from '@/components/card/PlanCard/PlanCard.vue';
 import GridCardListContainer from '@/components/common/GridCardListContainer/GridCardListContainer.vue';
 import AddPlanCard from '@/components/card/AddPlanCard/AddPlanCard.vue';
-import { getPlans, type PlansParams, type Plan, type Tag } from '@/services/api/domains/plan';
+import { type PlansParams, type Plan, type Tag, getMyPlans } from '@/services/api/domains/plan';
 
 interface Props {
   apiParams?: PlansParams;
@@ -22,9 +22,8 @@ const emit = defineEmits<{
 
 const plans = ref<Plan[]>([]);
 
-//TODO: 내 여행 계획으로 변경
 const fetchPlans = async () => {
-  const response = await getPlans(props.apiParams);
+  const response = await getMyPlans();
   plans.value = response.content;
 };
 

@@ -13,7 +13,7 @@ const resetError = () => {
   error.value = null;
 };
 
-onErrorCaptured((err, instance, info) => {
+onErrorCaptured((err, info) => {
   error.value = err;
   console.error('[AsyncContainer]', err, info);
 

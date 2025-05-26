@@ -1,45 +1,286 @@
 <template>
   <div class="h-full overflow-y-auto">
-    <div class="flex items-center border-b border-white/20 bg-slate-900/80 p-2">
-      <Button
-        variant="ghost"
-        size="icon"
-        class="mr-2 h-8 w-8 text-gray-300 hover:bg-white/10 hover:text-white"
-        @click="goBack"
-      >
-        <ChevronLeft class="h-5 w-5" />
-      </Button>
-      <h3 class="text-lg font-semibold text-white">여행 계획 상세</h3>
+    <div class="flex items-center justify-between border-b border-white/20 bg-slate-900/80 p-2">
+      <div class="flex items-center">
+        <Button
+          variant="ghost"
+          size="icon"
+          class="mr-2 h-8 w-8 text-gray-300 hover:bg-white/10 hover:text-white"
+          @click="goBack"
+        >
+          <ChevronLeft class="h-5 w-5" />
+        </Button>
+        <h3 class="text-lg font-semibold text-white">여행 계획 상세</h3>
+      </div>
+
+      <div v-if="isModifyPage" class="flex items-center gap-2">
+        <!-- 공유 버튼 -->
+        <Button
+          variant="outline"
+          size="sm"
+          class="border-blue-500/50 bg-blue-900/30 text-blue-300 hover:bg-blue-800/50 hover:text-blue-200"
+          :disabled="isGeneratingShare"
+          @click="handleSharePlan"
+        >
+          <Share2 class="mr-1 h-4 w-4" />
+          {{ isGeneratingShare ? '생성 중...' : '공유하기' }}
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          class="border-purple-500/50 bg-purple-900/30 text-purple-300 hover:bg-purple-800/50 hover:text-purple-200"
+          @click="handleTogglePlanInfoEdit"
+        >
+          계획 정보 수정
+        </Button>
+      </div>
     </div>
 
     <AsyncContainer :loadingComponent="PlanDetailSkeleton" :errorComponent="PlanDetailError">
-      <PlanDetail :planId="planId" />
+      <PlanDetailContent :planId="planId" @moveToAttractionSearch="handleMoveToAttractionSearch" />
     </AsyncContainer>
+
+    <!-- 여행 계획 정보 수정 모달 -->
+    <PlanFormModal
+      :isOpen="isPlanInfoEditOpen"
+      :isEditMode="true"
+      :initialData="planStore.currentPlan"
+      :isSubmitting="isSubmittingEdit"
+      @update:open="isPlanInfoEditOpen = $event"
+      @submit="handlePlanInfoSubmit"
+    />
+
+    <!-- 공유 링크 모달 -->
+    <Dialog :open="isShareModalOpen" @update:open="isShareModalOpen = $event">
+      <DialogContent class="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle class="text-white">여행 계획 공유</DialogTitle>
+          <DialogDescription class="text-gray-400">
+            아래 링크를 복사하여 다른 사람들과 여행 계획을 공유하세요.
+          </DialogDescription>
+        </DialogHeader>
+        <div class="flex items-center space-x-2">
+          <div class="grid flex-1 gap-2">
+            <Label for="link" class="sr-only">링크</Label>
+            <Input
+              id="link"
+              :value="shareLink"
+              readonly
+              class="border-slate-600 bg-slate-800 text-white"
+            />
+          </div>
+          <Button type="submit" size="sm" class="px-3" @click="copyShareLink">
+            <span class="sr-only">복사</span>
+            <Copy class="h-4 w-4" />
+          </Button>
+        </div>
+        <DialogFooter class="sm:justify-start">
+          <DialogClose asChild>
+            <Button type="button" variant="secondary">닫기</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { ChevronLeft } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
+import { ChevronLeft, Share2, Copy } from 'lucide-vue-next';
 import AsyncContainer from '@/components/AsyncContainer/AsyncContainer.vue';
 import { Button } from '@/components/ui/button';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
   PlanDetailError,
   PlanDetailSkeleton,
-  PlanDetail,
+  PlanDetailContent,
 } from '@/components/views/plan/PlanDetail';
+import PlanFormModal from '@/components/views/plan/PlanFormModal.vue';
+import { usePlanStore } from '@/stores/plan';
+import {
+  updatePlanInfo,
+  updatePlanSchedule,
+  checkLock,
+  type CreatePlanRequest,
+  type UpdatePlanInfoRequest,
+  type UpdatePlanScheduleRequest,
+} from '@/services/api/domains/plan';
+import { getShareLink } from '@/services/api/domains/stella';
 import { ROUTES } from '@/router/routes';
+import { useAuthStore } from '@/stores/auth';
+
+const authStore = useAuthStore();
+
+const route = useRoute();
+/**
+ * 현재 라우트가 편집 화면인지 확인
+ */
+const isModifyPage = computed(() => {
+  return route.name === ROUTES.PLAN_MODIFY.name;
+});
 
 // Vue Router
 const router = useRouter();
-const route = useRoute();
+const planStore = usePlanStore();
 
 // planId 계산 속성
 const planId = computed(() => Number(route.params.planId));
 
-// 뒤로 가기
+// 상태 관리
+const isPlanInfoEditOpen = ref(false);
+const isSubmittingEdit = ref(false);
+const isGeneratingShare = ref(false);
+const isShareModalOpen = ref(false);
+const shareLink = ref('');
+
+const emit = defineEmits<{
+  (e: 'moveToAttractionSearch', date: string): void;
+}>();
+
+/**
+ * 여행지 추가 버튼 클릭 핸들러
+ * @param date - 선택된 날짜
+ */
+const handleMoveToAttractionSearch = (date: string) => {
+  emit('moveToAttractionSearch', date);
+};
+
+/**
+ * 여행계획 정보 수정 모달 열기
+ */
+const handleTogglePlanInfoEdit = () => {
+  isPlanInfoEditOpen.value = true;
+};
+
+/**
+ * 공유 링크 생성 핸들러
+ */
+const handleSharePlan = async () => {
+  if (!planStore.currentPlan || isGeneratingShare.value) return;
+
+  try {
+    isGeneratingShare.value = true;
+
+    // currentPlan을 JSON 문자열로 변환
+    const stellaData = JSON.stringify(planStore.currentPlan);
+
+    const response = await getShareLink({
+      planId: planStore.currentPlan.planId,
+      stellaData,
+    });
+
+    shareLink.value = `${window.location.origin}/shared/${response.stellaLink}`;
+    isShareModalOpen.value = true;
+
+    toast.success('공유 링크가 생성되었습니다!');
+  } catch (error) {
+    console.error('공유 링크 생성 실패:', error);
+    toast.error('공유 링크 생성에 실패했습니다', {
+      description: '잠시 후 다시 시도해주세요.',
+      duration: 4000,
+    });
+  } finally {
+    isGeneratingShare.value = false;
+  }
+};
+
+/**
+ * 공유 링크 복사
+ */
+const copyShareLink = async () => {
+  try {
+    await navigator.clipboard.writeText(shareLink.value);
+    toast.success('링크가 클립보드에 복사되었습니다!');
+  } catch (error) {
+    console.error('링크 복사 실패:', error);
+    toast.error('링크 복사에 실패했습니다');
+  }
+};
+
+/**
+ * 여행계획 정보 수정 제출 핸들러
+ * @param formData - 수정된 폼 데이터
+ */
+const handlePlanInfoSubmit = async (formData: CreatePlanRequest) => {
+  if (isSubmittingEdit.value || !planStore.currentPlan) return;
+
+  try {
+    isSubmittingEdit.value = true;
+
+    const originalPlan = planStore.currentPlan;
+
+    // 일정 정보가 변경되었는지 확인
+    const isScheduleChanged =
+      formData.startDate !== originalPlan.startDate || formData.endDate !== originalPlan.endDate;
+
+    if (isScheduleChanged) {
+      // 일정 변경 시 락 확인
+      const lockResponse = await checkLock(originalPlan.planId);
+
+      if (lockResponse.lockStatus && lockResponse.userId !== authStore.user?.id) {
+        toast.error('다른 사용자가 수정 중입니다', {
+          description: '잠시 후 다시 시도해주세요.',
+          duration: 4000,
+        });
+        return;
+      }
+
+      // 일정 정보 업데이트 (락 확인 필요)
+      const scheduleData: UpdatePlanScheduleRequest = {
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+      };
+
+      await updatePlanSchedule(originalPlan.planId, scheduleData);
+    }
+
+    // 기본 정보 업데이트 (락 확인 불필요)
+    const infoData: UpdatePlanInfoRequest = {
+      title: formData.title,
+      description: formData.description,
+      tags: formData.tags,
+      isPublic: formData.isPublic,
+    };
+
+    const updatedPlanResponse = await updatePlanInfo(originalPlan.planId, infoData);
+
+    planStore.setPlanDetail(updatedPlanResponse);
+
+    toast.success('여행 계획이 성공적으로 수정되었습니다!', {
+      description: `${formData.title} 계획이 업데이트되었습니다.`,
+      duration: 4000,
+    });
+
+    isPlanInfoEditOpen.value = false;
+  } catch (error) {
+    console.error('계획 수정 실패:', error);
+
+    toast.error('계획 수정에 실패했습니다', {
+      description: '잠시 후 다시 시도해주세요.',
+      duration: 4000,
+    });
+  } finally {
+    isSubmittingEdit.value = false;
+  }
+};
+
+/**
+ * 뒤로 가기
+ */
 const goBack = () => {
-  router.push({ name: ROUTES.PLANS.name });
+  router.back();
 };
 </script>

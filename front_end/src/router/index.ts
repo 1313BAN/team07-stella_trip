@@ -42,6 +42,15 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
+        path: ROUTES.MY_PAGE.path,
+        name: ROUTES.MY_PAGE.name,
+        component: () => import('@/views/MyPage.vue'),
+        meta: {
+          title: ROUTES.MY_PAGE.title,
+        },
+        children: [],
+      },
+      {
         path: ROUTES.PLAN_MODIFY.path,
         name: ROUTES.PLAN_MODIFY.name,
         component: () => import('@/views/PlanModify.vue'),
@@ -80,6 +89,15 @@ const routes: Array<RouteRecordRaw> = [
         ],
       },
     ],
+  },
+
+  {
+    path: ROUTES.SHARED.path,
+    name: ROUTES.SHARED.name,
+    component: () => import('@/views/SharedPlan.vue'),
+    meta: {
+      title: ROUTES.SHARED.title,
+    },
   },
 
   {

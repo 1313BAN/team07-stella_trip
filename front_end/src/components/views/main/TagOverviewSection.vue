@@ -8,28 +8,15 @@
 
       <!-- 인기 명소 섹션 -->
       <AsyncContainer
+        v-for="Id in contentTypeList"
+        :key="Id.value"
         :loadingComponent="AttractionsSkeleton"
         :errorComponent="AttractionsError"
-        title="인기 명소"
+        :title="`인기 ${contentTypeNameKR[Id.value as keyof typeof contentTypeNameKR]}`"
       >
         <AttractionsSection
-          title="인기 명소"
-          @cardClick="handleAttractionCardClick"
-          @likeClick="handleAttractionLikeClick"
-          @tagClick="handleAttractionTagClick"
-          @moreClick="() => handleMoreClick(12)"
-        />
-      </AsyncContainer>
-
-      <!-- 인기 문화 시설 섹션 -->
-      <AsyncContainer
-        :loadingComponent="AttractionsSkeleton"
-        :errorComponent="AttractionsError"
-        title="인기 문화 시설"
-      >
-        <AttractionsSection
-          title="인기 문화 시설"
-          :apiParams="{ contentTypeId: 14 }"
+          :title="`인기 ${contentTypeNameKR[Id.value as keyof typeof contentTypeNameKR]}`"
+          :contentType="Number(Id.value)"
           @cardClick="handleAttractionCardClick"
           @likeClick="handleAttractionLikeClick"
           @tagClick="handleAttractionTagClick"
@@ -43,20 +30,62 @@
 <script setup lang="ts">
 import AsyncContainer from '@/components/AsyncContainer/AsyncContainer.vue';
 
-import { type Attraction } from '@/services/api/domains/attraction';
+import { type Attraction } from '@/services/api/domains/attraction/types';
 import { PopularTagsError, PopularTagsSection, PopularTagsSkeleton } from './PopularTagsSection';
 import { AttractionsError, AttractionsSection, AttractionsSkeleton } from './AttractionsSection';
+import { contentTypeNameKR, contentTypeList } from '@/constants/constant';
+import router from '@/router';
+import { ROUTES } from '@/router/routes';
+import { deleteAttractionLike, postAttractionLike } from '@/services/api/domains/attraction';
+import { toast } from 'vue-sonner';
 
 const handleAttractionCardClick = (attraction: Attraction) => {
-  console.log('관광지 카드 클릭:', attraction.name);
+  router.push({
+    name: ROUTES.ATTRACTION.name,
+    query: { keyword: attraction.name, selectedAttractionId: attraction.attractionId.toString() },
+  });
 };
 
 const handleAttractionLikeClick = (attraction: Attraction) => {
-  console.log('관광지 좋아요 클릭:', attraction.name);
+  if (attraction.isLiked) {
+    attraction.isLiked = false;
+    attraction.likeCount = attraction.likeCount == 0 ? 0 : attraction.likeCount - 1;
+    deleteAttractionLike(attraction.attractionId)
+      .then(() => {
+        toast('관광지 좋아요 취소 성공');
+      })
+      .catch(() => {
+        toast('관광지 좋아요 취소 실패');
+        // 원래 상태로 롤백
+        attraction.isLiked = !attraction.isLiked;
+        attraction.likeCount = attraction.isLiked
+          ? attraction.likeCount + 1
+          : attraction.likeCount - 1;
+      });
+  } else {
+    attraction.isLiked = true;
+    attraction.likeCount += 1;
+    // API 호출 및 상태 업데이트
+    postAttractionLike(attraction.attractionId)
+      .then(() => {
+        toast('관광지 좋아요 상태 업데이트 성공');
+      })
+      .catch(() => {
+        toast('관광지 좋아요 상태 업데이트 실패:');
+        // 원래 상태로 롤백
+        attraction.isLiked = !attraction.isLiked;
+        attraction.likeCount = attraction.isLiked
+          ? attraction.likeCount + 1
+          : attraction.likeCount - 1;
+      });
+  }
 };
 
 const handleAttractionTagClick = (contentType: number) => {
-  console.log('관광지 태그(컨텐츠 타입) 클릭:', contentType);
+  router.push({
+    name: ROUTES.ATTRACTION.name,
+    query: { contentTypeIds: [contentType.toString()] },
+  });
 };
 
 const handleMoreClick = (contentType: number) => {

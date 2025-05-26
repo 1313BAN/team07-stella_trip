@@ -42,6 +42,7 @@ export const setupInterceptors = (api: AxiosInstance): void => {
       if (error.response) {
         switch (error.response.status) {
           case 401:
+          case 403:
             authStore.clearAuth();
             // 로그인 페이지로 리다이렉션 로직 추가
             break;

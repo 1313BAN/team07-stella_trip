@@ -15,10 +15,11 @@
               :class="{ '-translate-y-full': isScrollingDown && scrollY > 100 }"
             >
               <PlanFilter
-                ref="filterComponentRef"
+                :filters="currentFilters"
                 :isScrollingDown="isScrollingDown"
                 :scrollY="scrollY"
                 @filter="handleFilterChange"
+                @clearFilter="clearFilter"
               />
             </div>
             <div
@@ -31,8 +32,8 @@
                 :errorComponent="FilteredPlansError"
               >
                 <FilteredPlans
+                  :filter="currentFilters"
                   :parentScrollContainer="scrollContainerRef"
-                  :apiParams="{ page: 1, size: 100 }"
                   @cardClick="handlePlanCardClick"
                   @likeClick="handlePlanLikeClick"
                   @tagClick="handlePlanTagClick"
@@ -61,33 +62,48 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, reactive, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import AsyncContainer from '@/components/AsyncContainer/AsyncContainer.vue';
 import MapContainer from '@/components/map/MapContainer.vue';
 import MapError from '@/components/map/MapError.vue';
+import PlanFilter from '@/components/views/plan/PlanFilter.vue';
+import { type PlansParams, type PlansSortOption } from '@/services/api/domains/plan';
 import {
   FilteredPlansSkeleton,
   FilteredPlans,
   FilteredPlansError,
 } from '@/components/views/plan/FilteredPlans';
-import PlanFilter from '@/components/views/plan/PlanFilter.vue';
 import CommonSkeleton from '@/components/skeleton/CommonSkeleton/CommonSkeleton.vue';
 import { type Plan, type Tag } from '@/services/api/domains/plan';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { useMapState } from '@/composables/useMapState';
 import { useScroll } from '@/composables/useScroll';
-import { usePlanFilter } from '@/composables/usePlanFilter';
 import { ROUTES } from '@/router/routes';
+import { postPlanLike, deletePlanLike } from '@/services/api/domains/plan';
+import { toast } from 'vue-sonner';
+import { useAuthStore } from '@/stores/auth';
 
 // Vue Router
 const router = useRouter();
+const route = useRoute();
 
 // 상태 관리
 const scrollContainerRef = ref<HTMLElement | null>(null);
 const { mapRef, mapLevel, mapCenter, selectPlan } = useMapState();
-const { filterComponentRef, handleFilterChange, closeFilterPanel } = usePlanFilter();
+const filterComponentRef = ref<InstanceType<typeof PlanFilter> | null>(null);
 const { isScrollingDown, scrollY, handleScroll } = useScroll();
+const currentFilters = reactive<PlansParams>({
+  page: route.query.page ? Number(route.query.page) || 1 : 1,
+  size: route.query.size ? Number(route.query.size) || 20 : 20,
+  search: route.query.search ? String(route.query.search) : '',
+  maxDuration: route.query.maxDuration ? Number(route.query.maxDuration) || undefined : undefined,
+  minDuration: route.query.minDuration ? Number(route.query.minDuration) || undefined : undefined,
+  userName: route.query.userName ? String(route.query.userName) : '',
+  sort: route.query.sort
+    ? (String(route.query.sort) as PlansSortOption)
+    : ('recent' as PlansSortOption),
+});
 
 // 지도 리사이즈 핸들러
 const handleMapResize = () => {
@@ -108,12 +124,97 @@ const handlePlanCardClick = (plan: Plan) => {
   });
 };
 
+const handleFilterChange = (filters: PlansParams) => {
+  currentFilters.search = filters.search;
+  currentFilters.maxDuration = filters.maxDuration;
+  currentFilters.minDuration = filters.minDuration;
+  currentFilters.userName = filters.userName;
+  currentFilters.page = filters.page;
+  currentFilters.size = filters.size;
+  currentFilters.sort = filters.sort as PlansSortOption;
+  router.replace({
+    path: ROUTES.PLANS.path,
+    query: {
+      ...currentFilters,
+    },
+  });
+};
+
+const closeFilterPanel = () => {
+  if (filterComponentRef.value) {
+    filterComponentRef.value.closeFilterPanel();
+  }
+};
+
+const isLoggedIn = computed(() => {
+  const authStore = useAuthStore();
+  return authStore.isAuthenticated;
+});
+
 // 이벤트 핸들러
 const handlePlanLikeClick = (plan: Plan) => {
-  console.log('여행 계획 좋아요 클릭:', plan.title);
+  if (!isLoggedIn.value) {
+    toast('로그인이 필요한 기능입니다.');
+    return;
+  }
+  if (!plan.isLiked) {
+    postPlanLike(plan.planId)
+      .then(() => {
+        plan.isLiked = true;
+        plan.likeCount = (plan.likeCount || 0) + 1; // 좋아요 수 증가
+        toast('여행 계획 좋아요 추가 성공', {
+          description: `여행 계획 "${plan.title}"에 좋아요가 추가되었습니다.`,
+        });
+      })
+      .catch(() => {
+        toast.error('여행 계획 좋아요 추가 실패', {
+          description: `여행 계획 "${plan.title}"에 좋아요 추가에 실패했습니다.`,
+        });
+        plan.isLiked = false; // 실패 시 원래 상태로 되돌리기
+      });
+  } else {
+    deletePlanLike(plan.planId)
+      .then(() => {
+        plan.isLiked = false;
+        plan.likeCount = (plan.likeCount || 0) - 1; // 좋아요 수 감소
+        toast('여행 계획 좋아요 제거 성공', {
+          description: `여행 계획 "${plan.title}"의 좋아요가 제거되었습니다.`,
+        });
+      })
+      .catch(() => {
+        toast.error('여행 계획 좋아요 제거 실패', {
+          description: `여행 계획 "${plan.title}"의 좋아요 제거에 실패했습니다.`,
+        });
+        plan.isLiked = true; // 실패 시 원래 상태로 되돌리기
+      });
+  }
 };
 
 const handlePlanTagClick = (tag: Tag) => {
-  console.log('여행 계획 태그 클릭:', tag.name);
+  currentFilters.search = tag.name;
+  currentFilters.maxDuration = undefined;
+  currentFilters.minDuration = undefined;
+  currentFilters.userName = undefined;
+  currentFilters.sort = 'recent';
+  router.replace({
+    path: ROUTES.PLANS.path,
+    query: {
+      ...currentFilters,
+    },
+  });
+};
+
+const clearFilter = () => {
+  currentFilters.search = undefined;
+  currentFilters.maxDuration = undefined;
+  currentFilters.minDuration = undefined;
+  currentFilters.userName = undefined;
+  currentFilters.sort = 'recent';
+  router.replace({
+    path: ROUTES.PLANS.path,
+    query: {
+      ...currentFilters,
+    },
+  });
 };
 </script>

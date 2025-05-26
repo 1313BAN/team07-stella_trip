@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 import { fn } from '@storybook/test';
 import AttractionCard from './AttractionCard.vue';
-import type { Attraction } from '@/services/api/domains/attraction';
+import type { Attraction } from '@/services/api/domains/attraction/types';
+import { ContentTypeId } from '@/constants/constant';
 
 interface AttractionCardProps {
   attraction: Attraction;
@@ -64,7 +65,7 @@ const defaultAttraction: Attraction = {
   image: 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=400&h=250&fit=crop',
   rating: 4.8,
 
-  contentType: 1,
+  contentType: ContentTypeId.TOURIST_SPOT,
   isLiked: false,
   likeCount: 756,
   latitude: 0,
@@ -218,7 +219,7 @@ export const LowRating: Story = {
       address: '제주특별자치도 어딘가',
       image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=250&fit=crop',
       rating: 2.8,
-      contentType: 13,
+      contentType: ContentTypeId.TOURIST_SPOT,
       isLiked: false,
       likeCount: 23,
       latitude: 0,
@@ -290,7 +291,7 @@ export const GridAttractions: Story = {
           image:
             'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=250&fit=crop',
           rating: 4.2,
-          contentType: 11,
+          contentType: ContentTypeId.TOURIST_SPOT,
           isLiked: false,
           likeCount: 342,
           latitude: 0,
@@ -303,7 +304,7 @@ export const GridAttractions: Story = {
           address: '제주특별자치도 서귀포시 안덕면',
           image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=250&fit=crop',
           rating: 4.6,
-          contentType: 11,
+          contentType: ContentTypeId.TOURIST_SPOT,
           isLiked: true,
           likeCount: 876,
           latitude: 0,
@@ -317,7 +318,7 @@ export const GridAttractions: Story = {
           image:
             'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=400&h=250&fit=crop',
           rating: 3.9,
-          contentType: 11,
+          contentType: ContentTypeId.TOURIST_SPOT,
           isLiked: false,
           likeCount: 234,
           latitude: 0,
@@ -330,7 +331,7 @@ export const GridAttractions: Story = {
           address: '제주특별자치도 서귀포시',
           image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=250&fit=crop',
           rating: 4.4,
-          contentType: 11,
+          contentType: ContentTypeId.TOURIST_SPOT,
           isLiked: false,
           likeCount: 567,
           latitude: 0,
@@ -343,7 +344,7 @@ export const GridAttractions: Story = {
           address: '제주특별자치도 전 지역',
           image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=250&fit=crop',
           rating: 4.7,
-          contentType: 11,
+          contentType: ContentTypeId.TOURIST_SPOT,
           isLiked: true,
           likeCount: 1234,
           latitude: 0,

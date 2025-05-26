@@ -14,11 +14,11 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  click: [];
+  likeClick: [];
 }>();
 
 const handleClick = () => {
-  emit('click');
+  emit('likeClick');
 };
 
 const sizeConfig = {
@@ -50,7 +50,7 @@ const config = sizeConfig[props.size];
     ]"
     :ariaLabel="isLiked ? '좋아요 취소하기' : '좋아요 하기'"
     :ariaPressed="isLiked"
-    @click="handleClick"
+    @click.stop="handleClick"
   >
     <Heart
       :class="[

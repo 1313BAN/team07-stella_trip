@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { Calendar } from 'lucide-vue-next';
 import LikeButton from '@/components/common/LikeButton/LikeButton.vue';
 import Constellation from '@/components/common/Constellation/Constellation.vue';
@@ -13,31 +13,6 @@ interface Props {
 
 const props = defineProps<Props>();
 
-// 기본 별자리 정의
-const defaultConstellation = {
-  stars: [
-    { x: 30, y: 20, r: 2, brightness: 1, delay: 0 },
-    { x: 50, y: 30, r: 1.5, brightness: 0.9, delay: 0.3 },
-    { x: 70, y: 20, r: 2, brightness: 0.8, delay: 0.6 },
-    { x: 50, y: 50, r: 2.5, brightness: 1, delay: 0.9 },
-    { x: 30, y: 80, r: 1.5, brightness: 0.7, delay: 1.2 },
-    { x: 50, y: 70, r: 2, brightness: 0.85, delay: 1.5 },
-    { x: 70, y: 80, r: 1.5, brightness: 0.75, delay: 1.8 },
-  ],
-  connections: [
-    { from: 0, to: 1 },
-    { from: 1, to: 2 },
-    { from: 1, to: 3 },
-    { from: 3, to: 4 },
-    { from: 3, to: 5 },
-    { from: 3, to: 6 },
-    { from: 4, to: 5 },
-    { from: 5, to: 6 },
-  ],
-};
-
-// computed 속성을 사용하여 constellation이 없을 경우 기본값 제공
-const constellation = computed(() => props.plan.stella || defaultConstellation);
 const isHovered = ref(false);
 
 const emit = defineEmits<{
@@ -63,7 +38,10 @@ const handleLikeClick = () => {
 };
 
 const handleTagClick = (index: number) => {
-  emit('tagClick', props.plan.tags[index]);
+  const tag = props.plan.tags[index];
+  if (tag) {
+    emit('tagClick', tag);
+  }
 };
 </script>
 
@@ -72,7 +50,7 @@ const handleTagClick = (index: number) => {
     class="group w-full max-w-72 min-w-56 cursor-pointer overflow-hidden rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-purple-400/50 hover:bg-white/20 hover:shadow-xl hover:shadow-purple-500/25 focus:scale-105 focus:border-purple-400/50 focus:bg-white/20 focus:ring-2 focus:ring-purple-400/50 focus:outline-none"
     role="button"
     tabindex="0"
-    :ariaLabel="`${plan.title} 여행 루트 상세보기`"
+    :aria-label="`${plan.title} 여행 루트 상세보기`"
     @click="handleCardClick"
     @mouseenter="isHovered = true"
     @mouseleave="isHovered = false"
@@ -88,11 +66,16 @@ const handleTagClick = (index: number) => {
       <!-- 별자리 SVG -->
       <div class="absolute inset-0 transition-transform duration-500 group-hover:scale-105">
         <Constellation
-          :stars="constellation.stars"
-          :connections="constellation.connections"
+          v-if="props.plan.stella"
+          :nodes="props.plan.stella.nodes"
+          :edges="props.plan.stella.edges"
           :backgroundStars="backgroundStars"
           :isHovered="isHovered"
         />
+        <!-- 별자리가 없을 때 기본 배경 -->
+        <div v-else class="flex h-full w-full items-center justify-center text-purple-300/50">
+          <Calendar class="h-16 w-16" />
+        </div>
       </div>
     </div>
 
@@ -115,14 +98,14 @@ const handleTagClick = (index: number) => {
       <div class="flex flex-col gap-1">
         <div class="flex flex-wrap gap-2">
           <TagComp
-            v-for="tag in plan.tags.slice(0, 3)"
+            v-for="(tag, index) in plan.tags.slice(0, 3)"
             :key="tag.tagId"
             :label="tag.name"
-            @tagClick="handleTagClick"
-          ></TagComp>
+            @tagClick="handleTagClick(index)"
+          />
         </div>
         <div class="flex items-center gap-2 text-purple-200">
-          <LikeButton transparent :isLiked="plan.isLiked" size="sm" @click.stop="handleLikeClick" />
+          <LikeButton transparent :isLiked="plan.isLiked" size="sm" @likeClick="handleLikeClick" />
           <span class="text-sm">{{ formatLikeCount(plan.likeCount) }} 명이 좋아해요</span>
         </div>
       </div>

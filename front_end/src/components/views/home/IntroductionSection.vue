@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import StellaCard from '@/components/card/StellaCard/StellaCard.vue';
 import useInView from '@/composables/useInView';
 import { useStaggeredAnimation } from '@/composables/useStaggeredAnimation';
 import { ref } from 'vue';
@@ -160,7 +159,7 @@ const constellations = [
                   : 'brightness(0.8) contrast(0.9)',
               }"
             >
-              <StellaCard />
+              <!-- <StellaCard /> -->
             </div>
 
             <!-- 중앙 글로우 효과 -->

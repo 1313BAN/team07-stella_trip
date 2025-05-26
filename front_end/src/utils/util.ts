@@ -1,5 +1,4 @@
-import { AttractionContentType } from '@/constants/constant';
-import type { AttractionContentTypeCode } from '@/types/type';
+import { ContentTypeId, contentTypeNameKR } from '@/constants/constant';
 
 interface StarsData {
   full: number;
@@ -67,14 +66,16 @@ export const calculatePeriod = (startDate: string, endDate: string): string => {
   return `${nights}박 ${days}일`;
 };
 
-/**
- * 숫자 코드를 받아 해당하는 명소 타입 이름을 반환
- * @param code - 명소 타입 코드
- * @returns 명소 타입 이름 또는 '기타'
- */
-export function getAttractionTypeName(code: number): string {
-  if (code in AttractionContentType) {
-    return AttractionContentType[code as AttractionContentTypeCode];
-  }
-  return '기타';
+// ContentTypeId로 한글 이름 가져오기
+export function getContentTypeNameKR(id: ContentTypeId | null): string {
+  if (id === null) return '알 수 없음';
+  return contentTypeNameKR[id as ContentTypeId] || '알 수 없음';
+}
+
+// 모든 ContentTypeId와 한글 이름을 배열로 가져오기 (선택 컴포넌트 등에 활용 가능)
+export function getAllContentTypes(): { id: ContentTypeId; name: string }[] {
+  return Object.entries(contentTypeNameKR).map(([id, name]) => ({
+    id: Number(id) as ContentTypeId,
+    name,
+  }));
 }

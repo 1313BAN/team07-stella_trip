@@ -8,16 +8,7 @@
             <component :is="Component" :currentDate="selectedDate" />
           </template>
           <template v-else>
-            <AsyncContainer
-              :loadingComponent="PlanDetailSkeleton"
-              :errorComponent="PlanDetailError"
-            >
-              <PlanDetail
-                :planId="planId"
-                class="h-full overflow-x-hidden overflow-y-auto"
-                @addAttraction="handleMoveToAttractionSearch"
-              />
-            </AsyncContainer>
+            <PlanDetail @moveToAttractionSearch="handleMoveToAttractionSearch" />
           </template>
         </router-view>
       </ResizablePanel>
@@ -59,21 +50,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onUnmounted, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import AsyncContainer from '@/components/AsyncContainer/AsyncContainer.vue';
 import MapContainer from '@/components/map/MapContainer.vue';
 import MapError from '@/components/map/MapError.vue';
 import {
-  PlanDetailError,
-  PlanDetailSkeleton,
-  PlanDetail,
-} from '@/components/views/plan/PlanDetail';
-import {
   AttractionDetail,
   AttractionDetailError,
   AttractionDetailSkeleton,
 } from '@/components/views/attraction/AttractionDetail';
+import PlanDetail from '@/views/PlanDetail.vue';
 import CommonSkeleton from '@/components/skeleton/CommonSkeleton/CommonSkeleton.vue';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { usePlanStore } from '@/stores/plan';
@@ -89,27 +76,40 @@ const { mapRef, mapLevel, mapCenter, selectedAttraction } = useMapState();
 const planId = computed(() => Number(route.params.planId));
 const selectedDate = ref<string | null>(null);
 
+onUnmounted(() => {
+  planStore.clearPlan();
+});
+
+/**
+ * 지도 리사이즈 처리
+ */
 const handleMapResize = () => {
   if (mapRef.value) {
     mapRef.value.refreshMap();
   }
 };
 
+/**
+ * 여행지 검색 화면으로 이동
+ * @param date - 선택된 날짜
+ */
 const handleMoveToAttractionSearch = (date: string) => {
   selectedDate.value = date;
 
   router.push({
     name: ROUTES.PLAN_MODIFY_ATTRACTION.name,
     params: { planId: planId.value },
-    query: { date },
+    query: { date: date },
   });
 };
 
-// 여행지 추가 핸들러
+/**
+ * 여행지 추가 처리
+ * @param attractionId - 추가할 여행지 ID
+ */
 const handleAddAttraction = async (attractionId: number) => {
   if (!selectedDate.value || !planStore.currentPlan?.startDate) {
     throw new Error('필수 날짜 정보가 없습니다.');
-    return;
   }
   const dayIndex = calculateDayIndex(selectedDate.value, planStore.currentPlan?.startDate);
 
@@ -130,7 +130,12 @@ const handleAddAttraction = async (attractionId: number) => {
   router.back();
 };
 
-// dayIndex 계산 함수
+/**
+ * dayIndex 계산 함수
+ * @param selectedDate - 선택된 날짜
+ * @param planStartDate - 여행 시작 날짜
+ * @returns dayIndex (1부터 시작)
+ */
 function calculateDayIndex(selectedDate: string, planStartDate: string): number {
   if (!selectedDate || !planStartDate) {
     throw new Error('날짜 값이 유효하지 않습니다');
@@ -149,7 +154,9 @@ function calculateDayIndex(selectedDate: string, planStartDate: string): number 
   return dayDiff + 1;
 }
 
-// 여행지 상세 사이드바 닫기
+/**
+ * 여행지 상세 사이드바 닫기
+ */
 const closeAttractionDetail = () => {
   selectedAttraction.value = null;
 };
