@@ -16,7 +16,7 @@ export type RawNode = {
 };
 
 export type StellaNode = {
-  name: string;
+  name?: string;
   x: number;
   y: number;
   r?: number;
