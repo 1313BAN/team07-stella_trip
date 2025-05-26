@@ -45,7 +45,7 @@ const convertPlanToTravelSpots = () => {
   planStore.currentPlan.stella.nodes.forEach((node, index) => {
     spots.push({
       id: index,
-      name: node.name,
+      name: node.name!,
       x: node.x,
       y: node.y,
       visible: true,
