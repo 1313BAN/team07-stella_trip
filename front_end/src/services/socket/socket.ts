@@ -17,13 +17,11 @@ class SocketService {
         connectHeaders: {
           Authorization: token,
         },
-        debug: str => console.log('STOMP:', str),
         onConnect: () => {
           this.connected = true;
           resolve();
         },
         onStompError: frame => {
-          console.error('STOMP Error:', frame);
           reject(frame);
         },
       });
@@ -46,10 +44,15 @@ class SocketService {
   sendMessage(roomId: number, message: string): boolean {
     if (!this.client || !this.connected) return false;
 
-    this.client.publish({
-      destination: SOCKET_ENDPOINTS.PUBLISH_MESSAGE,
-      body: JSON.stringify({ roomId, message }),
-    });
+    try {
+      this.client.publish({
+        destination: SOCKET_ENDPOINTS.PUBLISH_MESSAGE,
+        body: JSON.stringify({ roomId, message }),
+      });
+      return true;
+    } catch {
+      return false;
+    }
     return true;
   }
 
