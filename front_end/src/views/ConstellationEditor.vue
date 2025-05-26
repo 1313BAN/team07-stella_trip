@@ -2,10 +2,11 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { usePlanStore } from '@/stores/plan';
-import { getShareLink } from '@/services/api/domains/stella'; // getShareLink API 함수 import
+import { getShareLink } from '@/services/api/domains/stella';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import ShareLinkModal from '@/components/views/myPlan/ShareLinkModal.vue';
 import { Eye, EyeOff, Trash2, X, Save, Info, Loader2 } from 'lucide-vue-next';
 
 interface TravelSpot {
@@ -14,7 +15,7 @@ interface TravelSpot {
   x: number;
   y: number;
   visible: boolean;
-  originalIndex: number; // 원본 인덱스 추가
+  originalIndex: number;
 }
 
 interface Edge {
@@ -31,8 +32,9 @@ const selectedNodes = ref<number[]>([]);
 const selectedEdge = ref<number | null>(null);
 const travelSpots = ref<TravelSpot[]>([]);
 const edges = ref<Edge[]>([]);
-const shareLink = ref<string>(''); // 공유 링크 저장용
-const isSaving = ref<boolean>(false); // 저장 상태 추적
+const shareLink = ref<string>('');
+const isSaving = ref<boolean>(false);
+const isShareModalOpen = ref<boolean>(false);
 
 const planId = computed(() => Number(route.params.planId));
 
@@ -47,7 +49,7 @@ const convertPlanToTravelSpots = () => {
       x: node.x,
       y: node.y,
       visible: true,
-      originalIndex: index, // 원본 인덱스 저장
+      originalIndex: index,
     });
   });
 
@@ -114,7 +116,6 @@ const handleSpotClick = (event: MouseEvent, spotId: number) => {
 
     if (selectedNodes.value.length === 2) {
       addEdge(selectedNodes.value[0], selectedNodes.value[1]);
-      // 연결선 생성 후 약간의 지연을 두고 선택 해제 (시각적 피드백을 위해)
       setTimeout(() => {
         selectedNodes.value = [];
       }, 200);
@@ -174,29 +175,18 @@ const saveConstellation = async () => {
       return;
     }
 
-    // visible이 true인 노드만 필터링하고 새로운 인덱스 매핑 생성
     const visibleNodes = travelSpots.value.filter(spot => spot.visible);
 
-    // 원본 ID를 새로운 인덱스로 매핑하는 객체 생성
     const idMapping: { [oldId: number]: number } = {};
     visibleNodes.forEach((spot, newIndex) => {
       idMapping[spot.id] = newIndex;
     });
 
-    console.log('ID 매핑:', idMapping);
-    console.log('원본 간선:', edges.value);
-
-    // 간선 데이터 변환: 원본 ID를 새로운 인덱스로 매핑
     const validEdgesForSave = edges.value
       .filter(edge => {
-        // 양 끝 노드가 모두 visible인 간선만 포함
         const fromSpot = travelSpots.value.find(s => s.id === edge.from);
         const toSpot = travelSpots.value.find(s => s.id === edge.to);
         const isValid = fromSpot?.visible && toSpot?.visible;
-
-        if (!isValid) {
-          console.log(`간선 ${edge.id} 제외됨: from=${edge.from}, to=${edge.to}`);
-        }
 
         return isValid;
       })
@@ -206,13 +196,10 @@ const saveConstellation = async () => {
           to: idMapping[edge.to],
         };
 
-        console.log(`간선 변환: ${edge.from}->${edge.to} => ${mappedEdge.from}->${mappedEdge.to}`);
-
         return mappedEdge;
       })
       .filter(
         edge =>
-          // 매핑된 인덱스가 유효한지 확인
           edge.from !== undefined &&
           edge.to !== undefined &&
           edge.from >= 0 &&
@@ -221,9 +208,6 @@ const saveConstellation = async () => {
           edge.to < visibleNodes.length
       );
 
-    console.log('저장될 간선:', validEdgesForSave);
-
-    // planStore.currentPlan을 복사하여 stella 데이터만 업데이트
     const updatedPlan = {
       ...planStore.currentPlan,
       stella: {
@@ -236,9 +220,6 @@ const saveConstellation = async () => {
       },
     };
 
-    console.log('저장될 데이터:', updatedPlan.stella);
-
-    // planStore의 currentPlan 업데이트
     planStore.currentPlan = updatedPlan;
 
     const stellaData = JSON.stringify(planStore.currentPlan);
@@ -250,10 +231,7 @@ const saveConstellation = async () => {
 
     shareLink.value = `${window.location.origin}/shared/${response.stellaLink}`;
 
-    console.log('별자리 데이터 저장 완료:', shareLink.value);
-
-    // 공유링크 복사
-    await copyToClipboard(shareLink.value);
+    isShareModalOpen.value = true;
   } catch (error) {
     console.error('공유 링크 생성 실패:', error);
   } finally {
@@ -261,19 +239,18 @@ const saveConstellation = async () => {
   }
 };
 
-const copyToClipboard = async (text: string) => {
-  try {
-    await navigator.clipboard.writeText(text);
-    console.log('공유링크가 클립보드에 복사되었습니다:', text);
-    // 성공 알림을 위해 잠시 버튼 텍스트 변경
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-  } catch (error) {
-    console.error('클립보드 복사 실패:', error);
-    // 클립보드 복사 실패 시에도 뒤로가기
-    router.back();
-  }
+/**
+ * 공유 링크 복사 성공 핸들러
+ */
+const handleCopySuccess = () => {
+  console.log('공유링크가 클립보드에 복사되었습니다:', shareLink.value);
+};
+
+/**
+ * 공유 링크 복사 에러 핸들러
+ */
+const handleCopyError = (error: Error) => {
+  console.error('클립보드 복사 실패:', error);
 };
 
 // 정적 배경 별들 생성
@@ -645,6 +622,15 @@ watch(
           </Tooltip>
         </div>
       </div>
+
+      <!-- 공유 링크 모달 -->
+      <ShareLinkModal
+        :isOpen="isShareModalOpen"
+        :shareLink="shareLink"
+        @update:open="isShareModalOpen = $event"
+        @copySuccess="handleCopySuccess"
+        @copyError="handleCopyError"
+      />
     </div>
   </TooltipProvider>
 </template>

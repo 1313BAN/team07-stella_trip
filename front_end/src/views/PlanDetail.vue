@@ -193,36 +193,13 @@
     </Dialog>
 
     <!-- 공유 링크 모달 -->
-    <Dialog :open="isShareModalOpen" @update:open="isShareModalOpen = $event">
-      <DialogContent class="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle class="text-white">여행 계획 공유</DialogTitle>
-          <DialogDescription class="text-gray-400">
-            아래 링크를 복사하여 다른 사람들과 여행 계획을 공유하세요.
-          </DialogDescription>
-        </DialogHeader>
-        <div class="flex items-center space-x-2">
-          <div class="grid flex-1 gap-2">
-            <Label for="link" class="sr-only">링크</Label>
-            <Input
-              id="link"
-              :value="shareLink"
-              readonly
-              class="border-slate-600 bg-slate-800 text-white"
-            />
-          </div>
-          <Button type="submit" size="sm" class="px-3" @click="copyShareLink">
-            <span class="sr-only">복사</span>
-            <Copy class="h-4 w-4" />
-          </Button>
-        </div>
-        <DialogFooter class="sm:justify-start">
-          <DialogClose asChild>
-            <Button type="button" variant="secondary">닫기</Button>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <ShareLinkModal
+      :isOpen="isShareModalOpen"
+      :shareLink="shareLink"
+      @update:open="isShareModalOpen = $event"
+      @copySuccess="handleCopySuccess"
+      @copyError="handleCopyError"
+    />
   </div>
 </template>
 
@@ -230,7 +207,7 @@
 import { computed, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { toast } from 'vue-sonner';
-import { ChevronLeft, Share2, Copy } from 'lucide-vue-next';
+import { ChevronLeft, Share2 } from 'lucide-vue-next';
 import AsyncContainer from '@/components/AsyncContainer/AsyncContainer.vue';
 import { Button } from '@/components/ui/button';
 import {
@@ -242,14 +219,13 @@ import {
   DialogTitle,
   DialogClose,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   PlanDetailError,
   PlanDetailSkeleton,
   PlanDetailContent,
 } from '@/components/views/plan/PlanDetail';
 import PlanFormModal from '@/components/views/plan/PlanFormModal.vue';
+import ShareLinkModal from '@/components/views/myPlan/ShareLinkModal.vue';
 import { usePlanStore } from '@/stores/plan';
 import {
   updatePlanInfo,
@@ -365,16 +341,18 @@ const handleDefaultConstellation = async () => {
 };
 
 /**
- * 공유 링크 복사
+ * 공유 링크 복사 성공 핸들러
  */
-const copyShareLink = async () => {
-  try {
-    await navigator.clipboard.writeText(shareLink.value);
-    toast.success('링크가 클립보드에 복사되었습니다!');
-  } catch (error) {
-    console.error('링크 복사 실패:', error);
-    toast.error('링크 복사에 실패했습니다');
-  }
+const handleCopySuccess = () => {
+  // 추가적인 성공 처리 로직이 필요하면 여기에 작성
+};
+
+/**
+ * 공유 링크 복사 에러 핸들러
+ */
+const handleCopyError = (error: Error) => {
+  console.error('링크 복사 에러:', error);
+  // 추가적인 에러 처리 로직이 필요하면 여기에 작성
 };
 
 /**
