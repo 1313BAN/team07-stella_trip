@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -69,7 +70,7 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // 이후 JWT로 바꿀꺼니 csrf 비활성화
-        http.csrf(customizer -> customizer.disable());
+        http.csrf(customizer -> customizer.disable()).cors(Customizer.withDefaults());
         // login form은 프론트로 분리할 예정이니 비활성화
         http.formLogin(customizer -> customizer.disable());
         // 이후 JWT로 바꿀꺼니 Authorization 헤더 비활성화
