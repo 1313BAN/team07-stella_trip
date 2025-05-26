@@ -445,7 +445,11 @@ onMounted(() => {
             zIndex: 20,
           }"
         >
-          ✦ {{ subtitle }} ✦
+          <div class="flex items-center justify-center">
+            <span class="mr-2">✦</span>
+            <span class="text-center whitespace-pre-line">{{ subtitle }}</span>
+            <span class="ml-2">✦</span>
+          </div>
         </div>
 
         <!-- 카드 필터 효과 -->
