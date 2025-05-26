@@ -247,12 +247,6 @@ const fadeInName = (callback: () => void) => {
 onMounted(() => {
   isCardComplete.value = false;
   startCardAnimation();
-
-  // 폰트 로드
-  const link = document.createElement('link');
-  link.href = 'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&display=swap';
-  link.rel = 'stylesheet';
-  document.head.appendChild(link);
 });
 </script>
 

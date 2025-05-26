@@ -36,4 +36,4 @@ export const ATTRACTION = {
 export const STELLA = {
   SHARE: 'v1/stella/create',
   LINK: (link: string) => `v1/stella/${link}`,
-};
+} as const;
