@@ -9,6 +9,7 @@ public interface StellaDAO {
 
     public Integer createStellaLink(@Param("stellaData") String stellaData,
                                 @Param("stellaLink") String stellaLink,
-                                @Param("planId") int planId);
+                                @Param("planId") int planId,
+                                @Param("stellaAI") String stellaAI);
     public StellaDTO getStellaLinkByStellaLink(@Param("stellaLink") String stellaLink);
 }

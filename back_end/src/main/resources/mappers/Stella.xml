@@ -8,12 +8,13 @@
         <result property="planId" column="plan_id"/>
         <result property="stellaData" column="stella_data"/>
         <result property="stellaLink" column="stella_link"/>
+        <result property="stellaAI" column="stellaAI"/>
     </resultMap>
 
 
     <insert id="createStellaLink">
-        INSERT INTO stella_link (plan_id, stella_data, stella_link)
-        VALUES (#{planId}, #{stellaData}, #{stellaLink})
+        INSERT INTO stella_link (plan_id, stella_data, stella_link, stellaAI)
+        VALUES (#{planId}, #{stellaData}, #{stellaLink}, CAST(#{stellaAI} AS JSON))
     </insert>
 
     <select id="getStellaLinkByStellaLink" resultMap="StellaResultMap">
