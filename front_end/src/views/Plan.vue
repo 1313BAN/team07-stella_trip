@@ -95,7 +95,7 @@ const filterComponentRef = ref<InstanceType<typeof PlanFilter> | null>(null);
 const { isScrollingDown, scrollY, handleScroll } = useScroll();
 const currentFilters = reactive<PlansParams>({
   page: route.query.page ? Number(route.query.page) || 1 : 1,
-  size: route.query.size ? Number(route.query.size) || 20 : 20,
+  size: route.query.size ? Number(route.query.size) || 100 : 100,
   search: route.query.search ? String(route.query.search) : '',
   maxDuration: route.query.maxDuration ? Number(route.query.maxDuration) || undefined : undefined,
   minDuration: route.query.minDuration ? Number(route.query.minDuration) || undefined : undefined,
