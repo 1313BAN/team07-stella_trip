@@ -56,13 +56,6 @@ const updateStarsAndConnections = () => {
   const xRange = maxX - minX || 1;
   const yRange = maxY - minY || 1;
 
-  stars.value = nodes.map(() => ({
-    x: ((nodes[nodes.indexOf(nodes.find(n => n.x)!)] - minX) / xRange) * 60 + 20,
-    y: ((nodes[nodes.indexOf(nodes.find(n => n.y)!)] - minY) / yRange) * 60 + 20,
-    size: 2 + Math.random() * 1.5,
-    highlight: 0,
-  }));
-
   // 올바른 좌표 정규화
   stars.value = nodes.map(node => ({
     x: ((node.x - minX) / xRange) * 60 + 20,
