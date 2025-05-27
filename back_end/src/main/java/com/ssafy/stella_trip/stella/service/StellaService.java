@@ -1,5 +1,9 @@
 package com.ssafy.stella_trip.stella.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssafy.stella_trip.ai.dto.TarotResult;
+import com.ssafy.stella_trip.ai.service.OpenAIService;
 import com.ssafy.stella_trip.dao.plan.PlanDAO;
 import com.ssafy.stella_trip.dao.stella.StellaDAO;
 import com.ssafy.stella_trip.plan.dto.PlanDTO;
@@ -8,6 +12,7 @@ import com.ssafy.stella_trip.plan.exception.UnauthorizedPlanAccessException;
 import com.ssafy.stella_trip.security.dto.JwtUserInfo;
 import com.ssafy.stella_trip.stella.dto.StellaDTO;
 import com.ssafy.stella_trip.stella.dto.request.StellaRequestDTO;
+import com.ssafy.stella_trip.stella.dto.response.StellaListResponseDTO;
 import com.ssafy.stella_trip.stella.dto.response.StellaResponseDTO;
 import com.ssafy.stella_trip.stella.exception.StellaNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +52,7 @@ public class StellaService {
 
                 stellaDAO.createStellaLink(stella.getStellaData(), randomLink, user.getUserId(), stella.getPlanId(), jsonString);
 
-                StellaResponseDTO responseDTO = new StellaResponseDTO(stella.getPlanId(), stella.getStellaData(), randomLink, aiResponse);
+                StellaResponseDTO responseDTO = new StellaResponseDTO(stella.getPlanId(), user.getUserId(), stella.getStellaData(), randomLink, aiResponse);
                 redisTemplate.opsForValue().set(randomLink, responseDTO, 7, TimeUnit.DAYS); // 1 day expiration
                 return responseDTO;
             }
@@ -60,7 +65,14 @@ public class StellaService {
         List<StellaDTO> stella = stellaDAO.getStellaLinkByUserId(userId);
 
         List<StellaResponseDTO> responseDTO = stella.stream()
-                .map(s -> new StellaResponseDTO(s.getPlanId(), s.getUserId(), s.getStellaData(), s.getStellaLink()))
+                .map(s -> {
+                    try {
+                        TarotResult aiResponse = objectMapper.readValue(s.getStellaAI(), TarotResult.class);
+                        return new StellaResponseDTO(s.getPlanId(), s.getUserId(), s.getStellaData(), s.getStellaLink(), aiResponse);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException("AI 응답 변환에 실패했습니다.", e);
+                    }
+                })
                 .toList();
 
         return new StellaListResponseDTO(responseDTO);
