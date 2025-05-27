@@ -146,7 +146,9 @@
             <FavoriteAttraction />
           </div>
 
-          <div v-else-if="activeTab === 'myCard'" class="space-y-6"></div>
+          <div v-else-if="activeTab === 'myCard'" class="space-y-6">
+            <MyCardList />
+          </div>
         </div>
       </div>
     </div>
@@ -162,6 +164,7 @@ import { toast } from 'vue-sonner';
 import { getUserInfo, putBasicUserInfo, putPasswordChange } from '@/services/api/domains/user';
 import FavoritePlan from '@/components/views/myPage/FavoritePlan.vue';
 import FavoriteAttraction from '@/components/views/myPage/FavoriteAttraction.vue';
+import MyCardList from '@/components/views/myPage/MyCardList.vue';
 
 // 활성 탭
 const activeTab = ref('profile');
@@ -171,7 +174,7 @@ const menuItems = [
   { id: 'profile', label: '기본정보수정', icon: User },
   { id: 'likedPlan', label: '좋아요한 여행 계획획', icon: Heart },
   { id: 'likedAttraction', label: '좋아요한 여행지', icon: Heart },
-  { id: 'myCard', label: '내가 만든 별자리 카드드', icon: Star },
+  { id: 'myCard', label: '내가 만든 별자리 카드', icon: Star },
 ];
 const userProfile = ref<UserInfo>({} as UserInfo);
 
