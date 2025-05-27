@@ -42,12 +42,7 @@ const handleAddPlanClick = () => emit('addPlanClick');
 </script>
 
 <template>
-  <template v-if="plans.length === 0">
-    <div class="h-full w-full pt-16 text-center">
-      <p class="text-lg text-gray-200">검색 결과가 없습니다.</p>
-    </div>
-  </template>
-  <template v-else>
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <GridCardListContainer title="나의 여행 계획">
       <!-- 여행 계획 추가 카드 -->
       <AddPlanCard @addPlanClick="handleAddPlanClick" />
@@ -62,5 +57,5 @@ const handleAddPlanClick = () => emit('addPlanClick');
         @tagClick="handleTagClick"
       />
     </GridCardListContainer>
-  </template>
+  </div>
 </template>

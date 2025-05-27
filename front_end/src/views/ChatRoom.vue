@@ -421,12 +421,10 @@ const formatTime = (dateString?: string) => {
     const now = new Date();
 
     // 서버 시간을 한국 시간으로 변환 (UTC라고 가정하고 9시간 추가)
-    const koreaDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+    const koreaDate = new Date(date.getTime());
 
     // 현재 한국 시간
-    const nowKorea = new Date(
-      now.getTime() + now.getTimezoneOffset() * 60 * 1000 + 9 * 60 * 60 * 1000
-    );
+    const nowKorea = new Date(now.getTime() + now.getTimezoneOffset() * 60 * 1000);
 
     // 날짜 비교를 위한 문자열 (YYYY-MM-DD 형식)
     const nowDateStr = nowKorea.toISOString().split('T')[0];

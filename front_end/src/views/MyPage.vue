@@ -156,7 +156,7 @@
 </template>
 
 <script setup lang="ts">
-import placeholder from '@/assets/vue.svg';
+import placeholder from '@/assets/image.png';
 import { ref, reactive, onMounted } from 'vue';
 import { User, Heart, Star } from 'lucide-vue-next';
 import type { UserInfo } from '@/services/api/domains/user/types';
