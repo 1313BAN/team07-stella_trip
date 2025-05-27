@@ -5,8 +5,14 @@ import MyCard from '@/components/views/myPage/MyCard.vue';
 import { onMounted, reactive } from 'vue';
 import { toast } from 'vue-sonner';
 import { StellaResponse, StellaAI } from '@/services/api/domains/stella/types';
+import GridCardListContainer from '@/components/common/GridCardListContainer/GridCardListContainer.vue';
+import { useRouter } from 'vue-router';
+import { ROUTES } from '@/router/routes';
 
-const stellaList = reactive<{ planDetail: PlanDetail; stellaAI: StellaAI }[]>([]);
+const router = useRouter();
+const stellaList = reactive<{ stellaLink: string; planDetail: PlanDetail; stellaAI: StellaAI }[]>(
+  []
+);
 
 const loadMyCard = async () => {
   try {
@@ -16,9 +22,10 @@ const loadMyCard = async () => {
         const planData = JSON.parse(stella.stellaData) as PlanDetail;
         const stellaAI = stella.stellaAI;
 
-        stellaList.value.push({
+        stellaList.push({
           planDetail: planData,
           stellaAI: stellaAI,
+          stellaLink: stella.stellaLink,
         });
       } catch {
         toast('카드 데이터 파싱 실패');
@@ -29,9 +36,20 @@ const loadMyCard = async () => {
   }
 };
 
-onMounted(() => {
-  loadMyCard();
+onMounted(async () => {
+  await loadMyCard();
 });
+
+const handleCardClick = (stella: {
+  stellaLink: string;
+  planDetail: PlanDetail;
+  stellaAI: StellaAI;
+}) => {
+  router.push({
+    name: ROUTES.SHARED.name,
+    params: { link: stella.stellaLink },
+  });
+};
 </script>
 
 <template>
@@ -42,11 +60,13 @@ onMounted(() => {
       </div>
     </template>
     <template v-else>
-      <GridCardListContainer :showTitle="false">
+      <GridCardListContainer :showTitle="false" gap="3rem">
         <MyCard
           v-for="stella in stellaList"
           :key="stella.planDetail.planId"
           :subtitle="stella.stellaAI.cardName"
+          :stella="stella.planDetail.stella"
+          @click="handleCardClick(stella)"
         />
       </GridCardListContainer>
     </template>

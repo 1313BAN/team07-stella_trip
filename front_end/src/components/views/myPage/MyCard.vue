@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive, computed } from 'vue';
-import ConstellationComponent from '@/components/MainConstellationCard/ConstellationComponent.vue';
+import MyCardContellationComponent from '@/components/views/myPage/MyCardContellationComponent.vue';
 import type { StellaData } from '@/services/api/domains/plan/types';
 
 // props 정의 (stella, title, subtitle 추가)
@@ -101,7 +101,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex items-center justify-center">
+  <div class="max-w-24 min-w-fit">
     <!-- 카드 컨테이너 -->
     <div
       ref="cardRef"
@@ -223,7 +223,7 @@ onMounted(() => {
         ></div>
 
         <!-- 별자리 콘텐츠 -->
-        <ConstellationComponent :stella="stella" />
+        <MyCardContellationComponent :stella="stella" />
 
         <!-- 파티클들 - 동적 위치 적용 -->
         <div

@@ -172,7 +172,7 @@ const activeTab = ref('profile');
 // 메뉴 아이템
 const menuItems = [
   { id: 'profile', label: '기본정보수정', icon: User },
-  { id: 'likedPlan', label: '좋아요한 여행 계획획', icon: Heart },
+  { id: 'likedPlan', label: '좋아요한 여행 계획', icon: Heart },
   { id: 'likedAttraction', label: '좋아요한 여행지', icon: Heart },
   { id: 'myCard', label: '내가 만든 별자리 카드', icon: Star },
 ];
