@@ -10,15 +10,16 @@ import { useConstellationAnimation } from '@/composables/useConstellationAnimati
 import type { PlanDetail } from '@/services/api/domains/plan';
 import type { StellaAI } from '@/services/api/domains/stella/types';
 import { ROUTES } from '@/router/routes';
+import { toPng, toJpeg } from 'html-to-image';
 
 const route = useRoute();
 const router = useRouter();
-// const router = useRouter();
 
 // 상태 관리
 const isLoading = ref(true);
 const hasError = ref(false);
 const sharedPlan = ref<PlanDetail | null>(null);
+const isDownloading = ref(false);
 
 // 링크 파라미터
 const shareLink = computed(() => route.params.link as string);
@@ -65,6 +66,83 @@ const loadSharedPlan = async (): Promise<void> => {
   } finally {
     isLoading.value = false;
   }
+};
+
+/**
+ * 별자리 카드를 이미지로 다운로드
+ */
+const downloadConstellationImage = async (format: 'png' | 'jpeg' = 'png'): Promise<void> => {
+  if (!constellationRef.value || !sharedPlan.value?.stella) {
+    toast.error('다운로드할 별자리 카드가 없습니다');
+    return;
+  }
+
+  try {
+    isDownloading.value = true;
+
+    // 다운로드 옵션 설정
+    const options = {
+      quality: 1, // 최고 품질
+      pixelRatio: 2, // 고해상도
+      backgroundColor: 'transparent', // 투명 배경
+      style: {
+        transform: 'scale(1)', // 변환 효과 제거
+        transformOrigin: 'center',
+      },
+      // 폰트 로딩 대기
+      skipFonts: false,
+      // 이미지 로딩 대기
+      useCORS: true,
+    };
+
+    let dataUrl: string;
+    const fileName = `constellation-${stellaAI.value?.cardName || 'card'}-${Date.now()}`;
+
+    // 포맷에 따라 다른 함수 사용
+    if (format === 'jpeg') {
+      dataUrl = await toJpeg(constellationRef.value, {
+        ...options,
+        backgroundColor: '#1a1a2e', // JPEG는 투명 배경 지원 안 함
+      });
+    } else {
+      dataUrl = await toPng(constellationRef.value, options);
+    }
+
+    // 다운로드 실행
+    const link = document.createElement('a');
+    link.download = `${fileName}.${format}`;
+    link.href = dataUrl;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success('별자리 카드가 다운로드되었습니다! ✨', {
+      description: `${fileName}.${format} 파일로 저장되었습니다.`,
+      duration: 3000,
+    });
+  } catch (error) {
+    console.error('이미지 다운로드 실패:', error);
+    toast.error('이미지 다운로드에 실패했습니다', {
+      description: '잠시 후 다시 시도해주세요.',
+      duration: 4000,
+    });
+  } finally {
+    isDownloading.value = false;
+  }
+};
+
+/**
+ * 고화질 별자리 카드 다운로드 (PNG)
+ */
+const downloadHighQualityImage = (): Promise<void> => {
+  return downloadConstellationImage('png');
+};
+
+/**
+ * 일반 별자리 카드 다운로드 (JPEG)
+ */
+const downloadStandardImage = (): Promise<void> => {
+  return downloadConstellationImage('jpeg');
 };
 
 // 컴포넌트 마운트 시 데이터 로드
@@ -136,6 +214,86 @@ onMounted(loadSharedPlan);
               >
                 ✨ {{ keyword }}
               </Badge>
+            </div>
+
+            <!-- 다운로드 버튼 추가 -->
+            <div
+              v-if="sharedPlan?.stella && !showOverlay"
+              class="flex flex-wrap justify-center gap-3 lg:justify-start"
+            >
+              <button
+                @click="downloadHighQualityImage"
+                :disabled="isDownloading"
+                class="flex items-center gap-2 rounded-full border border-purple-400/50 bg-purple-500/20 px-6 py-3 text-sm font-medium text-purple-300 transition-all hover:scale-105 hover:bg-purple-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <svg
+                  v-if="!isDownloading"
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H4a2 2 0 01-2-2V7a2 2 0 012-2h5l2 2h5a2 2 0 012 2z"
+                  ></path>
+                </svg>
+                <svg v-else class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                {{ isDownloading ? '다운로드 중...' : '고화질 PNG' }}
+              </button>
+
+              <button
+                @click="downloadStandardImage"
+                :disabled="isDownloading"
+                class="flex items-center gap-2 rounded-full border border-pink-400/50 bg-pink-500/20 px-6 py-3 text-sm font-medium text-pink-300 transition-all hover:scale-105 hover:bg-pink-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <svg
+                  v-if="!isDownloading"
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  ></path>
+                </svg>
+                <svg v-else class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                {{ isDownloading ? '압축 중...' : 'JPEG 저장' }}
+              </button>
             </div>
           </div>
 

@@ -80,9 +80,14 @@ import {
 } from '@/components/views/attraction/FilteredAttractions';
 import AttractionFilter from '@/components/views/attraction/AttractionFilter.vue';
 import type { Attraction, AttractionsParams } from '@/services/api/domains/attraction/types';
-import { getAttractions } from '@/services/api/domains/attraction';
+import {
+  deleteAttractionLike,
+  getAttractions,
+  postAttractionLike,
+} from '@/services/api/domains/attraction';
 import { useScroll } from '@/composables/useScroll';
 import { useMapState } from '@/composables/useMapState';
+import { toast } from 'vue-sonner';
 
 defineProps<{
   currentDate?: string | null;
@@ -141,7 +146,38 @@ const handleAttractionCardClick = (attraction: Attraction) => {
 
 // 기타 이벤트 핸들러들
 const handleAttractionLikeClick = (attraction: Attraction) => {
-  console.log('관광지 좋아요 클릭:', attraction.name);
+  if (attraction.isLiked) {
+    attraction.isLiked = false;
+    attraction.likeCount = attraction.likeCount == 0 ? 0 : attraction.likeCount - 1;
+    deleteAttractionLike(attraction.attractionId)
+      .then(() => {
+        toast('관광지 좋아요 취소 성공');
+      })
+      .catch(() => {
+        toast('관광지 좋아요 취소 실패');
+        // 원래 상태로 롤백
+        attraction.isLiked = !attraction.isLiked;
+        attraction.likeCount = attraction.isLiked
+          ? attraction.likeCount + 1
+          : attraction.likeCount - 1;
+      });
+  } else {
+    attraction.isLiked = true;
+    attraction.likeCount += 1;
+    // API 호출 및 상태 업데이트
+    postAttractionLike(attraction.attractionId)
+      .then(() => {
+        toast('관광지 좋아요 상태 업데이트 성공');
+      })
+      .catch(() => {
+        toast('관광지 좋아요 상태 업데이트 실패:');
+        // 원래 상태로 롤백
+        attraction.isLiked = !attraction.isLiked;
+        attraction.likeCount = attraction.isLiked
+          ? attraction.likeCount + 1
+          : attraction.likeCount - 1;
+      });
+  }
 };
 
 const handleAttractionTagClick = (contentType: number) => {

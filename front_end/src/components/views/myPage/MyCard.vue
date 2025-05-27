@@ -13,7 +13,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   title: 'Stella Trip',
-  subtitle: 'Hunter',
+  subtitle: '북두칠성',
   onComplete: () => {},
 });
 

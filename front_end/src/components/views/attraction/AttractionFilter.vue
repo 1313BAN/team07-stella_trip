@@ -271,7 +271,7 @@ const handleSearch = () => {
 const applyFilters = () => {
   emit('filter', {
     page: 1,
-    size: 10,
+    size: 100,
     keyword: searchQuery.value,
     sidoCode: selectedSido.value === null ? undefined : selectedSido.value?.sidoCode,
     gugunCode: selectedGugun.value === null ? undefined : selectedGugun.value?.gugunCode,

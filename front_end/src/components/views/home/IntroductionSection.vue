@@ -2,6 +2,7 @@
 import useInView from '@/composables/useInView';
 import { useStaggeredAnimation } from '@/composables/useStaggeredAnimation';
 import { ref } from 'vue';
+import MyCard from '@/components/views/myPage/MyCard.vue';
 
 const containerRef = ref<Element | null>(null);
 const { isInView: textContainerInView } = useInView(containerRef, {
@@ -159,7 +160,7 @@ const constellations = [
                   : 'brightness(0.8) contrast(0.9)',
               }"
             >
-              <!-- <StellaCard /> -->
+              <MyCard />
             </div>
 
             <!-- 중앙 글로우 효과 -->

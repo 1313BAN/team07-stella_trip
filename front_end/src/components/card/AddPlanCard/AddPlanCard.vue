@@ -10,7 +10,7 @@ const handleClick = () => {
 
 <template>
   <div
-    class="flex w-full max-w-72 min-w-56 cursor-pointer items-center justify-center rounded-2xl border border-dashed border-white/30 bg-white/10 text-white backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-purple-400/50 hover:bg-white/20 hover:shadow-xl hover:shadow-purple-500/25"
+    class="flex min-h-56 w-full max-w-72 min-w-56 cursor-pointer items-center justify-center rounded-2xl border border-dashed border-white/30 bg-white/10 text-white backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-purple-400/50 hover:bg-white/20 hover:shadow-xl hover:shadow-purple-500/25"
     role="button"
     tabindex="0"
     aria-label="여행 계획 추가하기"
