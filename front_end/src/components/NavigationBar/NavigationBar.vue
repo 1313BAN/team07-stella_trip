@@ -116,7 +116,7 @@ const handleModalOpen = (value: '' | 'login' | 'register') => {
 
 <template>
   <header
-    class="fixed top-0 right-0 left-0 z-20 max-h-16 border-b border-white/20 bg-black/40 backdrop-blur-md"
+    class="fixed top-0 right-0 left-0 z-5000 max-h-16 border-b border-white/20 bg-black/40 backdrop-blur-md"
   >
     <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
       <!-- Logo -->
@@ -182,7 +182,7 @@ const handleModalOpen = (value: '' | 'login' | 'register') => {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            class="w-48 border-white/20 bg-black/90 backdrop-blur-md [&_[data-slot=dropdown-menu-item]]:hover:bg-purple-500/20 [&_[data-slot=dropdown-menu-item]]:focus:bg-purple-500/20 [&_[data-slot=dropdown-menu-item]]:focus:text-purple-200"
+            class="z-6000 w-48 border-white/20 bg-black/90 backdrop-blur-md [&_[data-slot=dropdown-menu-item]]:hover:bg-purple-500/20 [&_[data-slot=dropdown-menu-item]]:focus:bg-purple-500/20 [&_[data-slot=dropdown-menu-item]]:focus:text-purple-200"
           >
             <div class="pointer-events-none px-2 py-1 text-xs text-gray-400">계정</div>
             <template v-if="isLoggedIn">

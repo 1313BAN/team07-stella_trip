@@ -65,11 +65,11 @@ onMounted(() => {
             >
               여행 계획 시작하기
             </button>
-            <button
+            <!-- <button
               class="rounded-full border border-purple-400 bg-transparent px-6 py-3 font-medium text-white transition-all hover:bg-purple-500/10"
             >
               별자리 불러오기
-            </button>
+            </button> -->
           </div>
         </div>
 
