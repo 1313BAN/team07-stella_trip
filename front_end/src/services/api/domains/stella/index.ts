@@ -1,7 +1,7 @@
 import api from '../../api';
 import { STELLA } from '../../endpoint';
 import type { ApiResponse } from '../../types';
-import type { StellaParams, StellaResponse } from './types';
+import type { StellaParams, StellaResponse, StellaResponseList } from './types';
 
 /**
  * 별자리 정보를 바탕으로 공유 링크 생성
@@ -11,6 +11,11 @@ import type { StellaParams, StellaResponse } from './types';
 export const getShareLink = async (data: StellaParams): Promise<StellaResponse> => {
   const response = await api.post<ApiResponse<StellaResponse>>(STELLA.SHARE, data);
 
+  return response.data.body;
+};
+
+export const getMyStellaList = async (): Promise<StellaResponseList> => {
+  const response = await api.get<ApiResponse<StellaResponseList>>(STELLA.MYSTELLA);
   return response.data.body;
 };
 

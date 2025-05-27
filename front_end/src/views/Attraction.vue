@@ -114,7 +114,7 @@ const { mapRef, mapLevel, mapCenter, selectedAttraction, selectAttraction, clear
 const { isScrollingDown, scrollY, handleScroll } = useScroll();
 const filterParams = reactive<AttractionsParams>({
   page: route.query.page ? Number(route.query.page) || 1 : 1,
-  size: route.query.size ? Number(route.query.size) || 20 : 20,
+  size: route.query.size ? Number(route.query.size) || 100 : 100,
   sidoCode: route.query.sidoCode ? Number(route.query.sidoCode) : undefined,
   gugunCode: route.query.gugunCode ? Number(route.query.gugunCode) : undefined,
   contentTypeIds: route.query.contentTypeIds
@@ -262,7 +262,7 @@ const handleAttractionLikeClick = (attraction: Attraction) => {
 const handleAttractionTagClick = (contentType: number) => {
   filterParams.contentTypeIds = [contentType];
   filterParams.page = 1;
-  filterParams.size = 10;
+  filterParams.size = 100;
   filterParams.keyword = '';
   filterParams.sidoCode = undefined;
   filterParams.gugunCode = undefined;

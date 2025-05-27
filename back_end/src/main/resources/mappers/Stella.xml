@@ -6,6 +6,7 @@
     <resultMap id="StellaResultMap" type="StellaDTO">
         <id property="stellaLinkId" column="stella_link_id"/>
         <result property="planId" column="plan_id"/>
+        <result property="userId" column="user_id"/>
         <result property="stellaData" column="stella_data"/>
         <result property="stellaLink" column="stella_link"/>
         <result property="stellaAI" column="stellaAI"/>
@@ -13,12 +14,16 @@
 
 
     <insert id="createStellaLink">
-        INSERT INTO stella_link (plan_id, stella_data, stella_link, stellaAI)
-        VALUES (#{planId}, #{stellaData}, #{stellaLink}, CAST(#{stellaAI} AS JSON))
+        INSERT INTO stella_link (plan_id, user_id, stella_data, stella_link, stellaAI)
+        VALUES (#{planId}, #{userId}, #{stellaData}, #{stellaLink}, CAST(#{stellaAI} AS JSON))
     </insert>
 
     <select id="getStellaLinkByStellaLink" resultMap="StellaResultMap">
         SELECT * FROM stella_link WHERE stella_link = #{stellaLink}
+    </select>
+
+    <select id="getStellaLinkByUserId" resultMap="StellaResultMap">
+        SELECT * FROM stella_link WHERE user_id = #{userId}
     </select>
 
 </mapper>
