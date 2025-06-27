@@ -61,7 +61,16 @@ public class OpenAIService {
                     .getMessage()
                     .getContent());
         } catch (RestClientException e) {
-            throw new RuntimeException("OpenAI API 호출 중 오류가 발생했습니다: " + e.getMessage(), e);
+            // throw new RuntimeException("OpenAI API 호출 중 오류가 발생했습니다: " + e.getMessage(), e);
+
+            // 기본 문구로 대체
+            return new TarotResult("StellaTrip",
+                "당신의 여정은 별빛에서 시작됩니다.\n" +
+                        "관광지의 번잡함을 벗어나 밤하늘의 속삭임에 귀 기울이세요.\n" +
+                        "과거의 별들이 전하는 이야기는 당신의 마음을 비추고,\n" +
+                        "그 빛은 오늘의 당신을 더 먼 시간으로 이끌어 줍니다.\n" +
+                        "별들이 이어준 길 위에서, 당신은 영원을 여행하는 별빛의 동반자입니다.",
+                List.of("여행", "별자리", "타로카드"));
         }
     }
 
