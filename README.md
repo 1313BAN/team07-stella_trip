@@ -53,4 +53,4 @@ https://www.data.go.kr/data/15101578/openapi.do
 
 
 ## 프로젝트 시연 영상
-<iframe width="853" height="480" src="https://www.youtube.com/embed/8d38RJrhQ9o" title="stellatrip 시연영상" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+https://youtu.be/8d38RJrhQ9o
